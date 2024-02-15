@@ -20,8 +20,8 @@ class P1PioTest extends PKPTestCase
         $header = $this->json->header;
         $this->assertEquals('p1', $header->type);
         $this->assertEquals('v2', $header->version);
-        $this->assertEquals($this->getToSendMessageObject(), $header->to);
-        $this->assertEquals($this->getFromMessageObject(), $header->from);
+        $this->assertEquals($this->getExpectedToSendMessageObject(), $header->to);
+        $this->assertEquals($this->getExpectedFromMessageObject(), $header->from);
         $this->assertEquals('0000-0001', $header->ref);
         $this->assertEquals("2024-04-01", $header->validity);
         $this->assertEquals(true, $header->persistent);
@@ -32,12 +32,12 @@ class P1PioTest extends PKPTestCase
     {
         $data = $this->json->data;
         $this->assertEquals('VoR', $data->timing);
-        $this->assertEquals($this->getAuthorsArray(), $data->authors);
-        $this->assertEquals($this->getArticleObject(), $data->article);
-        $this->assertEquals($this->getJournalArray(), $data->journal);
+        $this->assertEquals($this->getExpectedAuthorsArray(), $data->authors);
+        $this->assertEquals($this->getExpectedArticleObject(), $data->article);
+        $this->assertEquals($this->getExpectedJournalArray(), $data->journal);
     }
 
-    private function getToSendMessageObject()
+    private function getExpectedToSendMessageObject()
     {
         return (object)[
             "address" => "https://ror.org/xxxxxxxx",
@@ -45,7 +45,7 @@ class P1PioTest extends PKPTestCase
         ];
     }
 
-    private function getFromMessageObject()
+    private function getExpectedFromMessageObject()
     {
         return (object)[
             "address" => "https://ror.org/04dkp9463",
@@ -53,7 +53,7 @@ class P1PioTest extends PKPTestCase
         ];
     }
 
-    private function getAuthorsArray()
+    private function getExpectedAuthorsArray()
     {
         $authors = [
             (object)[
@@ -91,7 +91,7 @@ class P1PioTest extends PKPTestCase
         return $authors;
     }
 
-    private function getArticleObject()
+    private function getExpectedArticleObject()
     {
         return (object)[
                 'title' => 'The International relations of Middle-Earth',
@@ -141,7 +141,7 @@ class P1PioTest extends PKPTestCase
             ];
     }
 
-    private function getJournalArray()
+    private function getExpectedJournalArray()
     {
         $journal = (object)[
             'name' => 'Middle Earth papers',
