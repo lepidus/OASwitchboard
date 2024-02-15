@@ -3,7 +3,7 @@
 import('lib.pkp.tests.PKPTestCase');
 import('plugins.generic.OASwitchboardForOJS.messages.P1Pio');
 
-class CreateJSONObjectForP1PIOTest extends PKPTestCase
+class CreateJsonObjectForP1PioTest extends PKPTestCase
 {
     public function testCreateJSONObjectForP1PIO()
     {
