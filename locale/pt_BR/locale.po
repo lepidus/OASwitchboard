@@ -1,0 +1,5 @@
+msgid "plugins.generic.OASwitchboardForOJS.displayName"
+msgstr "Plugin de Integração OA Switchboard ocm OJS"
+
+msgid "plugins.generic.OASwitchboardForOJS.description"
+msgstr "Permite enviar mensagens P1-PO para OA Switchboard."
