@@ -11,7 +11,7 @@ trait ToJson
         if ($this instanceof P1Pio) {
             return json_encode($this->getP1PioData());
         } else {
-            throw new Exception("Erro ao gerar o JSON: objeto não é uma instância da classe P1Pio.");
+            throw new Exception("Error generating JSON: object is not an instance of class P1Pio.");
         }
     }
 }
