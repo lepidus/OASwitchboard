@@ -1,10 +1,10 @@
 <?php
 
-class JsonP1PioObject
+trait P1PioData
 {
-    public function getJson()
+    public function getP1PioData()
     {
-        $data = [
+        return [
             "timing" => "VoR",
             "authors" => [
                 [
@@ -94,6 +94,5 @@ class JsonP1PioObject
                 "typecomment" => "Diamond"
             ]
         ];
-        return json_encode($data);
     }
 }

@@ -1,14 +1,14 @@
 <?php
 
 import('lib.pkp.tests.PKPTestCase');
-import('plugins.generic.OASwitchboardForOJS.JsonP1PioObject');
+import('plugins.generic.OASwitchboardForOJS.messages.P1Pio');
 
 class CreateJSONObjectForP1PIOTest extends PKPTestCase
 {
     public function testCreateJSONObjectForP1PIO()
     {
-        $jsonP1PioObject = new JsonP1PioObject();
-        $data = json_decode($jsonP1PioObject->getJson());
+        $p1Pio = new P1Pio();
+        $data = json_decode($p1Pio->getMessage());
         $this->assertEquals('VoR', $data->timing);
         $this->assertEquals($this->getAuthorsArray(), $data->authors);
         $this->assertEquals($this->getArticleObject(), $data->article);
