@@ -19,12 +19,18 @@ class ApiPasswordEncryptionTest extends PKPTestCase
     public function testShouldEncryptPassword()
     {
         $password = 'DummyPassword123';
-        $encryptedPassword = $this->ApiPasswordEncryption->encryptPassword($password);
+        $secret = Config::getVar('security', 'api_key_secret');
+        $encryptedPassword = $this->ApiPasswordEncryption->encryptPassword($password, $secret);
 
         $this->assertNotNull($encryptedPassword);
         $this->assertNotEquals($password, $encryptedPassword);
-        $this->assertEquals($encryptedPassword, JWT::encode($password, Config::getVar('security', 'api_key_secret'), 'HS256'));
+        $this->assertEquals($encryptedPassword, JWT::encode($password, $secret, 'HS256'));
     }
 
-    // TO DO: Should Not Encrypt Without api_key_secret Set On OJS
+    public function testShouldNotEncryptPasswordWithoutApiKeySecret()
+    {
+        $this->expectException(Exception::class);
+        $password = 'DummyPassword123';
+        $this->ApiPasswordEncryption->encryptPassword($password, "");
+    }
 }
