@@ -3,3 +3,12 @@ msgstr "OA Switchboard Integration Plugin for OJS"
 
 msgid "plugins.generic.OASwitchboardForOJS.description"
 msgstr "Allows sending P1-PIO messages to OA Switchboard."
+
+msgid "plugins.generic.OASwitchboardForOJS.settings.description"
+msgstr "Please, enter your Open Access Switchboard credentials below, to allow the plugin to access the API."
+
+msgid "plugins.generic.OASwitchboardForOJS.settings.username"
+msgstr "Username:"
+
+msgid "plugins.generic.OASwitchboardForOJS.settings.password"
+msgstr "Password:"
