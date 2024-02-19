@@ -39,5 +39,4 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals($this->getExpectedArticleObject(), $data->article);
         $this->assertEquals($this->getExpectedJournalArray(), $data->journal);
     }
-
 }
