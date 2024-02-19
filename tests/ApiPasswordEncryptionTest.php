@@ -44,4 +44,11 @@ class ApiPasswordEncryptionTest extends PKPTestCase
         $this->assertNotNull($decryptedPassword);
         $this->assertEquals($password, $decryptedPassword);
     }
+
+    public function testShouldNotDecryptPasswordWithoutApiKeySecret()
+    {
+        $this->expectException(Exception::class);
+        $password = 'DummyPassword123';
+        $this->ApiPasswordEncryption->decryptPassword($password, "");
+    }
 }

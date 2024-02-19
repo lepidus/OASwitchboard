@@ -14,6 +14,9 @@ trait ApiPasswordEncryption
 
     public function decryptPassword($encryptedPassword, $secret)
     {
+        if($secret === "") {
+            throw new Exception("Your site administrator must set a secret in the config file ('api_key_secret').");
+        }
         return JWT::decode($encryptedPassword, $secret, ['HS256']);
     }
 }
