@@ -33,4 +33,15 @@ class ApiPasswordEncryptionTest extends PKPTestCase
         $password = 'DummyPassword123';
         $this->ApiPasswordEncryption->encryptPassword($password, "");
     }
+
+    public function testShouldDecryptPassword()
+    {
+        $password = 'DummyPassword123';
+        $secret = Config::getVar('security', 'api_key_secret');
+        $encryptedPassword = $this->ApiPasswordEncryption->encryptPassword($password, $secret);
+        $decryptedPassword = $this->ApiPasswordEncryption->decryptPassword($encryptedPassword, $secret);
+
+        $this->assertNotNull($decryptedPassword);
+        $this->assertEquals($password, $decryptedPassword);
+    }
 }

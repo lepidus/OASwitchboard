@@ -11,4 +11,9 @@ trait ApiPasswordEncryption
         }
         return JWT::encode($password, $secret, 'HS256');
     }
+
+    public function decryptPassword($encryptedPassword, $secret)
+    {
+        return JWT::decode($encryptedPassword, $secret, ['HS256']);
+    }
 }
