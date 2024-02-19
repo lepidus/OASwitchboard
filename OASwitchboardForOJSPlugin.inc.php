@@ -32,4 +32,51 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
         return __('plugins.generic.OASwitchboardForOJS.description');
     }
 
+    public function getActions($request, $actionArgs)
+    {
+        $router = $request->getRouter();
+        import('lib.pkp.classes.linkAction.request.AjaxModal');
+        return array_merge(
+            $this->getEnabled() ? array(
+                new LinkAction(
+                    'settings',
+                    new AjaxModal(
+                        $router->url(
+                            $request,
+                            null,
+                            null,
+                            'manage',
+                            null,
+                            array('verb' => 'settings', 'plugin' => $this->getName(), 'category' => 'generic')
+                        ),
+                        $this->getDisplayName()
+                    ),
+                    __('manager.plugins.settings'),
+                    null
+                ),
+            ) : array(),
+            parent::getActions($request, $actionArgs)
+        );
+    }
+
+    public function manage($args, $request)
+    {
+        switch ($request->getUserVar('verb')) {
+            case 'settings':
+                $context = $request->getContext();
+                $this->import('classes.OASwitchboardForOJSForm');
+                $form = new OASwitchboardForOJSForm($this, $context->getId());
+
+                if ($request->getUserVar('save')) {
+                    $form->readInputData();
+                    if ($form->validate()) {
+                        $form->execute();
+                        return new JSONMessage(true);
+                    }
+                }
+                return new JSONMessage(true, $form->fetch($request));
+            default:
+                return parent::manage($verb, $args, $message, $messageParams);
+        }
+    }
 }
