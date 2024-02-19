@@ -11,4 +11,4 @@ include:
 
 .unit_test_template:
   before_script:
-    - sed -i 's/api_key_secret = ""/api_key_secret = "$API_KEY_SECRET"/'
+    - sed -i 's/api_key_secret = ""/api_key_secret = "$API_KEY_SECRET"/' /var/www/ojs/config.inc.php
