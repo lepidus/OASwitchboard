@@ -55,11 +55,6 @@ class OASwitchboardForOJSForm extends Form
 
     public function initData(): void
     {
-        $hasCredentials = $this->plugin->getSetting($this->contextId, 'username') && $this->plugin->getSetting($this->contextId, 'password') ? true : false;
-        if ($hasCredentials) {
-            $decryptPassword = $this->decryptPassword($this->plugin->getSetting($this->contextId, 'password'), $this->secret);
-            $this->setData('username', $this->plugin->getSetting($this->contextId, 'username'));
-            $this->setData('password', $decryptPassword);
-        }
+        $this->setData('username', $this->plugin->getSetting($this->contextId, 'username'));
     }
 }

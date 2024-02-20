@@ -51,4 +51,15 @@ class ApiPasswordEncryptionTest extends PKPTestCase
         $password = 'DummyPassword123';
         $this->ApiPasswordEncryption->decryptPassword($password, "");
     }
+
+    public function testShouldThrowExceptionOnDecryptionIfApiSecretIsDifferentFromEncryption(): Returntype
+    {
+        $password = 'DummyPassword123';
+        $secret = Config::getVar('security', 'api_key_secret');
+        $encryptedPassword = $this->ApiPasswordEncryption->encryptPassword($password, $secret);
+        $secret = $secret . 'notTheSameString';
+
+        $this->expectException(Firebase\JWT\SignatureInvalidException::class);
+        $decryptedPassword = $this->ApiPasswordEncryption->decryptPassword($encryptedPassword, $secret);
+    }
 }
