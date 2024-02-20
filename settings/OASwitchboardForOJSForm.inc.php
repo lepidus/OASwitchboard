@@ -30,7 +30,12 @@ class OASwitchboardForOJSForm extends Form
             null
         ));
         $this->addCheck(new FormValidatorPost($this));
-        parent::__construct($plugin->getTemplateResource('settingsForm.tpl'));
+        try {
+            $this->validateSecret($this->secret);
+            parent::__construct($plugin->getTemplateResource('settingsForm.tpl'));
+        } catch (Exception $e) {
+            parent::__construct($plugin->getTemplateResource('tokenError.tpl'));
+        }
     }
 
     public function fetch($request, $template = null, $display = false)

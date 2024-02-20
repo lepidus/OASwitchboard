@@ -1,5 +1,8 @@
 msgid "plugins.generic.OASwitchboardForOJS.displayName"
-msgstr "Plugin de Integração OA Switchboard ocm OJS"
+msgstr "Plugin de Integração OA Switchboard com OJS"
+
+msgid "plugins.generic.OASwitchboardForOJS.settings.apiKeyIsEmpty"
+msgstr "O administrador do seu site deve definir um segredo no arquivo de configuração ('api_key_secret')."
 
 msgid "plugins.generic.OASwitchboardForOJS.description"
 msgstr "Permite enviar mensagens P1-PIO para OA Switchboard."

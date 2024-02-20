@@ -52,7 +52,7 @@ class ApiPasswordEncryptionTest extends PKPTestCase
         $this->ApiPasswordEncryption->decryptPassword($password, "");
     }
 
-    public function testShouldThrowExceptionOnDecryptionIfApiSecretIsDifferentFromEncryption(): Returntype
+    public function testShouldThrowExceptionOnDecryptionIfApiSecretIsDifferentFromEncryption()
     {
         $password = 'DummyPassword123';
         $secret = Config::getVar('security', 'api_key_secret');
