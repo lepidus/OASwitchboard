@@ -16,26 +16,23 @@ class OASwitchboardForOJSForm extends Form
         $this->plugin = $plugin;
         $this->contextId = $contextId;
         $this->secret = Config::getVar('security', 'api_key_secret');
+        $this->addFormValidators();
 
-        $this->addCheck(new FormValidator(
-            $this,
-            'OASUsername',
-            FORM_VALIDATOR_REQUIRED_VALUE,
-            null
-        ));
-        $this->addCheck(new FormValidator(
-            $this,
-            'OASPassword',
-            FORM_VALIDATOR_REQUIRED_VALUE,
-            null
-        ));
-        $this->addCheck(new FormValidatorPost($this));
         try {
             $this->validateSecret($this->secret);
             parent::__construct($plugin->getTemplateResource('settingsForm.tpl'));
         } catch (Exception $e) {
             parent::__construct($plugin->getTemplateResource('tokenError.tpl'));
         }
+    }
+
+    private function addFormValidators()
+    {
+        $fields = ['OASUsername', 'OASPassword'];
+        foreach ($fields as $field) {
+            $this->addCheck(new FormValidator($this, $field, FORM_VALIDATOR_REQUIRED_VALUE, null));
+        }
+        $this->addCheck(new FormValidatorPost($this));
     }
 
     public function fetch($request, $template = null, $display = false)
