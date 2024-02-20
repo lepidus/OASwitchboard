@@ -1,5 +1,21 @@
 msgid "plugins.generic.OASwitchboardForOJS.displayName"
-msgstr "Plugin de Integração OA Switchboard ocm OJS"
+msgstr "Plugin de Integração OA Switchboard com OJS"
+
+msgid "plugins.generic.OASwitchboardForOJS.settings.apiKeyIsEmpty"
+msgstr "O administrador do seu site deve definir um segredo no arquivo de configuração ('api_key_secret')."
 
 msgid "plugins.generic.OASwitchboardForOJS.description"
 msgstr "Permite enviar mensagens P1-PIO para OA Switchboard."
+
+msgid "plugins.generic.OASwitchboardForOJS.settings.description"
+msgstr "Por favor, introduzca sus credenciales de Open Access Switchboard, para permitir que el plugin acceda a la API."
+
+msgid "plugins.generic.OASwitchboardForOJS.settings.description.hasCredentials"
+msgstr "As credenciais da API estão prontas para uso! Atualmente usando credenciais para: <strong>{$username}</strong>."
+"<br>Você pode editar as credenciais abaixo ou clicar no botão Cancelar."
+
+msgid "plugins.generic.OASwitchboardForOJS.settings.username"
+msgstr "Nombre de usuario:"
+
+msgid "plugins.generic.OASwitchboardForOJS.settings.password"
+msgstr "Contraseña:"
