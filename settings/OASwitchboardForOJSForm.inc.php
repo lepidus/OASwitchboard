@@ -37,6 +37,10 @@ class OASwitchboardForOJSForm extends Form
     {
         $templateMgr = TemplateManager::getManager($request);
         $templateMgr->assign('pluginName', $this->plugin->getName());
+        $templateMgr->assign(
+            'hasCredentials',
+            $this->plugin->getSetting($this->contextId, 'username')
+        );
         return parent::fetch($request);
     }
 

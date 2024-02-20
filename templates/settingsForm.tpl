@@ -18,7 +18,11 @@
         {csrf}
 
         <div id="description">
+        {if $hasCredentials}
+            <p>{translate key="plugins.generic.OASwitchboardForOJS.settings.description.hasCredentials" username=$username|escape}</p>
+        {else}
             <p>{translate key="plugins.generic.OASwitchboardForOJS.settings.description"}</p>
+        {/if}
         </div>
         {include file="controllers/notification/inPlaceNotification.tpl" notificationId="OASwitchboardForOJSFormNotification"}
 
