@@ -1,16 +1,21 @@
 <?php
 
 import('lib.pkp.classes.form.Form');
+import('plugins.generic.OASwitchboardForOJS.settings.ApiPasswordEncryption');
 
 class OASwitchboardForOJSForm extends Form
 {
+    use ApiPasswordEncryption;
+
     private $plugin;
     private $contextId;
+    private $secret;
 
     public function __construct($plugin, $contextId)
     {
         $this->plugin = $plugin;
         $this->contextId = $contextId;
+        $this->secret = Config::getVar('security', 'api_key_secret');
 
         $this->addCheck(new FormValidator(
             $this,
@@ -44,13 +49,17 @@ class OASwitchboardForOJSForm extends Form
     public function execute(...$functionArgs)
     {
         $this->plugin->updateSetting($this->contextId, 'username', $this->getData('OASUsername'), 'string');
-        $this->plugin->updateSetting($this->contextId, 'password', $this->getData('OASPassword'), 'string');
+        $this->plugin->updateSetting($this->contextId, 'password', $this->encryptPassword($this->getData('OASPassword'), $this->secret), 'string');
         parent::execute(...$functionArgs);
     }
 
     public function initData(): void
     {
-        $this->setData('username', $this->plugin->getSetting($this->contextId, 'username'));
-        $this->setData('password', $this->plugin->getSetting($this->contextId, 'password'));
+        $hasCredentials = $this->plugin->getSetting($this->contextId, 'username') && $this->plugin->getSetting($this->contextId, 'password') ? true : false;
+        if ($hasCredentials) {
+            $decryptPassword = $this->decryptPassword($this->plugin->getSetting($this->contextId, 'password'), $this->secret);
+            $this->setData('username', $this->plugin->getSetting($this->contextId, 'username'));
+            $this->setData('password', $decryptPassword);
+        }
     }
 }

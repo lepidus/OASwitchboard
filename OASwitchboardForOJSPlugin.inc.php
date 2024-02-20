@@ -61,16 +61,21 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
 
     public function manage($args, $request)
     {
+        $user = $request->getUser();
+        import('classes.notification.NotificationManager');
+        $notificationManager = new NotificationManager();
+
         switch ($request->getUserVar('verb')) {
             case 'settings':
                 $context = $request->getContext();
                 $this->import('settings.OASwitchboardForOJSForm');
                 $form = new OASwitchboardForOJSForm($this, $context->getId());
-
+                $form->initData();
                 if ($request->getUserVar('save')) {
                     $form->readInputData();
                     if ($form->validate()) {
                         $form->execute();
+                        $notificationManager->createTrivialNotification($user->getId(), NOTIFICATION_TYPE_SUCCESS);
                         return new JSONMessage(true);
                     }
                 }
