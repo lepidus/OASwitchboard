@@ -20,6 +20,14 @@ trait ApiPasswordEncryption
     public function decryptPassword($encryptedPassword, $secret)
     {
         $this->validateSecret($secret);
-        return JWT::decode($encryptedPassword, $secret, ['HS256']);
+        try {
+            return JWT::decode($encryptedPassword, $secret, ['HS256']);
+        } catch (Firebase\JWT\SignatureInvalidException $e) {
+            throw new Firebase\JWT\SignatureInvalidException(
+                'Your system administrator changed the `api_key_secret` configuration,'
+                . ' please enter the Open Access Switchboard credentials again on the plugin settings.',
+                1
+            );
+        }
     }
 }

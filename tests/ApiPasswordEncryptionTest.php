@@ -60,6 +60,10 @@ class ApiPasswordEncryptionTest extends PKPTestCase
         $secret = $secret . 'notTheSameString';
 
         $this->expectException(Firebase\JWT\SignatureInvalidException::class);
+        $this->expectExceptionMessage(
+            'Your system administrator changed the `api_key_secret` configuration,'
+            . ' please enter the Open Access Switchboard credentials again on the plugin settings.'
+        );
         $decryptedPassword = $this->ApiPasswordEncryption->decryptPassword($encryptedPassword, $secret);
     }
 }
