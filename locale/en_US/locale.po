@@ -19,3 +19,6 @@ msgstr "Username:"
 
 msgid "plugins.generic.OASwitchboardForOJS.settings.password"
 msgstr "Password:"
+
+msgid "plugins.generic.OASwitchboardForOJS.settings.apiAuthenticatorFailed"
+msgstr "Failed to authenticate, please check the OA Switchboard API credentials again"

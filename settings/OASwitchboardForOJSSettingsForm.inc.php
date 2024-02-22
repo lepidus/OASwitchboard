@@ -2,6 +2,7 @@
 
 import('lib.pkp.classes.form.Form');
 import('plugins.generic.OASwitchboardForOJS.lib.APIKeyEncryption');
+import('plugins.generic.OASwitchboardForOJS.api.APIAuthentication');
 
 class OASwitchboardForOJSSettingsForm extends Form
 {
@@ -23,13 +24,26 @@ class OASwitchboardForOJSSettingsForm extends Form
         }
     }
 
-    private function addFormValidators()
+    private function addFormValidators(): void
     {
         $fields = ['OASUsername', 'OASPassword'];
         foreach ($fields as $field) {
             $this->addCheck(new FormValidator($this, $field, FORM_VALIDATOR_REQUIRED_VALUE, null));
         }
         $this->addCheck(new FormValidatorPost($this));
+    }
+
+    private function authenticationFailNotification(): void
+    {
+        $request = Application::get()->getRequest();
+        $user = $request->getUser();
+        import('classes.notification.NotificationManager');
+        $notificationManager = new NotificationManager();
+        $notificationManager->createTrivialNotification(
+            $user->getId(),
+            NOTIFICATION_TYPE_ERROR,
+            array('contents' => __('plugins.generic.OASwitchboardForOJS.settings.apiAuthenticatorFailed'))
+        );
     }
 
     public function fetch($request, $template = null, $display = false)
@@ -60,5 +74,17 @@ class OASwitchboardForOJSSettingsForm extends Form
     public function initData(): void
     {
         $this->setData('username', $this->plugin->getSetting($this->contextId, 'username'));
+    }
+
+    public function validateAPICredentials(): bool
+    {
+        $username = $this->getData('OASUsername');
+        $password = $this->getData('OASPassword');
+
+        if (!APIAuthentication::authenticate($username, $password)) {
+            $this->authenticationFailNotification();
+            return false;
+        }
+        return true;
     }
 }

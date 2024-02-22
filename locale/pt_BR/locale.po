@@ -15,7 +15,10 @@ msgstr "As credenciais da API estão prontas para uso! Atualmente usando credenc
 "<br>Você pode editar as credenciais abaixo ou clicar no botão Cancelar."
 
 msgid "plugins.generic.OASwitchboardForOJS.settings.username"
-msgstr "Nombre de usuario:"
+msgstr "Nome de usuário:"
 
 msgid "plugins.generic.OASwitchboardForOJS.settings.password"
-msgstr "Contraseña:"
+msgstr "Senha:"
+
+msgid "plugins.generic.OASwitchboardForOJS.settings.apiAuthenticatorFailed"
+msgstr "Não foi possível autenticar, por favor, cheque novamente as credenciais da API OA Switchboard"

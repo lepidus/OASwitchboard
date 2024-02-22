@@ -73,7 +73,7 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
                 $form->initData();
                 if ($request->getUserVar('save')) {
                     $form->readInputData();
-                    if ($form->validate()) {
+                    if ($form->validate() && $form->validateAPICredentials()) {
                         $form->execute();
                         $notificationManager->createTrivialNotification($user->getId(), NOTIFICATION_TYPE_SUCCESS);
                         return new JSONMessage(true);
