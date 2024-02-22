@@ -68,8 +68,8 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
         switch ($request->getUserVar('verb')) {
             case 'settings':
                 $context = $request->getContext();
-                $this->import('settings.OASwitchboardForOJSForm');
-                $form = new OASwitchboardForOJSForm($this, $context->getId());
+                $this->import('settings.OASwitchboardForOJSSettingsForm');
+                $form = new OASwitchboardForOJSSettingsForm($this, $context->getId());
                 $form->initData();
                 if ($request->getUserVar('save')) {
                     $form->readInputData();

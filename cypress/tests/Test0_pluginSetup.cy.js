@@ -18,7 +18,7 @@ describe('Setup OASwitchboard plugin', function () {
         cy.get('tr#' + pluginRowId + ' a.show_extras').click();
         cy.get('a[id^=' + pluginRowId + '-settings-button]').click();
 
-        cy.get('form#OASwitchboardForOJSForm').should('be.visible')
+        cy.get('form#OASwitchboardForOJSSettingsForm').should('be.visible')
         
         cy.contains('OA Switchboard Integration Plugin for OJS');
         cy.contains('Please, enter your Open Access Switchboard credentials below, to allow the plugin to access the API.')

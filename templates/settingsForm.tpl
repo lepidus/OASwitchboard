@@ -8,12 +8,12 @@
 
 <script>
     $(function() {ldelim}
-    $('#OASwitchboardForOJSForm').pkpHandler('$.pkp.controllers.form.AjaxFormHandler');
+    $('#OASwitchboardForOJSSettingsForm').pkpHandler('$.pkp.controllers.form.AjaxFormHandler');
     {rdelim});
 </script>
 
 <div id="OASwitchboardForOJSSettings">
-    <form class="pkp_form" id="OASwitchboardForOJSForm" method="post"
+    <form class="pkp_form" id="OASwitchboardForOJSSettingsForm" method="post"
         action="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="settings" save=true}">
         {csrf}
 
@@ -24,7 +24,7 @@
             <p>{translate key="plugins.generic.OASwitchboardForOJS.settings.description"}</p>
         {/if}
         </div>
-        {include file="controllers/notification/inPlaceNotification.tpl" notificationId="OASwitchboardForOJSFormNotification"}
+        {include file="controllers/notification/inPlaceNotification.tpl" notificationId="OASwitchboardForOJSSettingsFormNotification"}
 
         {fbvFormArea id="authForm"}
 

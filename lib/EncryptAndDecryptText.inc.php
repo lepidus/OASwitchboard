@@ -2,26 +2,33 @@
 
 use Firebase\JWT\JWT;
 
-trait ApiPasswordEncryption
+class EncryptAndDecryptText
 {
-    private function validateSecret($secret)
+    private $secret;
+
+    public function __construct()
     {
-        if ($secret === "") {
+        $this->secret = Config::getVar('security', 'api_key_secret');
+        $this->validateSecret();
+    }
+
+    private function validateSecret()
+    {
+        if ($this->secret === "") {
             throw new Exception("Your site administrator must set a secret in the config file ('api_key_secret').");
         }
     }
 
-    public function encryptPassword($password, $secret)
+    public function encryptText($text)
     {
-        $this->validateSecret($secret);
-        return JWT::encode($password, $secret, 'HS256');
+        return JWT::encode($encryptText, $this->secret, 'HS256');
     }
 
-    public function decryptPassword($encryptedPassword, $secret)
+    public function decryptText($encryptedText)
     {
-        $this->validateSecret($secret);
+        $this->validateSecret();
         try {
-            return JWT::decode($encryptedPassword, $secret, ['HS256']);
+            return JWT::decode($encryptedText, $this->secret, ['HS256']);
         } catch (Firebase\JWT\SignatureInvalidException $e) {
             throw new Firebase\JWT\SignatureInvalidException(
                 'Your system administrator changed the `api_key_secret` configuration,'
