@@ -1,13 +1,13 @@
 <?php
 
 import('lib.pkp.classes.form.Form');
-import('plugins.generic.OASwitchboardForOJS.lib.EncryptAndDecryptText');
+import('plugins.generic.OASwitchboardForOJS.lib.APIKeyEncryption');
 
 class OASwitchboardForOJSSettingsForm extends Form
 {
     private $plugin;
     private $contextId;
-    private $encryptAndDecryptText;
+    private $APIKeyEncryption;
 
     public function __construct($plugin, $contextId)
     {
@@ -16,7 +16,7 @@ class OASwitchboardForOJSSettingsForm extends Form
         $this->addFormValidators();
 
         try {
-            $this->encryptAndDecryptText = new EncryptAndDecryptText();
+            $this->APIKeyEncryption = new APIKeyEncryption();
             parent::__construct($plugin->getTemplateResource('settingsForm.tpl'));
         } catch (Exception $e) {
             parent::__construct($plugin->getTemplateResource('tokenError.tpl'));
@@ -51,8 +51,8 @@ class OASwitchboardForOJSSettingsForm extends Form
 
     public function execute(...$functionArgs)
     {
-        $encryptedText = $this->encryptAndDecryptText->encryptText($this->getData('OASPassword'));
-        $this->plugin->updateSetting($this->contextId, 'password', $encryptedText, 'string');
+        $encryptedPassword = $this->APIKeyEncryption->encryptString($this->getData('OASPassword'));
+        $this->plugin->updateSetting($this->contextId, 'password', $encryptedPassword, 'string');
         $this->plugin->updateSetting($this->contextId, 'username', $this->getData('OASUsername'), 'string');
         parent::execute(...$functionArgs);
     }
