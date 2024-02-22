@@ -1,25 +1,22 @@
 <?php
 
 import('lib.pkp.classes.form.Form');
-import('plugins.generic.OASwitchboardForOJS.settings.ApiPasswordEncryption');
+import('plugins.generic.OASwitchboardForOJS.lib.APIKeyEncryption');
 
-class OASwitchboardForOJSForm extends Form
+class OASwitchboardForOJSSettingsForm extends Form
 {
-    use ApiPasswordEncryption;
-
     private $plugin;
     private $contextId;
-    private $secret;
+    private $APIKeyEncryption;
 
     public function __construct($plugin, $contextId)
     {
         $this->plugin = $plugin;
         $this->contextId = $contextId;
-        $this->secret = Config::getVar('security', 'api_key_secret');
         $this->addFormValidators();
 
         try {
-            $this->validateSecret($this->secret);
+            $this->APIKeyEncryption = new APIKeyEncryption();
             parent::__construct($plugin->getTemplateResource('settingsForm.tpl'));
         } catch (Exception $e) {
             parent::__construct($plugin->getTemplateResource('tokenError.tpl'));
@@ -54,8 +51,9 @@ class OASwitchboardForOJSForm extends Form
 
     public function execute(...$functionArgs)
     {
+        $encryptedPassword = $this->APIKeyEncryption->encryptString($this->getData('OASPassword'));
+        $this->plugin->updateSetting($this->contextId, 'password', $encryptedPassword, 'string');
         $this->plugin->updateSetting($this->contextId, 'username', $this->getData('OASUsername'), 'string');
-        $this->plugin->updateSetting($this->contextId, 'password', $this->encryptPassword($this->getData('OASPassword'), $this->secret), 'string');
         parent::execute(...$functionArgs);
     }
 
