@@ -11,12 +11,17 @@ class APIKeyEncryption
         $this->secret = $this->getSecretFromConfig();
     }
 
-    private function getSecretFromConfig(): string
+    private function validateSecretConfigIsNotEmpty($secret): void
     {
-        $secret = Config::getVar('security', 'api_key_secret');
         if ($secret === "") {
             throw new Exception("A secret must be set in the config file ('api_key_secret') so that keys can be encrypted and decrypted");
         }
+    }
+
+    private function getSecretFromConfig(): string
+    {
+        $secret = Config::getVar('security', 'api_key_secret');
+        $this->validateSecretConfigIsNotEmpty($secret);
         return $secret;
     }
 
