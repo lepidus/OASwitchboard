@@ -12,8 +12,8 @@
 <version>
 	<application>OASwitchboardForOJS</application>
 	<type>plugins.generic</type>
-	<release>0.0.0.1</release>
-	<date>2024-02-20</date>
+	<release>0.0.0.2</release>
+	<date>2024-02-23</date>
 	<lazy-load>1</lazy-load>
 	<class>OASwitchboardForOJSPlugin</class>
 </version>
