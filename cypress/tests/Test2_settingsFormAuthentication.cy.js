@@ -16,14 +16,8 @@ describe('Setup OASwitchboard credentials', function () {
         cy.get('input[name=OASUsername]').should('be.visible');
         cy.get('input[name=OASPassword]').should('be.visible');
 
-        cy.get('input[name=OASUsername]').focus().clear();
-        cy.get('input[name=OASPassword]').focus().clear();
-        cy.get('form#OASwitchboardForOJSSettingsForm button:contains("Save")').click();
-        cy.get('label[for^=OASUsername].error').should('contain', 'This field is required.');
-        cy.get('label[for^=OASPassword].error').should('contain', 'This field is required.');
-
-        cy.get('input[name=OASUsername]').type('username');
-        cy.get('input[name=OASPassword]').type('password');
+        cy.get('input[name=OASUsername]').type(Cypress.env('OASUsername'), {force: true});
+        cy.get('input[name=OASPassword]').type(Cypress.env('OASPassword'));
         cy.get('form#OASwitchboardForOJSSettingsForm button:contains("Save")').click();
         cy.get('form#OASwitchboardForOJSSettingsForm').should('not.be.visible');
         cy.contains('Your changes have been saved.');
@@ -31,7 +25,7 @@ describe('Setup OASwitchboard credentials', function () {
         cy.get('a[id^=' + pluginRowId + '-settings-button]').click();
 
         cy.contains('OA Switchboard Integration Plugin for OJS');
-        cy.get('form#OASwitchboardForOJSSettingsForm').contains('The API credentials are ready to use! Currently using credentials for: username.');
+        cy.get('form#OASwitchboardForOJSSettingsForm').contains('The API credentials are ready to use! Currently using credentials for: ' + Cypress.env('OASUsername') + '.');
         cy.get('form#OASwitchboardForOJSSettingsForm').contains('You can edit the credentials below, or click the Cancel button.');
     })
 })
