@@ -75,10 +75,6 @@ class OASwitchboardForOJSSettingsForm extends Form
     public function initData(): void
     {
         $this->setData('username', $this->plugin->getSetting($this->contextId, 'username'));
-        $password = $this->plugin->getSetting($this->contextId, 'password')
-            ? $this->APIKeyEncryption->decryptString($this->plugin->getSetting($this->contextId, 'password'))
-            : '';
-        $this->setData('password', $password);
     }
 
     public function validateAPICredentials(): bool
