@@ -3,6 +3,8 @@
 import('lib.pkp.tests.PKPTestCase');
 import('plugins.generic.OASwitchboardForOJS.lib.APIKeyEncryption');
 
+use Firebase\JWT\JWT;
+
 class APIKeyEncryptionTest extends PKPTestCase
 {
     protected function setUp(): void
@@ -16,7 +18,36 @@ class APIKeyEncryptionTest extends PKPTestCase
         parent::tearDown();
     }
 
-    public function testInstantiateClassWithoutASecretConfiguredShouldRaiseException()
+    public function testEncryptStringWithSecretShouldNotCauseAnyProblems()
+    {
+        Config::setConfigFileName(dirname(__FILE__) . '/fixtures/config.testSecret.inc.php');
+        $encryptedString = APIKeyEncryption::encryptString('MyString');
+        $JWTResult = JWT::encode('MyString', Config::getVar('security', 'api_key_secret'), 'HS256');
+        $this->assertEquals($encryptedString, $JWTResult);
+    }
+
+    public function testDecryptStringWithSecretShouldNotCauseAnyProblems()
+    {
+        Config::setConfigFileName(dirname(__FILE__) . '/fixtures/config.testSecret.inc.php');
+        $encryptedString = APIKeyEncryption::encryptString('MyString');
+        $decryptedString = APIKeyEncryption::decryptString($encryptedString);
+        $JWTResult = JWT::decode($encryptedString, Config::getVar('security', 'api_key_secret'), ['HS256']);
+        $this->assertEquals($decryptedString, $JWTResult);
+    }
+
+    public function testSecretConfigExistsWithoutASecertConfiguredShouldReturnFalse()
+    {
+        Config::setConfigFileName(dirname(__FILE__) . '/fixtures/config.testNoSecret.inc.php');
+        $this->assertFalse(APIKeyEncryption::secretConfigExists());
+    }
+
+    public function testSecretConfigExistsWithASecertConfiguredShouldReturnTrue()
+    {
+        Config::setConfigFileName(dirname(__FILE__) . '/fixtures/config.testSecret.inc.php');
+        $this->assertTrue(APIKeyEncryption::secretConfigExists());
+    }
+
+    public function testTryToEncryptStringWithoutASecertConfiguredShouldRaiseException()
     {
         Config::setConfigFileName(dirname(__FILE__) . '/fixtures/config.testNoSecret.inc.php');
 
@@ -24,25 +55,30 @@ class APIKeyEncryptionTest extends PKPTestCase
         $this->expectExceptionMessage(
             "A secret must be set in the config file ('api_key_secret') so that keys can be encrypted and decrypted"
         );
-        $this->APIKeyEncryption = new APIKeyEncryption();
+        APIKeyEncryption::encryptString('MyString');
+    }
+
+    public function testTryToDecryptStringWithoutASecertConfiguredShouldRaiseException()
+    {
+        Config::setConfigFileName(dirname(__FILE__) . '/fixtures/config.testNoSecret.inc.php');
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            "A secret must be set in the config file ('api_key_secret') so that keys can be encrypted and decrypted"
+        );
+        APIKeyEncryption::decryptString('someEncryptedString');
     }
 
     public function testDecryptStringWithOtherSecretShouldRaiseException()
     {
         Config::setConfigFileName(dirname(__FILE__) . '/fixtures/config.testSecret.inc.php');
-        $this->APIKeyEncryption = new APIKeyEncryption();
-        $encryptedString  = $this->APIKeyEncryption->encryptString('MyString');
-
-        $this->APIKeyEncryption = null;
-
+        $encryptedString = APIKeyEncryption::encryptString('MyString');
         Config::setConfigFileName(dirname(__FILE__) . '/fixtures/config.testOtherSecret.inc.php');
-
-        $this->APIKeyEncryption = new APIKeyEncryption();
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
             "The `api_key_secret` configuration is not the same as the one used to encrypt the key."
         );
-        $this->APIKeyEncryption->decryptString($encryptedString);
+        APIKeyEncryption::decryptString($encryptedString);
     }
 }

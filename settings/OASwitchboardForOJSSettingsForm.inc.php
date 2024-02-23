@@ -8,7 +8,6 @@ class OASwitchboardForOJSSettingsForm extends Form
 {
     private $plugin;
     private $contextId;
-    private $APIKeyEncryption;
 
     public function __construct($plugin, $contextId)
     {
@@ -16,12 +15,8 @@ class OASwitchboardForOJSSettingsForm extends Form
         $this->contextId = $contextId;
         $this->addFormValidators();
 
-        try {
-            $this->APIKeyEncryption = new APIKeyEncryption();
-            parent::__construct($plugin->getTemplateResource('settingsForm.tpl'));
-        } catch (Exception $e) {
-            parent::__construct($plugin->getTemplateResource('tokenError.tpl'));
-        }
+        $template = APIKeyEncryption::secretConfigExists() ? 'settingsForm.tpl' : 'tokenError.tpl';
+        parent::__construct($plugin->getTemplateResource($template));
     }
 
     private function addFormValidators(): void
@@ -66,7 +61,7 @@ class OASwitchboardForOJSSettingsForm extends Form
 
     public function execute(...$functionArgs)
     {
-        $encryptedPassword = $this->APIKeyEncryption->encryptString($this->getData('OASPassword'));
+        $encryptedPassword = APIKeyEncryption::encryptString($this->getData('OASPassword'));
         $this->plugin->updateSetting($this->contextId, 'password', $encryptedPassword, 'string');
         $this->plugin->updateSetting($this->contextId, 'username', $this->getData('OASUsername'), 'string');
         parent::execute(...$functionArgs);
