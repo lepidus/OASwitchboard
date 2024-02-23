@@ -8,7 +8,7 @@ msgid "plugins.generic.OASwitchboardForOJS.description"
 msgstr "Permite enviar mensagens P1-PIO para OA Switchboard."
 
 msgid "plugins.generic.OASwitchboardForOJS.settings.description"
-msgstr "Por favor, introduzca sus credenciales de Open Access Switchboard, para permitir que el plugin acceda a la API."
+msgstr "Por favor, insira suas credenciais do Open Access Switchboard, para permitir que o plugin acesse a API."
 
 msgid "plugins.generic.OASwitchboardForOJS.settings.description.hasCredentials"
 msgstr "As credenciais da API estão prontas para uso! Atualmente usando credenciais para: <strong>{$username}</strong>."
