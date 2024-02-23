@@ -1,5 +1,5 @@
-describe('Setup OASwitchboard credentials', function () {
-    it('Configure the OAS API credentials in the plugin settings form', function () {
+describe('Setup OASwitchboard invalid credentials', function () {
+    it('Configure the OAS API invalid credentials in the plugin settings form', function () {
         cy.login('dbarnes', null, 'publicknowledge');
         cy.contains('a', 'Website').click();
         cy.waitJQuery();
@@ -25,13 +25,6 @@ describe('Setup OASwitchboard credentials', function () {
         cy.get('input[name=OASUsername]').type('username');
         cy.get('input[name=OASPassword]').type('password');
         cy.get('form#OASwitchboardForOJSSettingsForm button:contains("Save")').click();
-        cy.get('form#OASwitchboardForOJSSettingsForm').should('not.be.visible');
-        cy.contains('Your changes have been saved.');
-
-        cy.get('a[id^=' + pluginRowId + '-settings-button]').click();
-
-        cy.contains('OA Switchboard Integration Plugin for OJS');
-        cy.get('form#OASwitchboardForOJSSettingsForm').contains('The API credentials are ready to use! Currently using credentials for: username.');
-        cy.get('form#OASwitchboardForOJSSettingsForm').contains('You can edit the credentials below, or click the Cancel button.');
+        cy.get('form#OASwitchboardForOJSSettingsForm').should('contain', 'Failed to authenticate, please check the OA Switchboard API credentials again');
     })
 })
