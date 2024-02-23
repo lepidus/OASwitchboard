@@ -1,7 +1,7 @@
 <?php
 
 import('lib.pkp.tests.PKPTestCase');
-import('plugins.generic.OASwitchboardForOJS.lib.APIKeyEncryption');
+require_once(__DIR__ . '/../APIKeyEncryption.inc.php');
 
 use Firebase\JWT\JWT;
 
@@ -33,6 +33,7 @@ class APIKeyEncryptionTest extends PKPTestCase
         $decryptedString = APIKeyEncryption::decryptString($encryptedString);
         $JWTResult = JWT::decode($encryptedString, Config::getVar('security', 'api_key_secret'), ['HS256']);
         $this->assertEquals($decryptedString, $JWTResult);
+        $this->assertEquals('MyString', $decryptedString);
     }
 
     public function testSecretConfigExistsWithoutASecertConfiguredShouldReturnFalse()
