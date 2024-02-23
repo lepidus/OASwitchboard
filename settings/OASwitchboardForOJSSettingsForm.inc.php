@@ -31,6 +31,7 @@ class OASwitchboardForOJSSettingsForm extends Form
             $this->addCheck(new FormValidator($this, $field, FORM_VALIDATOR_REQUIRED_VALUE, null));
         }
         $this->addCheck(new FormValidatorPost($this));
+        $this->addCheck(new FormValidatorCSRF($this));
     }
 
     private function authenticationFailNotification(): void
