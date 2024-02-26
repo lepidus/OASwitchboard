@@ -12,8 +12,10 @@ include:
 .unit_test_template:
   before_script:
     - sed -i 's/api_key_secret = ""/api_key_secret = "$API_KEY_SECRET"/' /var/www/ojs/config.inc.php
+    - git submodule update --init
 
 .integration_tests_template:
   before_script:
     - export CYPRESS_OASPassword="$(echo $CYPRESS_OASPassword | base64 -d)"
     - sed -i 's/api_key_secret = ""/api_key_secret = "$API_KEY_SECRET"/' /var/www/ojs/config.inc.php
+    - git submodule update --init
