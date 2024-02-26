@@ -1,7 +1,7 @@
 <?php
 
 import('lib.pkp.classes.form.Form');
-import('plugins.generic.OASwitchboardForOJS.lib.APIKeyEncryption');
+import('plugins.generic.OASwitchboardForOJS.lib.APIKeyEncryption.APIKeyEncryption');
 import('plugins.generic.OASwitchboardForOJS.api.APIAuthentication');
 
 class OASwitchboardForOJSSettingsForm extends Form
