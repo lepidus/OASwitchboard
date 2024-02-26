@@ -12,7 +12,7 @@
  */
 
 import('lib.pkp.classes.plugins.GenericPlugin');
-import('plugins.generic.OASwitchboardForOJS.OASwitchboard');
+import('plugins.generic.OASwitchboardForOJS.OASwitchboardService');
 
 class OASwitchboardForOJSPlugin extends GenericPlugin
 {
@@ -89,7 +89,7 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
     public function sendOASwitchboardMessage($hookName, $args)
     {
         $contextId = PKPApplication::get()->getRequest()->getContext()->getId();
-        $OASwitchboard = new OASwitchboard($this, $contextId);
+        $OASwitchboard = new OASwitchboardService($this, $contextId);
         $OASwitchboard->sendP1PioMessage();
     }
 }
