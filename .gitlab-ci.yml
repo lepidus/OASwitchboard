@@ -1,6 +1,6 @@
 variables:
     PLUGIN_NAME: 'OASwitchboardForOJS'
-    GIT_SUBMODULE_STRATEGY: normal
+    GIT_SUBMODULE_STRATEGY: clone
 
 include:
   - project: 'documentacao-e-tarefas/modelosparaintegracaocontinua'
