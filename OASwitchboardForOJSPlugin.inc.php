@@ -12,17 +12,14 @@
  */
 
 import('lib.pkp.classes.plugins.GenericPlugin');
-import('plugins.generic.OASwitchboardForOJS.messages.P1Pio');
-import('plugins.generic.OASwitchboardForOJS.lib.APIKeyEncryption.APIKeyEncryption');
-import('plugins.generic.OASwitchboardForOJS.api.APIAuthentication');
-import('plugins.generic.OASwitchboardForOJS.api.MessageSender');
+import('plugins.generic.OASwitchboardForOJS.OASwitchboard');
 
 class OASwitchboardForOJSPlugin extends GenericPlugin
 {
     public function register($category, $path, $mainContextId = null)
     {
         $success = parent::register($category, $path, $mainContextId);
-        HookRegistry::register('Publication::publish', array($this, 'sendP1PioMessage'));
+        HookRegistry::register('Publication::publish', array($this, 'sendOASwitchboardMessage'));
         return $success;
     }
 
@@ -89,13 +86,10 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
         }
     }
 
-    public function sendP1PioMessage($hookName, $args)
+    public function sendOASwitchboardMessage($hookName, $args)
     {
         $contextId = PKPApplication::get()->getRequest()->getContext()->getId();
-        $message = new P1Pio();
-        $email = $this->getSetting($contextId, 'username');
-        $password = APIKeyEncryption::decryptString($this->getSetting($contextId, 'password'));
-        $authToken = APIAuthentication::getAuthenticationToken($email, $password);
-        MessageSender::sendMessage($message, $authToken);
+        $OASwitchboard = new OASwitchboard($this, $contextId);
+        $OASwitchboard->sendP1PioMessage();
     }
 }
