@@ -14,7 +14,7 @@ class P1PioTest extends PKPTestCase
     {
         parent::setUp();
         $P1Pio = new P1Pio();
-        $this->P1PioMessage = $P1Pio->getMessage();
+        $this->P1PioMessage = $P1Pio->getContent();
     }
 
     public function testP1PioMessageHeader()
