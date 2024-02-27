@@ -41,9 +41,9 @@ class OASwitchboardAPIClient
         return $responseBody->token;
     }
 
-    public static function validateCredentials(string $email, string $password): bool
+    public static function validateCredentials(string $email, string $password, object $httpClient): bool
     {
-        $httpClient = Application::get()->getHttpClient();
+        $httpClient = $httpClient;
         $credentials = ['email' => $email, 'password' => $password];
         try {
             $response = $httpClient->request(

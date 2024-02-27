@@ -1,4 +1,3 @@
-
 <?php
 
 trait P1PioExpectedTestData
