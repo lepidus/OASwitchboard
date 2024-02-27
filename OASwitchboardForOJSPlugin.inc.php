@@ -12,7 +12,7 @@
  */
 
 import('lib.pkp.classes.plugins.GenericPlugin');
-import('plugins.generic.OASwitchboardForOJS.classes.classes.OASwitchboardService');
+import('plugins.generic.OASwitchboardForOJS.classes.OASwitchboardService');
 
 class OASwitchboardForOJSPlugin extends GenericPlugin
 {
@@ -25,12 +25,12 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
 
     public function getDisplayName()
     {
-        return __('plugins.generic.OASwitchboardForOJS.classes.displayName');
+        return __('plugins.generic.OASwitchboardForOJS.displayName');
     }
 
     public function getDescription()
     {
-        return __('plugins.generic.OASwitchboardForOJS.classes.description');
+        return __('plugins.generic.OASwitchboardForOJS.description');
     }
 
     public function getActions($request, $actionArgs)
@@ -69,7 +69,7 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
         switch ($request->getUserVar('verb')) {
             case 'settings':
                 $context = $request->getContext();
-                $this->import('settings.OASwitchboardForOJSSettingsForm');
+                $this->import('classes.settings.OASwitchboardForOJSSettingsForm');
                 $form = new OASwitchboardForOJSSettingsForm($this, $context->getId());
                 $form->initData();
                 if ($request->getUserVar('save')) {

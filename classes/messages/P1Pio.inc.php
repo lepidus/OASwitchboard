@@ -6,7 +6,7 @@ class P1Pio
 {
     use P1PioDataFormat;
 
-    public function getMessage(): array
+    public function getContent(): array
     {
         return $this->getSampleP1Pio();
     }

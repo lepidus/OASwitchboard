@@ -12,27 +12,28 @@
  */
 
 import('plugins.generic.OASwitchboardForOJS.classes.messages.P1Pio');
-import('plugins.generic.OASwitchboardForOJS.classes.api.APIAuthentication');
-import('plugins.generic.OASwitchboardForOJS.classes.api.MessageSender');
 import('plugins.generic.OASwitchboardForOJS.lib.APIKeyEncryption.APIKeyEncryption');
 import('plugins.generic.OASwitchboardForOJS.OASwitchboardForOJSPlugin');
+import('plugins.generic.OASwitchboardForOJS.classes.api.OASwitchboardAPIClient');
 
 class OASwitchboardService
 {
     private OASwitchboardForOJSPlugin $plugin;
+    private OASwitchboardAPIClient $apiClient;
     private $contextId;
 
     public function __construct($plugin, $contextId)
     {
         $this->plugin = $plugin;
         $this->contextId = $contextId;
+        $this->apiClient = new OASwitchboardAPIClient(Application::get()->getHttpClient());
     }
 
     public function sendP1PioMessage()
     {
         $message = new P1Pio();
         $authToken = $this->getAuthTokenByCredentials();
-        MessageSender::sendMessage($message, $authToken);
+        $this->apiClient->sendMessage($message, $authToken);
     }
 
     private function retrieveCredentials()
@@ -48,7 +49,7 @@ class OASwitchboardService
     private function getAuthTokenByCredentials()
     {
         $credentials = $this->retrieveCredentials();
-        return APIAuthentication::getAuthenticationToken(
+        return $this->apiClient->getAuthorizationToken(
             $credentials['email'],
             $credentials['password']
         );
