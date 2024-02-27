@@ -1,8 +1,8 @@
 <?php
 
-trait P1PioData
+trait P1PioDataFormat
 {
-    public function getP1PioData()
+    public function getFilledP1Pio()
     {
         return [
             "header" => [

@@ -16,7 +16,7 @@ class MessageSender
                 'headers' => [
                     'Authorization' => 'Bearer ' . $authToken
                 ],
-                'json' => json_decode($message->getJson())
+                'json' => $message->getMessage()
             ]
         );
         return $response->getStatusCode();

@@ -1,8 +1,13 @@
 <?php
 
-import('plugins.generic.OASwitchboardForOJS.messages.json.ToJson');
+import('plugins.generic.OASwitchboardForOJS.messages.data.P1PioDataFormat');
 
 class P1Pio
 {
-    use ToJson;
+    use P1PioDataFormat;
+
+    public function getMessage(): array
+    {
+        return $this->getFilledP1Pio();
+    }
 }
