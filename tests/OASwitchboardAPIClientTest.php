@@ -3,33 +3,40 @@
 import('lib.pkp.tests.PKPTestCase');
 import('plugins.generic.OASwitchboardForOJS.classes.api.OASwitchboardAPIClient');
 import('plugins.generic.OASwitchboardForOJS.tests.helpers.ClientInterfaceForTests');
+import('plugins.generic.OASwitchboardForOJS.classes.messages.P1Pio');
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Request;
 
 class OASwitchboardAPIClientTest extends PKPTestCase
 {
-    public function testSendMessageSuccess()
+    public function testSendMessageFailureWithServerError()
     {
         $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
         $httpClientMock->method('request')
-            ->willReturn(new Response(200));
+            ->willThrowException(new ServerException('Server error', new Request('POST', 'https://sandboxapi.example.org/v2/')));
 
         $apiClient = new OASwitchboardAPIClient($httpClientMock);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            "Server error when sending message. The OA Switchboard API server encountered an internal error."
+        );
         $statusCode = $apiClient->sendMessage(new P1Pio(), 'mock_token');
-
-        $this->assertEquals(200, $statusCode);
     }
 
-    public function testSendMessageFailure()
+    public function testSendMessageFailureWithClientError()
     {
         $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
         $httpClientMock->method('request')
-            ->willReturn(new Response(500));
+            ->willThrowException(new ClientException('Client error', new Request('POST', 'https://sandboxapi.example.org/v2/')));
 
         $apiClient = new OASwitchboardAPIClient($httpClientMock);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            "Client error when sending message. Please check your request parameters and try again."
+        );
         $statusCode = $apiClient->sendMessage(new P1Pio(), 'mock_token');
-
-        $this->assertEquals(500, $statusCode);
     }
 
     public function testGetAuthorizationTokenSuccess()
