@@ -12,7 +12,7 @@
  */
 
 import('lib.pkp.classes.plugins.GenericPlugin');
-import('plugins.generic.OASwitchboardForOJS.OASwitchboardService');
+import('plugins.generic.OASwitchboardForOJS.classes.classes.OASwitchboardService');
 
 class OASwitchboardForOJSPlugin extends GenericPlugin
 {
@@ -25,12 +25,12 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
 
     public function getDisplayName()
     {
-        return __('plugins.generic.OASwitchboardForOJS.displayName');
+        return __('plugins.generic.OASwitchboardForOJS.classes.displayName');
     }
 
     public function getDescription()
     {
-        return __('plugins.generic.OASwitchboardForOJS.description');
+        return __('plugins.generic.OASwitchboardForOJS.classes.description');
     }
 
     public function getActions($request, $actionArgs)

@@ -2,7 +2,7 @@
 
 trait P1PioDataFormat
 {
-    public function getFilledP1Pio()
+    public function getSampleP1Pio()
     {
         return [
             "header" => [

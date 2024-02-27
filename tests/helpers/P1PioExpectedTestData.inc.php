@@ -5,7 +5,7 @@ trait P1PioExpectedTestData
 {
     private function getExpectedToSendMessageObject()
     {
-        return (object)[
+        return [
             "address" => "https://ror.org/xxxxxxxx",
             "name" => "Science Publisher"
         ];
@@ -13,7 +13,7 @@ trait P1PioExpectedTestData
 
     private function getExpectedFromMessageObject()
     {
-        return (object)[
+        return [
             "address" => "https://ror.org/04dkp9463",
             "name" => "University of Amsterdam"
         ];
@@ -22,7 +22,7 @@ trait P1PioExpectedTestData
     private function getExpectedAuthorsArray()
     {
         $authors = [
-            (object)[
+            [
                 'listingorder' => 1,
                 'listingorderAtAcceptance' => 1,
                 'listingorderAtSubmission' => 1,
@@ -36,7 +36,7 @@ trait P1PioExpectedTestData
                 'isCorrespondingAuthorAtSubmission' => true,
                 'collaboration' => 'Laboratory collaboration',
                 'institutions' => [
-                    (object)[
+                    [
                         'sourceaffiliation' => 'University of Amsterdam, Department Computer Science',
                         'name' => 'University of Amsterdam',
                         'ror' => 'https://ror.org/04dkp9463',
@@ -45,7 +45,7 @@ trait P1PioExpectedTestData
                     ]
                 ],
                 'currentaddress' => [
-                    (object)[
+                    [
                         'name' => 'University of Amsterdam',
                         'ror' => 'https://ror.org/04dkp9463',
                         'isni' => '0000 0000 8499 2262'
@@ -59,18 +59,18 @@ trait P1PioExpectedTestData
 
     private function getExpectedArticleObject()
     {
-        return (object)[
+        return [
                 'title' => 'The International relations of Middle-Earth',
                 'doi' => 'https://doi.org/00.0000/mearth.0000',
                 'submissionId' => '00.0000',
                 'type' => 'research-article',
                 'funders' => [
-                    (object)[
+                    [
                         'name' => 'Aragorn Foundation',
                         'ror' => 'https://ror.org/999999',
                         'fundref' => '501100000000'
                     ],
-                    (object)[
+                    [
                         'name' => 'Middle-Earth Thinktank',
                         'ror' => 'https://ror.org/888888',
                         'fundref' => '501100000001'
@@ -78,26 +78,26 @@ trait P1PioExpectedTestData
                 ],
                 'acknowledgement' => 'Aragorn Foundation, Middle-Earth Thinktank',
                 'grants' => [
-                    (object)[
+                    [
                         'name' => 'Generous grant',
                         'id' => 'GD-000-001',
                         'doi' => 'https://doi.org/00.0000/00-2020-000000'
                     ]
                 ],
-                'manuscript' => (object)[
-                    'dates' => (object)[
+                'manuscript' => [
+                    'dates' => [
                         'submission' => '2021-02-01',
                         'acceptance' => '2021-03-01',
                         'publication' => '2021-04-01'
                     ],
                     'id' => '00.0000-000'
                 ],
-                'preprint' => (object)[
+                'preprint' => [
                     'title' => 'The International relations of Middle-Earth',
                     'url' => 'https://arxiv.org/00.0000-000',
                     'id' => '00.0000-000'
                 ],
-                'vor' => (object)[
+                'vor' => [
                     'publication' => 'pure OA journal',
                     'license' => 'CC BY',
                     'deposition' => 'open repository, like PMC',
@@ -109,7 +109,7 @@ trait P1PioExpectedTestData
 
     private function getExpectedJournalArray()
     {
-        $journal = (object)[
+        $journal = [
             'name' => 'Middle Earth papers',
             'id' => '0000-0001',
             'issn' => '0000-0001',

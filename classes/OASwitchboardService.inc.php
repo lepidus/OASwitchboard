@@ -1,20 +1,20 @@
 <?php
+
 /**
- * @file plugins/generic/OASwitchboardForOJS/OASwitchboard.inc.php
+ * @file plugins/generic/OASwitchboardForOJS/classes/OASwitchboard.inc.php
  *
  * Copyright (c) 2024 Lepidus Tecnologia
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * @class OASwitchboard
- * @ingroup plugins_generic_OASwitchboard
  *
  * @brief OASwitchboard plugin class
  */
 
-import('plugins.generic.OASwitchboardForOJS.messages.P1Pio');
+import('plugins.generic.OASwitchboardForOJS.classes.messages.P1Pio');
+import('plugins.generic.OASwitchboardForOJS.classes.api.APIAuthentication');
+import('plugins.generic.OASwitchboardForOJS.classes.api.MessageSender');
 import('plugins.generic.OASwitchboardForOJS.lib.APIKeyEncryption.APIKeyEncryption');
-import('plugins.generic.OASwitchboardForOJS.api.APIAuthentication');
-import('plugins.generic.OASwitchboardForOJS.api.MessageSender');
 import('plugins.generic.OASwitchboardForOJS.OASwitchboardForOJSPlugin');
 
 class OASwitchboardService

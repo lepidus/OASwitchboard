@@ -2,7 +2,7 @@
 
 use GuzzleHttp\Exception\ClientException;
 
-import('plugins.generic.OASwitchboardForOJS.messages.P1Pio');
+import('plugins.generic.OASwitchboardForOJS.classes.messages.P1Pio');
 
 class MessageSender
 {
