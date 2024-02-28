@@ -23,39 +23,7 @@ trait P1PioDataFormat
             ],
             "data" => [
                 "timing" => "VoR",
-                "authors" => [
-                    [
-                        "listingorder" => 1,
-                        "listingorderAtAcceptance" => 1,
-                        "listingorderAtSubmission" => 1,
-                        "lastName" => "Baggins",
-                        "firstName" => "Frodo",
-                        "initials" => "FB",
-                        "ORCID" => "0000-0000-0000-0000",
-                        "creditroles" => ["writing", "visualization"],
-                        "isCorrespondingAuthor" => true,
-                        "isCorrespondingAuthorAtAcceptance" => true,
-                        "isCorrespondingAuthorAtSubmission" => true,
-                        "collaboration" => "Laboratory collaboration",
-                        "institutions" => [
-                            [
-                                "sourceaffiliation" => "University of Amsterdam, Department Computer Science",
-                                "name" => "University of Amsterdam",
-                                "ror" => "https://ror.org/04dkp9463",
-                                "isni" => "0000 0000 8499 2262",
-                                "country" => "NL"
-                            ]
-                        ],
-                        "currentaddress" => [
-                            [
-                                "name" => "University of Amsterdam",
-                                "ror" => "https://ror.org/04dkp9463",
-                                "isni" => "0000 0000 8499 2262"
-                            ]
-                        ],
-                        "affiliation" => "University of Amsterdam"
-                    ]
-                ],
+                "authors" => $this->getAuthorsData(),
                 "article" => [
                     "title" => "The International relations of Middle-Earth",
                     "doi" => "https://doi.org/00.0000/mearth.0000",
