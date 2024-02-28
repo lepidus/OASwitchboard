@@ -3,31 +3,55 @@
 import('lib.pkp.tests.PKPTestCase');
 import('plugins.generic.OASwitchboardForOJS.classes.messages.P1Pio');
 import('plugins.generic.OASwitchboardForOJS.tests.helpers.P1PioExpectedTestData');
-import('classes.article.Author');
 
 class P1PioTest extends PKPTestCase
 {
     use P1PioExpectedTestData;
 
     private $P1Pio;
-    private $P1PioMessage;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $authors = $this->createAuthors();
-        $this->P1Pio = new P1Pio($authors);
-        $this->P1PioMessage = $this->P1Pio->getContent();
+        $submission = $this->createTestSubmission();
+        $this->P1Pio = new P1Pio($submission);
     }
 
-    private function createAuthors(): array
+    private function createTestAuthors($publication): array
     {
+        import('classes.article.Author');
         $author = new Author();
         $author->setData('publicationId', 1234);
         $author->setGivenName('Iris', 'pt_BR');
         $author->setFamilyName('Castanheiras', 'pt_BR');
         $author->setAffiliation('Lepidus Tecnologia', 'pt_BR');
+
+        $author->setData('publicationId', $publication->getId());
+
         return [$author];
+    }
+
+    private function createTestSubmission(): Submission
+    {
+        import('classes.submission.Submission');
+        $submission = new Submission();
+        $submission->setId(rand());
+
+        import('classes.publication.Publication');
+        $publication = new Publication();
+        $publication->setId(rand());
+        $publication->setData('title', 'The International relations of Middle-Earth');
+        $publication->setData('pub-id::doi', '00.0000/mearth.0000');
+
+        $authors = $this->createTestAuthors($publication);
+
+        // associate objects
+        $publication->setData('authors', $authors);
+        $publication->setData('submissionId', $submission->getId());
+        $submission->setData('currentPublicationId', $publication->getId());
+        $submission->setData('publications', [$publication]);
+
+        return $submission;
     }
 
     public function testGetAuthorGivenName()
@@ -59,9 +83,30 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals($affiliation, 'Lepidus Tecnologia');
     }
 
+    public function testGetArticleTitle()
+    {
+        $articleData = $this->P1Pio->getArticleData();
+        $title = $articleData['title'];
+        $this->assertEquals($title, 'The International relations of Middle-Earth');
+    }
+
+    public function testGetArticleDoi()
+    {
+        $articleData = $this->P1Pio->getArticleData();
+        $doi = $articleData['doi'];
+        $this->assertEquals($doi, 'https://doi.org/00.0000/mearth.0000');
+    }
+
+    public function testGetArticleType()
+    {
+        $articleData = $this->P1Pio->getArticleData();
+        $type = $articleData['type'];
+        $this->assertEquals($type, 'research-article');
+    }
+
     public function testP1PioMessageHeader()
     {
-        $header = $this->P1PioMessage['header'];
+        $header = $this->P1Pio->getContent()['header'];
         $this->assertEquals('p1', $header['type']);
         $this->assertEquals('v2', $header['version']);
         $this->assertEquals($this->getExpectedToSendMessageObject(), $header['to']);
@@ -74,7 +119,7 @@ class P1PioTest extends PKPTestCase
 
     public function testP1PioMessageData()
     {
-        $data = $this->P1PioMessage['data'];
+        $data = $this->P1Pio->getContent()['data'];
         $this->assertEquals('VoR', $data['timing']);
         $this->assertEquals($this->getExpectedAuthorsArray(), $data['authors']);
         $this->assertEquals($this->getExpectedArticleObject(), $data['article']);

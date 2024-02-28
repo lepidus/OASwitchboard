@@ -1,22 +1,39 @@
 <?php
 
 import('plugins.generic.OASwitchboardForOJS.classes.messages.P1PioDataFormat');
+import('classes.submission.Submission');
 
 class P1Pio
 {
     use P1PioDataFormat;
 
-    private $authors;
+    private $submission;
+    private const ARTICLE_TYPE = 'research-article';
+    private const DOI_BASE_URL = 'https://doi.org/';
 
-    public function __construct(array $authors)
+    public function __construct(Submission $submission)
     {
-        $this->authors = $authors;
+        $this->submission = $submission;
     }
 
-    public function getAuthorsData()
+    public function getArticleData(): array
     {
+        $articleTitle = $this->submission->getLocalizedFullTitle();
+        $publication = $this->submission->getCurrentPublication();
+
+        $articleData = [
+            'title' => $articleTitle,
+            'doi' => self::DOI_BASE_URL . $publication->getData('pub-id::doi'),
+            'type' => self::ARTICLE_TYPE
+        ];
+        return $articleData;
+    }
+
+    public function getAuthorsData(): array
+    {
+        $authors = $this->submission->getAuthors();
         $authorsData = [];
-        foreach ($this->authors as $author) {
+        foreach ($authors as $author) {
             $lastNameRetrieved = $author->getLocalizedFamilyName();
             $lastName = is_array($lastNameRetrieved) ? reset($lastNameRetrieved) : $lastNameRetrieved;
             $firstName = $author->getLocalizedGivenName();
@@ -38,6 +55,6 @@ class P1Pio
 
     public function getContent(): array
     {
-        return $this->getSampleP1Pio();
+        return $this->assembleMessage();
     }
 }

@@ -33,8 +33,7 @@ class OASwitchboardService
 
     public function sendP1PioMessage()
     {
-        $authors = $this->submission->getAuthors();
-        $message = new P1Pio($authors);
+        $message = new P1Pio($this->submission);
         $authToken = $this->getAuthTokenByCredentials();
         $this->apiClient->sendMessage($message, $authToken);
     }
