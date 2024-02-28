@@ -77,8 +77,11 @@ class OASwitchboardForOJSSettingsForm extends Form
         $username = $this->getData('OASUsername');
         $password = $this->getData('OASPassword');
         $httpClient = Application::get()->getHttpClient();
+        $OASClient = new OASwitchboardAPIClient($httpClient);
 
-        if (!OASwitchboardAPIClient::validateCredentials($username, $password, $httpClient)) {
+        try {
+            $OASClient->validateCredentials($username, $password);
+        } catch (Exception $e) {
             $this->authenticationFailNotification();
             return false;
         }

@@ -25,42 +25,29 @@ class OASwitchboardAPIClient
         return $response->getStatusCode();
     }
 
-
     public function getAuthorizationToken(string $email, string $password): string
     {
-        $response = $this->httpClient->request(
-            'POST',
-            self::API_BASE_URL . self::API_AUTHORIZATION_ENDPOINT,
-            [
-                'json' => [
-                    'email' => $email,
-                    'password' => $password
-                ]
+        $options  = [
+            'json' => [
+                'email' => $email,
+                'password' => $password
             ]
-        );
+        ];
+        $response = $this->makeRequest('POST', self::API_AUTHORIZATION_ENDPOINT, $options);
         $responseBody = json_decode($response->getBody());
         return $responseBody->token;
     }
 
-    public static function validateCredentials(string $email, string $password, object $httpClient): bool
+    public function validateCredentials(string $email, string $password): bool
     {
-        $httpClient = $httpClient;
-        $credentials = ['email' => $email, 'password' => $password];
-        try {
-            $response = $httpClient->request(
-                'POST',
-                self::API_BASE_URL . self::API_AUTHORIZATION_ENDPOINT,
-                [
-                    'json' => [
-                        'email' => $email,
-                        'password' => $password
-                    ]
-                ]
-            );
-            return $response->getStatusCode() === 200;
-        } catch (GuzzleHttp\Exception\ClientException $e) {
-            return false;
-        }
+        $options = [
+            'json' => [
+                'email' => $email,
+                'password' => $password
+            ]
+        ];
+        $response = self::makeRequest('POST', self::API_AUTHORIZATION_ENDPOINT, $options);
+        return $response->getStatusCode() === 200;
     }
 
     private function makeRequest(string $method, string $endpoint, array $options)
@@ -76,12 +63,11 @@ class OASwitchboardAPIClient
             throw new Exception(
                 "Server error when sending message. The OA Switchboard API server encountered an internal error."
             );
-            return false;
         } catch (ClientException $e) {
             throw new Exception(
-                "Client error when sending message. Please check your request parameters and try again."
+                "Client error when sending message. Please check your request parameters and try again.",
+                false
             );
-            return false;
         }
     }
 }
