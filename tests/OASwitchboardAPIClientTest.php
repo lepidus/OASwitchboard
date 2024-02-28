@@ -11,6 +11,14 @@ use GuzzleHttp\Psr7\Request;
 
 class OASwitchboardAPIClientTest extends PKPTestCase
 {
+    private function createP1PioMock()
+    {
+        $P1PioMock = $this->createMock(P1Pio::class);
+        $P1PioMock->method('getContent')
+            ->willReturn([]);
+        return $P1PioMock;
+    }
+
     public function testSendMessageFailureWithServerError()
     {
         $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
@@ -22,7 +30,7 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $this->expectExceptionMessage(
             "Server error when sending message. The OA Switchboard API server encountered an internal error."
         );
-        $statusCode = $apiClient->sendMessage(new P1Pio(array()), 'mock_token');
+        $statusCode = $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
     }
 
     public function testSendMessageFailureWithClientError()
@@ -36,7 +44,7 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $this->expectExceptionMessage(
             "Client error when sending message. Please check your request parameters and try again."
         );
-        $statusCode = $apiClient->sendMessage(new P1Pio(array()), 'mock_token');
+        $statusCode = $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
     }
 
     public function testGetAuthorizationSuccess()
