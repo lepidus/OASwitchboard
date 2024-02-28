@@ -16,10 +16,12 @@ class P1Pio
     {
         $authorsData = [];
         foreach ($this->authors as $author) {
-            $lastName = $author->getLocalizedFamilyName();
+            $lastNameRetrieved = $author->getLocalizedFamilyName();
+            $lastName = gettype($lastNameRetrieved) == 'array' ?
+                reset($lastNameRetrieved) : $lastNameRetrieved;
             $firstName = $author->getLocalizedGivenName();
             $affiliation = $author->getLocalizedAffiliation();
-            $authorsData[] = ['lastName' => reset($lastName), 'firstName' => $firstName, 'affiliation' => $affiliation];
+            $authorsData[] = ['lastName' => $lastName, 'firstName' => $firstName, 'affiliation' => $affiliation];
         }
         return $authorsData;
     }

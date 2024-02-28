@@ -88,8 +88,9 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
 
     public function sendOASwitchboardMessage($hookName, $args)
     {
+        $submission = & $args[2];
         $contextId = PKPApplication::get()->getRequest()->getContext()->getId();
-        $OASwitchboard = new OASwitchboardService($this, $contextId);
+        $OASwitchboard = new OASwitchboardService($this, $contextId, $submission);
         $OASwitchboard->sendP1PioMessage();
     }
 }

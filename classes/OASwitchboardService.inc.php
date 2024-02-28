@@ -21,17 +21,20 @@ class OASwitchboardService
     private OASwitchboardForOJSPlugin $plugin;
     private OASwitchboardAPIClient $apiClient;
     private $contextId;
+    private $submission;
 
-    public function __construct($plugin, $contextId)
+    public function __construct($plugin, $contextId, $submission)
     {
         $this->plugin = $plugin;
         $this->contextId = $contextId;
+        $this->submission = $submission;
         $this->apiClient = new OASwitchboardAPIClient(Application::get()->getHttpClient());
     }
 
     public function sendP1PioMessage()
     {
-        $message = new P1Pio();
+        $authors = $this->submission->getAuthors();
+        $message = new P1Pio($authors);
         $authToken = $this->getAuthTokenByCredentials();
         $this->apiClient->sendMessage($message, $authToken);
     }
