@@ -50,10 +50,12 @@ class OASwitchboardAPIClient
         } catch (ServerException $e) {
             throw new Exception(
                 "Server error when sending message. The OA Switchboard API server encountered an internal error."
+                . $e->getMessage()
             );
         } catch (ClientException $e) {
             throw new Exception(
-                "Client error when sending message. Please check your request parameters and try again.",
+                "Client error when sending message. Please check your request parameters and try again."
+                . $e->getMessage(),
                 false
             );
         }
