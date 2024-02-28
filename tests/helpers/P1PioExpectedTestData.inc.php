@@ -24,7 +24,12 @@ trait P1PioExpectedTestData
             [
                 'lastName' => 'Castanheiras',
                 'firstName' => 'Iris',
-                'affiliation' => 'Lepidus Tecnologia'
+                'affiliation' => 'Lepidus Tecnologia',
+                'institutions' => [
+                    [
+                        'name' => 'Lepidus Tecnologia'
+                    ]
+                ]
             ]
         ];
         return $authors;

@@ -5,6 +5,7 @@ import('plugins.generic.OASwitchboardForOJS.classes.messages.P1PioDataFormat');
 class P1Pio
 {
     use P1PioDataFormat;
+
     private $authors;
 
     public function __construct(array $authors)
@@ -17,11 +18,20 @@ class P1Pio
         $authorsData = [];
         foreach ($this->authors as $author) {
             $lastNameRetrieved = $author->getLocalizedFamilyName();
-            $lastName = gettype($lastNameRetrieved) == 'array' ?
-                reset($lastNameRetrieved) : $lastNameRetrieved;
+            $lastName = is_array($lastNameRetrieved) ? reset($lastNameRetrieved) : $lastNameRetrieved;
             $firstName = $author->getLocalizedGivenName();
-            $affiliation = $author->getLocalizedAffiliation();
-            $authorsData[] = ['lastName' => $lastName, 'firstName' => $firstName, 'affiliation' => $affiliation];
+            $affiliationName = $author->getLocalizedAffiliation();
+
+            $authorsData[] = [
+                'lastName' => $lastName,
+                'firstName' => $firstName,
+                'affiliation' => $affiliationName,
+                'institutions' => [
+                    [
+                        'name' => $affiliationName
+                    ]
+                ]
+            ];
         }
         return $authorsData;
     }
