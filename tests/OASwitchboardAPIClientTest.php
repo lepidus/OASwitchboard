@@ -22,7 +22,7 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $this->expectExceptionMessage(
             "Server error when sending message. The OA Switchboard API server encountered an internal error."
         );
-        $statusCode = $apiClient->sendMessage(new P1Pio(), 'mock_token');
+        $statusCode = $apiClient->sendMessage(new P1Pio(array()), 'mock_token');
     }
 
     public function testSendMessageFailureWithClientError()
@@ -36,7 +36,7 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $this->expectExceptionMessage(
             "Client error when sending message. Please check your request parameters and try again."
         );
-        $statusCode = $apiClient->sendMessage(new P1Pio(), 'mock_token');
+        $statusCode = $apiClient->sendMessage(new P1Pio(array()), 'mock_token');
     }
 
     public function testGetAuthorizationSuccess()
