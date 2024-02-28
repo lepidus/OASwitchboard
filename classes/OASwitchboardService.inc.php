@@ -49,7 +49,7 @@ class OASwitchboardService
     private function getAuthTokenByCredentials()
     {
         $credentials = $this->retrieveCredentials();
-        return $this->apiClient->getAuthorizationToken(
+        return $this->apiClient->getAuthorization(
             $credentials['email'],
             $credentials['password']
         );

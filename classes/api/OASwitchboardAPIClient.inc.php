@@ -25,7 +25,7 @@ class OASwitchboardAPIClient
         return $response->getStatusCode();
     }
 
-    public function getAuthorizationToken(string $email, string $password): string
+    public function getAuthorization(string $email, string $password): string
     {
         $options  = [
             'json' => [
@@ -36,18 +36,6 @@ class OASwitchboardAPIClient
         $response = $this->makeRequest('POST', self::API_AUTHORIZATION_ENDPOINT, $options);
         $responseBody = json_decode($response->getBody());
         return $responseBody->token;
-    }
-
-    public function validateCredentials(string $email, string $password): bool
-    {
-        $options = [
-            'json' => [
-                'email' => $email,
-                'password' => $password
-            ]
-        ];
-        $response = self::makeRequest('POST', self::API_AUTHORIZATION_ENDPOINT, $options);
-        return $response->getStatusCode() === 200;
     }
 
     private function makeRequest(string $method, string $endpoint, array $options)

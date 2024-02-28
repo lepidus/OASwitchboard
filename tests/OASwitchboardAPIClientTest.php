@@ -39,7 +39,7 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $statusCode = $apiClient->sendMessage(new P1Pio(), 'mock_token');
     }
 
-    public function testGetAuthorizationTokenSuccess()
+    public function testGetAuthorizationSuccess()
     {
         $responseBody = json_encode(['token' => 'mock_token']);
         $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
@@ -47,12 +47,12 @@ class OASwitchboardAPIClientTest extends PKPTestCase
             ->willReturn(new Response(200, [], $responseBody));
 
         $apiClient = new OASwitchboardAPIClient($httpClientMock);
-        $token = $apiClient->getAuthorizationToken('test@example.com', 'password');
+        $token = $apiClient->getAuthorization('test@example.com', 'password');
 
         $this->assertEquals('mock_token', $token);
     }
 
-    public function testGetAuthorizationTokenFailureWithServerError()
+    public function testGetAuthorizationFailureWithServerError()
     {
         $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
         $httpClientMock->method('request')
@@ -64,10 +64,10 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $this->expectExceptionMessage(
             "Server error when sending message. The OA Switchboard API server encountered an internal error."
         );
-        $apiClient->getAuthorizationToken('test@example.com', 'password');
+        $apiClient->getAuthorization('test@example.com', 'password');
     }
 
-    public function testGetAuthorizationTokenFailureWithClientError()
+    public function testGetAuthorizationFailureWithClientError()
     {
         $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
         $httpClientMock->method('request')
@@ -79,58 +79,6 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $this->expectExceptionMessage(
             "Client error when sending message. Please check your request parameters and try again."
         );
-        $apiClient->getAuthorizationToken('test@example.com', 'password');
-    }
-
-    public function testValidateCredentialsValid()
-    {
-        $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
-        $httpClientMock->method('request')
-            ->willReturn(new Response(200));
-
-        $apiClient = new OASwitchboardAPIClient($httpClientMock);
-        $result = $apiClient->validateCredentials('test@example.com', 'password');
-
-        $this->assertTrue($result);
-    }
-
-    public function testValidateCredentialsInvalid()
-    {
-        $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
-        $httpClientMock->method('request')
-            ->willReturn(new Response(401));
-
-        $apiClient = new OASwitchboardAPIClient($httpClientMock);
-        $result = $apiClient->validateCredentials('test@example.com', 'password');
-
-        $this->assertFalse($result);
-    }
-
-    public function testValidateCredentialsFailureWithServerError()
-    {
-        $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
-        $httpClientMock->method('request')
-            ->willThrowException(new ServerException('Server error', new Request('POST', 'https://sandboxapi.example.org/v2/')));
-
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage(
-            "Server error when sending message. The OA Switchboard API server encountered an internal error."
-        );
-        $apiClient = new OASwitchboardAPIClient($httpClientMock);
-        $result = $apiClient->validateCredentials('test@example.com', 'password');
-    }
-
-    public function testValidateCredentialsFailureWithClientError()
-    {
-        $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
-        $httpClientMock->method('request')
-            ->willThrowException(new ClientException('Client error', new Request('POST', 'https://sandboxapi.example.org/v2/')));
-
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage(
-            "Client error when sending message. Please check your request parameters and try again."
-        );
-        $apiClient = new OASwitchboardAPIClient($httpClientMock);
-        $result = $apiClient->validateCredentials('test@example.com', 'password');
+        $apiClient->getAuthorization('test@example.com', 'password');
     }
 }
