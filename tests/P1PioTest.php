@@ -26,6 +26,7 @@ class P1PioTest extends PKPTestCase
         $author->setData('publicationId', 1234);
         $author->setGivenName('Iris', 'pt_BR');
         $author->setFamilyName('Castanheiras', 'pt_BR');
+        $author->setAffiliation('Lepidus Tecnologia', 'pt_BR');
         return [$author];
     }
 
@@ -41,6 +42,13 @@ class P1PioTest extends PKPTestCase
         $authorsData = $this->P1Pio->getAuthorsData();
         $authorFamilyName = $authorsData[1]['pt_BR'];
         $this->assertEquals($authorFamilyName, 'Castanheiras');
+    }
+
+    public function testGetAuthorLocalizedAffiliation()
+    {
+        $authorsData = $this->P1Pio->getAuthorsData();
+        $affiliation = $authorsData[2];
+        $this->assertEquals($affiliation, 'Lepidus Tecnologia');
     }
 
     public function testP1PioMessageHeader()
