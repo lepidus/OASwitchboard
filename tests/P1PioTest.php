@@ -29,10 +29,17 @@ class P1PioTest extends PKPTestCase
         return [$author];
     }
 
+    public function testGetAuthorGivenName()
+    {
+        $authorsData = $this->P1Pio->getAuthorsData();
+        $authorGivenName = $authorsData[0];
+        $this->assertEquals($authorGivenName, 'Iris');
+    }
+
     public function testGetAuthorLastName()
     {
         $authorsData = $this->P1Pio->getAuthorsData();
-        $authorFamilyName = $authorsData[0]['pt_BR'];
+        $authorFamilyName = $authorsData[1]['pt_BR'];
         $this->assertEquals($authorFamilyName, 'Castanheiras');
     }
 

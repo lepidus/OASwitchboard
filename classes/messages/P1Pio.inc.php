@@ -16,6 +16,7 @@ class P1Pio
     {
         $authorsData = [];
         foreach ($this->authors as $author) {
+            $authorsData[] = $author->getLocalizedGivenName();
             $authorsData[] = $author->getLocalizedFamilyName();
         }
         return $authorsData;
