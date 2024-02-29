@@ -25,14 +25,7 @@ trait P1PioDataFormat
                 "timing" => "VoR",
                 "authors" => $this->getAuthorsData(),
                 "article" => $this->getArticleData(),
-                "journal" => [
-                    "name" => "Middle Earth papers",
-                    "id" => "0000-0001",
-                    "issn" => "0000-0001",
-                    "eissn" => "0000-0002",
-                    "inDOAJ" => true,
-                    "typecomment" => "Diamond"
-                ]
+                "journal" => $this->getJournalData()
             ]
         ];
     }
