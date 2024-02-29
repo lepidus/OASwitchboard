@@ -12,6 +12,7 @@ class P1Pio
     private $submission;
     private const ARTICLE_TYPE = 'research-article';
     private const DOI_BASE_URL = 'https://doi.org/';
+    private const OPEN_ACCESS_POLICY = 'pure OA journal';
 
     public function __construct(Submission $submission)
     {
@@ -29,7 +30,7 @@ class P1Pio
             'doi' => self::DOI_BASE_URL . $publication->getData('pub-id::doi'),
             'type' => self::ARTICLE_TYPE,
             'vor' => [
-                'publication' => 'pure OA journal',
+                'publication' => self::OPEN_ACCESS_POLICY,
                 'license' => $licenseAcronym
             ]
         ];

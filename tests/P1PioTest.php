@@ -108,6 +108,7 @@ class P1PioTest extends PKPTestCase
     {
         $articleData = $this->P1Pio->getArticleData();
         $vor = $articleData['vor'];
+        $this->assertEquals('pure OA journal', $vor['publication']);
         $this->assertEquals('CC BY-NC-ND', $vor['license']);
     }
 
