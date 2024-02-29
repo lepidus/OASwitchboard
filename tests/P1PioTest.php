@@ -17,6 +17,13 @@ class P1PioTest extends PKPTestCase
         $this->P1Pio = new P1Pio($submission);
     }
 
+    protected function getMockedDAOs()
+    {
+        return [
+            'JournalDAO'
+        ];
+    }
+
     private function createTestAuthors($publication): array
     {
         import('classes.article.Author');
@@ -33,9 +40,26 @@ class P1PioTest extends PKPTestCase
 
     private function createTestSubmission(): Submission
     {
+        import('classes.journal.Journal');
+        $journal = new Journal();
+        $journal->setId(rand());
+        $journal->setName('Middle Earth papers', 'en_US');
+        $journal->setData('onlineIssn', '0000-0001');
+
+        $mockJournalDAO = $this->getMockBuilder(JournalDAO::class)
+            ->setMethods(['getById'])
+            ->getMock();
+
+        $mockJournalDAO->expects($this->any())
+            ->method('getById')
+            ->will($this->returnValue($journal));
+
+        DAORegistry::registerDAO('JournalDAO', $mockJournalDAO);
+
         import('classes.submission.Submission');
         $submission = new Submission();
         $submission->setId(rand());
+        $submission->setData('contextId', $journal->getId());
 
         import('classes.publication.Publication');
         $publication = new Publication();
@@ -110,6 +134,12 @@ class P1PioTest extends PKPTestCase
         $vor = $articleData['vor'];
         $this->assertEquals('pure OA journal', $vor['publication']);
         $this->assertEquals('CC BY-NC-ND', $vor['license']);
+    }
+
+    public function testGetJournalName()
+    {
+        $journalData = $this->P1Pio->getJournalData();
+        $this->assertEquals('Middle Earth papers', $journalData['name']);
     }
 
     public function testP1PioMessageHeader()

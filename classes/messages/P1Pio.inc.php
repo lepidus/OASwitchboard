@@ -19,24 +19,6 @@ class P1Pio
         $this->submission = $submission;
     }
 
-    public function getArticleData(): array
-    {
-        $articleTitle = $this->submission->getLocalizedFullTitle();
-        $publication = $this->submission->getCurrentPublication();
-        $license = $this->submission->getLicenseUrl();
-        $licenseAcronym = $this->getLicenseAcronym($license);
-        $articleData = [
-            'title' => $articleTitle,
-            'doi' => self::DOI_BASE_URL . $publication->getData('pub-id::doi'),
-            'type' => self::ARTICLE_TYPE,
-            'vor' => [
-                'publication' => self::OPEN_ACCESS_POLICY,
-                'license' => $licenseAcronym
-            ]
-        ];
-        return $articleData;
-    }
-
     public function getAuthorsData(): array
     {
         $authors = $this->submission->getAuthors();
@@ -59,6 +41,37 @@ class P1Pio
             ];
         }
         return $authorsData;
+    }
+
+    public function getArticleData(): array
+    {
+        $articleTitle = $this->submission->getLocalizedFullTitle();
+        $publication = $this->submission->getCurrentPublication();
+        $license = $this->submission->getLicenseUrl();
+        $licenseAcronym = $this->getLicenseAcronym($license);
+        $articleData = [
+            'title' => $articleTitle,
+            'doi' => self::DOI_BASE_URL . $publication->getData('pub-id::doi'),
+            'type' => self::ARTICLE_TYPE,
+            'vor' => [
+                'publication' => self::OPEN_ACCESS_POLICY,
+                'license' => $licenseAcronym
+            ]
+        ];
+        return $articleData;
+    }
+
+    public function getJournalData(): array
+    {
+        $journalDao = DAORegistry::getDAO('JournalDAO');
+        $journalId = $this->submission->getContextId();
+        $journal = $journalDao->getById($journalId);
+
+        $journalData = [
+            'name' => $journal->getLocalizedName(),
+            'id' => ''
+        ];
+        return $journalData;
     }
 
     public function getContent(): array
