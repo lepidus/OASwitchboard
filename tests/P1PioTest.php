@@ -45,11 +45,11 @@ class P1PioTest extends PKPTestCase
 
         $authors = $this->createTestAuthors($publication);
 
-        // associate objects
         $publication->setData('authors', $authors);
         $publication->setData('submissionId', $submission->getId());
         $submission->setData('currentPublicationId', $publication->getId());
         $submission->setData('publications', [$publication]);
+        $submission->setLicenseUrl('https://creativecommons.org/licenses/by-nc-nd/4.0/');
 
         return $submission;
     }
@@ -102,6 +102,13 @@ class P1PioTest extends PKPTestCase
         $articleData = $this->P1Pio->getArticleData();
         $type = $articleData['type'];
         $this->assertEquals($type, 'research-article');
+    }
+
+    public function testGetArticleVor()
+    {
+        $articleData = $this->P1Pio->getArticleData();
+        $vor = $articleData['vor'];
+        $this->assertEquals('CC BY-NC-ND', $vor['license']);
     }
 
     public function testP1PioMessageHeader()
