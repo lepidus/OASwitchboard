@@ -140,6 +140,7 @@ class P1PioTest extends PKPTestCase
     {
         $journalData = $this->P1Pio->getJournalData();
         $this->assertEquals('Middle Earth papers', $journalData['name']);
+        $this->assertEquals('0000-0001', $journalData['id']);
     }
 
     public function testP1PioMessageHeader()
