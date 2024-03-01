@@ -44,7 +44,7 @@ class P1Pio
                 'institutions' => [
                     [
                         'name' => $affiliationName,
-                        'address' => $author->getData('rorId')
+                        'ror' => $author->getData('rorId')
                     ]
                 ]
             ];

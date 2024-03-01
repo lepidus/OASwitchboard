@@ -19,7 +19,7 @@ trait P1PioExpectedTestData
                 'institutions' => [
                     [
                         'name' => 'Lepidus Tecnologia',
-                        'address' => 'https://ror.org/xxxxxxxxrecipient'
+                        'ror' => 'https://ror.org/xxxxxxxxrecipient'
                     ]
                 ]
             ]

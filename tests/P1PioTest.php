@@ -104,7 +104,7 @@ class P1PioTest extends PKPTestCase
         $authorsData = $this->P1Pio->getAuthorsData();
         $institution = $authorsData[0]['institutions'][0];
         $this->assertTrue(is_array($institution));
-        $this->assertEquals($institution['address'], 'https://ror.org/xxxxxxxxrecipient');
+        $this->assertEquals($institution['ror'], 'https://ror.org/xxxxxxxxrecipient');
     }
 
     public function testGetAuthorInstitutionName()
