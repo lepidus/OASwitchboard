@@ -99,12 +99,20 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals($authorFamilyName, 'Castanheiras');
     }
 
-    public function testGetAuthorInstitution()
+    public function testAuthorInstitutionAddress()
     {
         $authorsData = $this->P1Pio->getAuthorsData();
-        $institutions = $authorsData[0]['institutions'][0];
-        $this->assertTrue(is_array($institutions));
-        $this->assertEquals($institutions, ['name' => 'Lepidus Tecnologia']);
+        $institution = $authorsData[0]['institutions'][0];
+        $this->assertTrue(is_array($institution));
+        $this->assertEquals($institution['address'], 'https://ror.org/xxxxxxxxrecipient');
+    }
+
+    public function testGetAuthorInstitutionName()
+    {
+        $authorsData = $this->P1Pio->getAuthorsData();
+        $institution = $authorsData[0]['institutions'][0];
+        $this->assertTrue(is_array($institution));
+        $this->assertEquals($institution['name'], 'Lepidus Tecnologia');
     }
 
     public function testGetAuthorLocalizedAffiliation()
