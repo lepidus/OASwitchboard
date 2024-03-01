@@ -2,10 +2,10 @@
 
 trait P1PioExpectedTestData
 {
-    private function getExpectedToSendMessageObject()
+    private function getExpectedRecipient()
     {
         return [
-            "address" => "https://ror.org/xxxxxxxx"
+            "address" => "https://ror.org/xxxxxxxxrecipient"
         ];
     }
 

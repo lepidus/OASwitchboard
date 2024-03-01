@@ -34,7 +34,7 @@ class P1PioTest extends PKPTestCase
         $author->setAffiliation('Lepidus Tecnologia', 'pt_BR');
 
         $author->setData('publicationId', $publication->getId());
-        $author->setData('rorId', 'uaysgd23948h');
+        $author->setData('rorId', 'https://ror.org/xxxxxxxxrecipient');
 
         return [$author];
     }
@@ -81,8 +81,8 @@ class P1PioTest extends PKPTestCase
 
     public function testGetMessageRecipient()
     {
-        $recipientRor = $this->P1Pio->getRecipient();
-        $this->assertEquals('uaysgd23948h', $recipientRor);
+        $recipientRor = $this->P1Pio->getRecipientAddress();
+        $this->assertEquals('https://ror.org/xxxxxxxxrecipient', $recipientRor);
     }
 
     public function testGetAuthorGivenName()
@@ -155,7 +155,7 @@ class P1PioTest extends PKPTestCase
         $header = $this->P1Pio->getContent()['header'];
         $this->assertEquals('p1', $header['type']);
         $this->assertEquals('v2', $header['version']);
-        $this->assertEquals($this->getExpectedToSendMessageObject(), $header['to']);
+        $this->assertEquals($this->getExpectedRecipient(), $header['to']);
         $this->assertEquals(true, $header['persistent']);
         $this->assertEquals(true, $header['pio']);
     }
