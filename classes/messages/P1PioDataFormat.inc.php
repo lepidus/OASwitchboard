@@ -10,14 +10,7 @@ trait P1PioDataFormat
                 "version" => "v2",
                 "to" => [
                     "address" => "https://ror.org/xxxxxxxx",
-                    "name" => "Science Publisher"
                 ],
-                "from" => [
-                    "address" => "https://ror.org/04dkp9463",
-                    "name" => "University of Amsterdam"
-                ],
-                "ref" => "0000-0001",
-                "validity" => "2024-04-01",
                 "persistent" => true,
                 "pio" => true
             ],

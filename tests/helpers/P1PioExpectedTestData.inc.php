@@ -5,16 +5,7 @@ trait P1PioExpectedTestData
     private function getExpectedToSendMessageObject()
     {
         return [
-            "address" => "https://ror.org/xxxxxxxx",
-            "name" => "Science Publisher"
-        ];
-    }
-
-    private function getExpectedFromMessageObject()
-    {
-        return [
-            "address" => "https://ror.org/04dkp9463",
-            "name" => "University of Amsterdam"
+            "address" => "https://ror.org/xxxxxxxx"
         ];
     }
 

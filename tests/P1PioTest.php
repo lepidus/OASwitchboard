@@ -149,9 +149,6 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals('p1', $header['type']);
         $this->assertEquals('v2', $header['version']);
         $this->assertEquals($this->getExpectedToSendMessageObject(), $header['to']);
-        $this->assertEquals($this->getExpectedFromMessageObject(), $header['from']);
-        $this->assertEquals('0000-0001', $header['ref']);
-        $this->assertEquals("2024-04-01", $header['validity']);
         $this->assertEquals(true, $header['persistent']);
         $this->assertEquals(true, $header['pio']);
     }
