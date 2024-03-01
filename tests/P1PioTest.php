@@ -34,6 +34,7 @@ class P1PioTest extends PKPTestCase
         $author->setAffiliation('Lepidus Tecnologia', 'pt_BR');
 
         $author->setData('publicationId', $publication->getId());
+        $author->setData('rorId', 'uaysgd23948h');
 
         return [$author];
     }
@@ -78,6 +79,12 @@ class P1PioTest extends PKPTestCase
         return $submission;
     }
 
+    public function testGetMessageRecipient()
+    {
+        $recipientRor = $this->P1Pio->getRecipient();
+        $this->assertEquals('uaysgd23948h', $recipientRor);
+    }
+
     public function testGetAuthorGivenName()
     {
         $authorsData = $this->P1Pio->getAuthorsData();
@@ -92,7 +99,7 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals($authorFamilyName, 'Castanheiras');
     }
 
-    public function testGetAuthorInstitutions()
+    public function testGetAuthorInstitution()
     {
         $authorsData = $this->P1Pio->getAuthorsData();
         $institutions = $authorsData[0]['institutions'][0];
