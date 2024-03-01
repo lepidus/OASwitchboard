@@ -79,10 +79,18 @@ class P1PioTest extends PKPTestCase
         return $submission;
     }
 
-    public function testGetMessageRecipient()
+    public function testGetRecipient()
     {
         $recipientRor = $this->P1Pio->getRecipientAddress();
         $this->assertEquals('https://ror.org/xxxxxxxxrecipient', $recipientRor);
+    }
+
+    public function testRecipientAddressIsFirstAuthorFirstInstitutionAddress()
+    {
+        $recipientAddress = $this->P1Pio->getRecipientAddress();
+        $institutionRor = $this->P1Pio->getAuthorsData()[0]['institutions'][0]['ror'];
+
+        $this->assertEquals($institutionRor, $recipientAddress);
     }
 
     public function testGetAuthorGivenName()
