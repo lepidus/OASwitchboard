@@ -88,9 +88,24 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
 
     public function sendOASwitchboardMessage($hookName, $args)
     {
+        $publication = & $args[0];
         $submission = & $args[2];
         $contextId = PKPApplication::get()->getRequest()->getContext()->getId();
         $OASwitchboard = new OASwitchboardService($this, $contextId, $submission);
-        $OASwitchboard->sendP1PioMessage();
+        try {
+            if ($publication->getData('status') === STATUS_PUBLISHED) {
+                $OASwitchboard->sendP1PioMessage();
+            }
+        } catch (Exception $e) {
+            import('classes.notification.NotificationManager');
+            $notificationManager = new NotificationManager();
+            $userId = PKPApplication::get()->getRequest()->getUser()->getId();
+            $notificationManager->createTrivialNotification(
+                $userId,
+                NOTIFICATION_TYPE_WARNING,
+                array('contents' => $e->getMessage())
+            );
+            throw $e;
+        }
     }
 }
