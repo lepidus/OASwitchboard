@@ -2,7 +2,7 @@
 
 import('lib.pkp.classes.form.Form');
 import('plugins.generic.OASwitchboardForOJS.lib.APIKeyEncryption.APIKeyEncryption');
-import('plugins.generic.OASwitchboardForOJS.api.APIAuthentication');
+import('plugins.generic.OASwitchboardForOJS.classes.api.OASwitchboardAPIClient');
 
 class OASwitchboardForOJSSettingsForm extends Form
 {
@@ -76,11 +76,18 @@ class OASwitchboardForOJSSettingsForm extends Form
     {
         $username = $this->getData('OASUsername');
         $password = $this->getData('OASPassword');
+        $httpClient = Application::get()->getHttpClient();
+        $OASClient = new OASwitchboardAPIClient($httpClient);
 
-        if (!APIAuthentication::authenticate($username, $password)) {
+        try {
+            $OASClient->getAuthorization(
+                $username,
+                $password
+            );
+            return true;
+        } catch (Exception $e) {
             $this->authenticationFailNotification();
             return false;
         }
-        return true;
     }
 }

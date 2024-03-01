@@ -12,13 +12,14 @@
  */
 
 import('lib.pkp.classes.plugins.GenericPlugin');
+import('plugins.generic.OASwitchboardForOJS.classes.OASwitchboardService');
 
 class OASwitchboardForOJSPlugin extends GenericPlugin
 {
     public function register($category, $path, $mainContextId = null)
     {
         $success = parent::register($category, $path, $mainContextId);
-
+        HookRegistry::register('Publication::publish', array($this, 'sendOASwitchboardMessage'));
         return $success;
     }
 
@@ -68,7 +69,7 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
         switch ($request->getUserVar('verb')) {
             case 'settings':
                 $context = $request->getContext();
-                $this->import('settings.OASwitchboardForOJSSettingsForm');
+                $this->import('classes.settings.OASwitchboardForOJSSettingsForm');
                 $form = new OASwitchboardForOJSSettingsForm($this, $context->getId());
                 $form->initData();
                 if ($request->getUserVar('save')) {
@@ -82,6 +83,29 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
                 return new JSONMessage(true, $form->fetch($request));
             default:
                 return parent::manage($verb, $args, $message, $messageParams);
+        }
+    }
+
+    public function sendOASwitchboardMessage($hookName, $args)
+    {
+        $publication = & $args[0];
+        $submission = & $args[2];
+        $contextId = PKPApplication::get()->getRequest()->getContext()->getId();
+        $OASwitchboard = new OASwitchboardService($this, $contextId, $submission);
+        try {
+            if ($publication->getData('status') === STATUS_PUBLISHED) {
+                $OASwitchboard->sendP1PioMessage();
+            }
+        } catch (Exception $e) {
+            import('classes.notification.NotificationManager');
+            $notificationManager = new NotificationManager();
+            $userId = PKPApplication::get()->getRequest()->getUser()->getId();
+            $notificationManager->createTrivialNotification(
+                $userId,
+                NOTIFICATION_TYPE_WARNING,
+                array('contents' => $e->getMessage())
+            );
+            throw $e;
         }
     }
 }
