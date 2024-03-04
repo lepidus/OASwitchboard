@@ -28,7 +28,7 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $apiClient = new OASwitchboardAPIClient($httpClientMock);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "Server error when sending message. The OA Switchboard API server encountered an internal error."
+            "##plugins.generic.OASwitchboardForOJS.serverError##"
         );
         $statusCode = $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
     }
@@ -42,7 +42,7 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $apiClient = new OASwitchboardAPIClient($httpClientMock);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "Client error when sending message. Please check your request parameters and try again."
+            "##plugins.generic.OASwitchboardForOJS.postRequirements##"
         );
         $statusCode = $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
     }
@@ -70,7 +70,7 @@ class OASwitchboardAPIClientTest extends PKPTestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "Server error when sending message. The OA Switchboard API server encountered an internal error."
+            "##plugins.generic.OASwitchboardForOJS.serverError##"
         );
         $apiClient->getAuthorization('test@example.com', 'password');
     }
@@ -85,7 +85,7 @@ class OASwitchboardAPIClientTest extends PKPTestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "Client error when sending message. Please check your request parameters and try again."
+            "##plugins.generic.OASwitchboardForOJS.postRequirements##"
         );
         $apiClient->getAuthorization('test@example.com', 'password');
     }

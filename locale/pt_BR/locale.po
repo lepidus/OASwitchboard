@@ -22,3 +22,9 @@ msgstr "Senha:"
 
 msgid "plugins.generic.OASwitchboardForOJS.settings.apiAuthenticatorFailed"
 msgstr "Não foi possível autenticar, por favor, cheque novamente as credenciais da API OA Switchboard"
+
+msgid "plugins.generic.OASwitchboardForOJS.postRequirements"
+msgstr "O OA Switchboard precisa de: DOI da Submissão, ISSN da Revista, Afiliação dos Autores e o primeiro autor deve ter um ID de ROI de afiliação. Por favor, verifique os parâmetros da sua solicitação e tente novamente."
+
+msgid "plugins.generic.OASwitchboardForOJS.serverError"
+msgstr "Erro do servidor ao enviar a mensagem. O servidor da API do OA Switchboard encontrou um erro interno."

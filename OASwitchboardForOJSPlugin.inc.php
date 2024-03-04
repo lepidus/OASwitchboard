@@ -92,6 +92,7 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
         $submission = & $args[2];
         $contextId = PKPApplication::get()->getRequest()->getContext()->getId();
         $OASwitchboard = new OASwitchboardService($this, $contextId, $submission);
+
         try {
             if ($publication->getData('status') === STATUS_PUBLISHED) {
                 $OASwitchboard->sendP1PioMessage();
