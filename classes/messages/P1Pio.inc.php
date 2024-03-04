@@ -40,10 +40,10 @@ class P1Pio
             $authorsData[] = [
                 'lastName' => $lastName,
                 'firstName' => $firstName,
-                'affiliation' => $affiliationName,
+                'affiliation' => (string)$affiliationName,
                 'institutions' => [
                     [
-                        'name' => $affiliationName,
+                        'name' => (string)$affiliationName,
                         'ror' => (string)$author->getData('rorId')
                     ]
                 ]
@@ -58,9 +58,12 @@ class P1Pio
         $publication = $this->submission->getCurrentPublication();
         $license = $this->submission->getLicenseUrl();
         $licenseAcronym = $this->getLicenseAcronym($license);
+        $doi = $publication->getData('pub-id::doi') ?
+            self::DOI_BASE_URL . $publication->getData('pub-id::doi') :
+            "";
         $articleData = [
             'title' => $articleTitle,
-            'doi' => self::DOI_BASE_URL . $publication->getData('pub-id::doi'),
+            'doi' => $doi,
             'type' => self::ARTICLE_TYPE,
             'vor' => [
                 'publication' => self::OPEN_ACCESS_POLICY,
