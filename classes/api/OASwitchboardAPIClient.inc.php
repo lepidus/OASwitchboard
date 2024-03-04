@@ -50,7 +50,7 @@ class OASwitchboardAPIClient
         } catch (ServerException $e) {
             error_log($e);
             throw new Exception(
-                "Server error when sending message. The OA Switchboard API server encountered an internal error."
+                __('plugins.generic.OASwitchboardForOJS.serverError')
             );
         } catch (ClientException $e) {
             error_log($e);

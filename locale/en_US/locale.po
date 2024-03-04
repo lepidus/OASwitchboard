@@ -26,3 +26,6 @@ msgstr "Failed to authenticate, please check the OA Switchboard API credentials 
 msgid "plugins.generic.OASwitchboardForOJS.postRequirements"
 msgstr "The OA Switchboard needs: Submission DOI, Journal ISSN, Authors Affiliation and the first author must have affiliation ROI ID."
 " Please, check your request parameters and try again."
+
+msgid "plugins.generic.OASwitchboardForOJS.serverError"
+msgstr "Server error when sending message. The OA Switchboard API server encountered an internal error.
