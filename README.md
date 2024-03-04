@@ -54,10 +54,11 @@ Click Save and the plugin will be installed on your website.
 
 ## Credits
 
-Developed by Lepidus Tecnologia.
+This plugin was conceived and sponsored by [OA Switchboard](https://www.oaswitchboard.org/).
+
+Developed by [Lepidus Tecnologia](https://github.com/lepidus).
 
 ## License
 
 This plugin is licensed under the GNU General Public License v3.0 - [See the License file.](/LICENSE)
 
-*Copyright (c) 2024 Lepidus Tecnologia*
