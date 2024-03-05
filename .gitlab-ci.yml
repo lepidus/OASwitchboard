@@ -1,6 +1,5 @@
 variables:
     PLUGIN_NAME: 'OASwitchboardForOJS'
-    GIT_SUBMODULE_STRATEGY: normal
 
 include:
   - project: 'documentacao-e-tarefas/modelosparaintegracaocontinua'
@@ -12,6 +11,8 @@ include:
 
 .unit_test_template:
   before_script:
+    - rm -rf lib/APIKeyEncryption
+    - git submodule update --init --depth 1
     - sed -i 's/api_key_secret = ""/api_key_secret = "$API_KEY_SECRET"/' /var/www/ojs/config.inc.php
 
 .integration_tests_template:
