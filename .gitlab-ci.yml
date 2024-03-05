@@ -11,8 +11,7 @@ include:
 
 .unit_test_template:
   before_script:
-    - ls
-    - ls lib/
+    - rm -rf lib/APIKeyEncryption
     - git submodule update --init --depth 1
     - sed -i 's/api_key_secret = ""/api_key_secret = "$API_KEY_SECRET"/' /var/www/ojs/config.inc.php
 
