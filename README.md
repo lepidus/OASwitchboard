@@ -4,7 +4,9 @@ This plugin integrates OJS to the [Open Access Switchboard](https://www.oaswitch
 
 It enables journals to automatically send **P1-PIO** type messages to OASwitchboard, in the moment of the publication of articles, containing public information.
 
-> Notice: This plugin is not yet ready for general use. The current version integrates with the **Sandbox** of OASwitchboard API
+The current version sends P1-PIO messages with only the mandatory data about the article.
+
+> Notice: This plugin is not yet ready for general use.
 
 ## Compatibility
 
