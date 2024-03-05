@@ -11,9 +11,6 @@ include:
 
 .unit_test_template:
   before_script:
-    - cat .gitmodules
-    - cat .git/config
-    - ls -laR subprojects/gvdb
     - git submodule update --init --depth 1
     - sed -i 's/api_key_secret = ""/api_key_secret = "$API_KEY_SECRET"/' /var/www/ojs/config.inc.php
 
