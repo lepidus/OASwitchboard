@@ -62,3 +62,4 @@ Developed by [Lepidus Tecnologia](https://github.com/lepidus).
 
 This plugin is licensed under the GNU General Public License v3.0 - [See the License file.](/LICENSE)
 
+Copyright (c) 2024 Lepidus Tecnologia.
