@@ -27,16 +27,19 @@
         {include file="controllers/notification/inPlaceNotification.tpl" notificationId="OASwitchboardForOJSSettingsFormNotification"}
 
         {fbvFormArea id="authForm"}
+            {fbvFormSection for="sandBoxAPI" title="plugins.generic.OASwitchboardForOJS.settings.useApiForTests" list="true"}
+                {fbvElement type="checkbox" name="isSandBoxAPI" label="plugins.generic.OASwitchboardForOJS.settings.useApiForTests.option.label" id="isSandBoxAPI" checked=$isSandBoxAPI}
+            {/fbvFormSection}
 
-        {fbvFormSection label="plugins.generic.OASwitchboardForOJS.settings.username" required=true}
-        {fbvElement type="text" id="OASUsername" value=$username|escape size=$fbvStyles.size.MEDIUM}
-        {/fbvFormSection}
+            {fbvFormSection label="plugins.generic.OASwitchboardForOJS.settings.username" required=true}
+                {fbvElement type="text" id="OASUsername" value=$username|escape size=$fbvStyles.size.MEDIUM}
+            {/fbvFormSection}
 
-        {fbvFormSection label="plugins.generic.OASwitchboardForOJS.settings.password" required=true}
-        {fbvElement type="text" password="true" id="OASPassword" value=$password|escape size=$fbvStyles.size.MEDIUM}
-        {/fbvFormSection}
+            {fbvFormSection label="plugins.generic.OASwitchboardForOJS.settings.password" required=true}
+                {fbvElement type="text" password="true" id="OASPassword" value=$password|escape size=$fbvStyles.size.MEDIUM}
+            {/fbvFormSection}
 
-        {fbvFormButtons submitText="common.save"}
+            {fbvFormButtons submitText="common.save"}
 
         {/fbvFormArea}
     </form>
