@@ -28,7 +28,9 @@ class OASwitchboardService
         $this->plugin = $plugin;
         $this->contextId = $contextId;
         $this->submission = $submission;
-        $this->apiClient = new OASwitchboardAPIClient(Application::get()->getHttpClient());
+        $httpClient = Application::get()->getHttpClient();
+        $useSandboxApi = $this->plugin->getSetting($this->contextId, 'isSandBoxAPI');
+        $this->apiClient = new OASwitchboardAPIClient($httpClient, $useSandboxApi);
     }
 
     public function sendP1PioMessage()

@@ -55,13 +55,14 @@ class OASwitchboardForOJSSettingsForm extends Form
 
     public function readInputData()
     {
-        $this->readUserVars(['OASUsername', 'OASPassword']);
+        $this->readUserVars(['OASUsername', 'OASPassword', 'isSandBoxAPI']);
         parent::readInputData();
     }
 
     public function execute(...$functionArgs)
     {
         $encryptedPassword = APIKeyEncryption::encryptString($this->getData('OASPassword'));
+        $this->plugin->updateSetting($this->contextId, 'isSandBoxAPI', $this->getData('isSandBoxAPI'), 'bool');
         $this->plugin->updateSetting($this->contextId, 'password', $encryptedPassword, 'string');
         $this->plugin->updateSetting($this->contextId, 'username', $this->getData('OASUsername'), 'string');
         parent::execute(...$functionArgs);
@@ -70,17 +71,20 @@ class OASwitchboardForOJSSettingsForm extends Form
     public function initData(): void
     {
         $this->setData('username', $this->plugin->getSetting($this->contextId, 'username'));
+        $this->setData('isSandBoxAPI', $this->plugin->getSetting($this->contextId, 'isSandBoxAPI'));
     }
 
     public function validateAPICredentials(): bool
     {
         $username = $this->getData('OASUsername');
         $password = $this->getData('OASPassword');
+        $useSandboxApi = (bool) $this->getData('isSandBoxAPI');
+
         $httpClient = Application::get()->getHttpClient();
-        $OASClient = new OASwitchboardAPIClient($httpClient);
+        $APIClient = new OASwitchboardAPIClient($httpClient, $useSandboxApi);
 
         try {
-            $OASClient->getAuthorization(
+            $APIClient->getAuthorization(
                 $username,
                 $password
             );
