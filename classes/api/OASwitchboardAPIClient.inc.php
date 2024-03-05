@@ -5,14 +5,17 @@ use GuzzleHttp\Exception\ClientException;
 
 class OASwitchboardAPIClient
 {
-    private const API_BASE_URL = 'https://sandboxapi.oaswitchboard.org/v2/';
     private const API_AUTHORIZATION_ENDPOINT = 'authorize';
     private const API_SEND_MESSAGE_ENDPOINT = 'message';
+    private const API_BASE_URL = 'https://api.oaswitchboard.org/v2/';
+    private const API_SANDBOX_BASE_URL = 'https://sandboxapi.oaswitchboard.org/v2/';
     private $httpClient;
+    private $apiBaseUrl;
 
-    public function __construct($httpClient)
+    public function __construct($httpClient, bool $useSandboxApi = false)
     {
         $this->httpClient = $httpClient;
+        $this->apiBaseUrl = $useSandboxApi ? self::API_SANDBOX_BASE_URL : self::API_BASE_URL;
     }
 
     public function sendMessage(P1Pio $message, string $authToken): int
@@ -43,7 +46,7 @@ class OASwitchboardAPIClient
         try {
             $response = $this->httpClient->request(
                 $method,
-                self::API_BASE_URL . $endpoint,
+                $this->apiBaseUrl . $endpoint,
                 $options
             );
             return $response;

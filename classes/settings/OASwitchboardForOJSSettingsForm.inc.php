@@ -78,11 +78,13 @@ class OASwitchboardForOJSSettingsForm extends Form
     {
         $username = $this->getData('OASUsername');
         $password = $this->getData('OASPassword');
+        $useSandboxApi = (bool) $this->getData('isSandBoxAPI');
+
         $httpClient = Application::get()->getHttpClient();
-        $OASClient = new OASwitchboardAPIClient($httpClient);
+        $APIClient = new OASwitchboardAPIClient($httpClient, $useSandboxApi);
 
         try {
-            $OASClient->getAuthorization(
+            $APIClient->getAuthorization(
                 $username,
                 $password
             );
