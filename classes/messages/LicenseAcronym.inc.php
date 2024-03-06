@@ -17,7 +17,9 @@ trait LicenseAcronym
             '|http[s]?://(www\.)?creativecommons.org/licenses/by-nd/3.0[/]?|' => 'CC BY-ND',
             '|http[s]?://(www\.)?creativecommons.org/licenses/by/3.0[/]?|' => 'CC BY',
             '|http[s]?://(www\.)?creativecommons.org/licenses/by-sa/3.0[/]?|' => 'CC BY-SA',
-            '|http[s]?://(www\.)?creativecommons.org/publicdomain/zero/1.0[/]?|' => 'CC0'
+            '|http[s]?://(www\.)?creativecommons.org/publicdomain/zero/1.0[/]?|' => 'CC0',
+            '|http[s]?://(www\.)?creativecommons.org/licenses/by-other/4.0[/]?|' => 'CC BY-other',
+            '|http[s]?://(www\.)?creativecommons.org/licenses/non-commercial/4.0[/]?|' => 'non-CC',
         );
 
         foreach ($licenseAcronymMap as $pattern => $acronym) {
@@ -25,6 +27,6 @@ trait LicenseAcronym
                 return $acronym;
             }
         }
-        return null;
+        return "not specified";
     }
 }
