@@ -105,8 +105,15 @@ class P1Pio
 
     public function validateSubmissionHasMandatoryData(): array
     {
-        $data = $this->getContent()['data'];
         $missingDataMessages = [];
+
+        $message = $this->getContent();
+        $header = $message['header'];
+        $data = $message['data'];
+
+        if (!isset($header['to']['address'])) {
+            $missingDataMessages[] = 'The first author of the article must have a ROR associated to its affiliation';
+        }
 
         foreach ($data['authors'] as $key => $author) {
             if (!isset($author['lastName'])) {

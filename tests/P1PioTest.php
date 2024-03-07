@@ -28,7 +28,6 @@ class P1PioTest extends PKPTestCase
     {
         import('classes.article.Author');
         $author = new Author();
-        $author->setData('publicationId', 1234);
         $author->setGivenName('Iris', 'pt_BR');
         $author->setFamilyName('Castanheiras', 'pt_BR');
         $author->setAffiliation('Lepidus Tecnologia', 'pt_BR');
