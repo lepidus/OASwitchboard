@@ -184,8 +184,19 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals($this->getExpectedJournalArray(), $data['journal']);
     }
 
-    public function testP1PioValidateSubmissionHasMandatoryData()
+    public function testValidateSubmissionHasMandatoryData()
     {
         $this->assertTrue(empty($this->P1Pio->validateSubmissionHasMandatoryData()));
+    }
+
+    public function testValidateSubmissionHasMandatoryDataShouldReturnMessageIfFirstAuthorDoesNotHaveROR()
+    {
+        $submission = $this->createTestSubmission();
+        $firstAuthor = $submission->getAuthors()[0];
+        $firstAuthor->setData('rorId', null);
+        $P1Pio = new P1Pio($submission);
+
+        $expectedMessages = ['The first author of the article must have a ROR associated to its affiliation'];
+        $this->assertEquals($P1Pio->validateSubmissionHasMandatoryData(), $expectedMessages);
     }
 }
