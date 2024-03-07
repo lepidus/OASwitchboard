@@ -196,7 +196,7 @@ class P1PioTest extends PKPTestCase
         $firstAuthor->setData('rorId', null);
         $P1Pio = new P1Pio($submission);
 
-        $expectedMessages = ['The first author of the article must have a ROR associated to its affiliation'];
+        $expectedMessages = ['The first author of the article must have a ROR associated to its affiliation.'];
         $this->assertEquals($P1Pio->validateHasMinimumSubmissionData(), $expectedMessages);
     }
 

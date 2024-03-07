@@ -112,26 +112,26 @@ class P1Pio
         $data = $message['data'];
 
         if (!isset($header['to']['address'])) {
-            $missingDataMessages[] = 'The first author of the article must have a ROR associated to its affiliation';
+            $missingDataMessages[] = 'The first author of the article must have a ROR associated to its affiliation.';
         }
 
         foreach ($data['authors'] as $key => $author) {
             if (!isset($author['lastName'])) {
-                $missingDataMessages[] = "The family name name of an author must be present.";
+                $missingDataMessages[] = 'The family name name of an author must be present.';
             }
             if (!isset($author['affiliation'])) {
-                $missingDataMessages[] = "Affiliation of an author must be set.";
+                $missingDataMessages[] = 'Affiliation of an author must be set.';
             }
             $institution = $author['institutions'][0];
             if (!isset($institution['name'])) {
-                $missingDataMessages[] = "Affiliation of an author must be set.";
+                $missingDataMessages[] = 'Affiliation of an author must be set.';
             }
         }
         if (!isset($data['article']['doi'])) {
-            $missingDataMessages[] = "The article must have a DOI associated.";
+            $missingDataMessages[] = 'The article must have a DOI associated.';
         }
         if (!isset($data['journal']['id'])) {
-            $missingDataMessages[] = "The journal must have a ISSN or eISSN assigned.";
+            $missingDataMessages[] = 'The journal must have a ISSN or eISSN assigned.';
         }
 
         return $missingDataMessages;
