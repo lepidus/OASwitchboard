@@ -197,7 +197,7 @@ class P1PioTest extends PKPTestCase
         $P1Pio = new P1Pio($submission);
 
         $expectedMessages = ['The first author of the article must have a ROR associated to its affiliation.'];
-        $this->assertEquals($P1Pio->validateHasMinimumSubmissionData(), $expectedMessages);
+        $this->assertEquals($expectedMessages, $P1Pio->validateHasMinimumSubmissionData());
     }
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessageIfAuthorDoesNotHaveFamilyName()
@@ -209,6 +209,18 @@ class P1PioTest extends PKPTestCase
         $P1Pio = new P1Pio($submission);
 
         $expectedMessages = ['The family name name of an author must be present.'];
-        $this->assertEquals($P1Pio->validateHasMinimumSubmissionData(), $expectedMessages);
+        $this->assertEquals($expectedMessages, $P1Pio->validateHasMinimumSubmissionData());
+    }
+
+    public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfAuthorDoesNotHaveAffiliation()
+    {
+        $submission = $this->createTestSubmission();
+        $firstAuthor = $submission->getAuthors()[0];
+        $firstAuthor->setData('affiliation', null);
+
+        $P1Pio = new P1Pio($submission);
+
+        $expectedMessages = ['Affiliation of an author must be set.'];
+        $this->assertEquals($expectedMessages, $P1Pio->validateHasMinimumSubmissionData());
     }
 }
