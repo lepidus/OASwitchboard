@@ -102,4 +102,60 @@ class P1Pio
     {
         return $this->assembleMessage();
     }
+
+    public function validateSubmissionHasMandatoryData(): array
+    {
+        $data['authors'] = $this->getAuthorsData();
+        $data['article'] = $this->getArticleData();
+        $data['journal'] = $this->getJournalData();
+
+        $requiredFields = [
+            'authors' => [
+                [
+                    'lastName',
+                    'firstName',
+                    'affiliation',
+                    'institutions' => ['name', 'ror']
+                ]
+            ],
+            'article' => [
+                'title',
+                'doi',
+                'type',
+                'vor' => ['publication', 'license']
+            ],
+            'journal' => ['name', 'id']
+        ];
+
+        $missingFields = [];
+
+        foreach ($requiredFields as $section => $fields) {
+            foreach ($fields as $key => $field) {
+                if (is_array($field)) {
+                    // Check nested fields
+                    foreach ($field as $nestedField => $subFields) {
+                        if (is_array($subFields)) {
+                            foreach ($subFields as $subField) {
+                                if (!isset($data[$section][$key][$nestedField][0][$subField])) {
+                                    $missingFields[] = "Missing '$subField' in the '$nestedField' sub-section of the '$key' sub-section of the '$section' section.";
+                                }
+                            }
+                        } else {
+                            // Non-nested field
+                            if (!isset($data[$section][$key][$subFields])) {
+                                $missingFields[] = "Missing '$subFields' in the '$key' sub-section of the '$section' section.";
+                            }
+                        }
+                    }
+                } else {
+                    // Check non-nested fields
+                    if (!isset($data[$section]) || !isset($data[$section][$field])) {
+                        $missingFields[] = "Missing '$field' in the '$section' section.";
+                    }
+                }
+            }
+        }
+
+        return $missingFields;
+    }
 }

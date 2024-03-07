@@ -184,4 +184,9 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals($this->getExpectedArticleObject(), $data['article']);
         $this->assertEquals($this->getExpectedJournalArray(), $data['journal']);
     }
+
+    public function testP1PioValidateSubmissionHasMandatoryData()
+    {
+        $this->assertTrue(empty($this->P1Pio->validateSubmissionHasMandatoryData()));
+    }
 }
