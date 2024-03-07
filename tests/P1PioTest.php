@@ -223,4 +223,16 @@ class P1PioTest extends PKPTestCase
         $expectedMessages = ['Affiliation of an author must be set.'];
         $this->assertEquals($expectedMessages, $P1Pio->validateHasMinimumSubmissionData());
     }
+
+    public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfArticleDoesNotHaveDOIAssociated()
+    {
+        $submission = $this->createTestSubmission();
+        $publication = $submission->getCurrentPublication();
+        $publication->setData('pub-id::doi', null);
+
+        $P1Pio = new P1Pio($submission);
+
+        $expectedMessages = ['The article must have a DOI associated.'];
+        $this->assertEquals($expectedMessages, $P1Pio->validateHasMinimumSubmissionData());
+    }
 }
