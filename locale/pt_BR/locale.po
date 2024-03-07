@@ -14,7 +14,7 @@ msgid "plugins.generic.OASwitchboardForOJS.settings.useApiForTests"
 msgstr "Usar API para testes"
 
 msgid "plugins.generic.OASwitchboardForOJS.settings.useApiForTests.option.label"
-msgstr "Usar API caixa de areia para fins de testes do plugin."
+msgstr "Usar API Sandbox para fins de testes do plugin."
 
 msgid "plugins.generic.OASwitchboardForOJS.settings.description.hasCredentials"
 msgstr "As credenciais da API estão prontas para uso! Atualmente usando credenciais para: <strong>{$username}</strong>."
