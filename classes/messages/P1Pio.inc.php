@@ -103,7 +103,7 @@ class P1Pio
         return $this->assembleMessage();
     }
 
-    public function validateSubmissionHasMandatoryData(): array
+    public function validateHasMinimumSubmissionData(): array
     {
         $missingDataMessages = [];
 

@@ -184,12 +184,12 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals($this->getExpectedJournalArray(), $data['journal']);
     }
 
-    public function testValidateSubmissionHasMandatoryData()
+    public function testValidateHasMinimumSubmissionDataReturnsEmptyIfAllMandatoryDataIsPassed()
     {
-        $this->assertTrue(empty($this->P1Pio->validateSubmissionHasMandatoryData()));
+        $this->assertTrue(empty($this->P1Pio->validateHasMinimumSubmissionData()));
     }
 
-    public function testValidateSubmissionHasMandatoryDataShouldReturnMessageIfFirstAuthorDoesNotHaveROR()
+    public function testValidateHasMinimumSubmissionDataShouldReturnMessageIfFirstAuthorDoesNotHaveROR()
     {
         $submission = $this->createTestSubmission();
         $firstAuthor = $submission->getAuthors()[0];
@@ -197,6 +197,18 @@ class P1PioTest extends PKPTestCase
         $P1Pio = new P1Pio($submission);
 
         $expectedMessages = ['The first author of the article must have a ROR associated to its affiliation'];
-        $this->assertEquals($P1Pio->validateSubmissionHasMandatoryData(), $expectedMessages);
+        $this->assertEquals($P1Pio->validateHasMinimumSubmissionData(), $expectedMessages);
+    }
+
+    public function testValidateHasMinimumSubmissionDataShouldReturnMessageIfAuthorDoesNotHaveFamilyName()
+    {
+        $submission = $this->createTestSubmission();
+        $firstAuthor = $submission->getAuthors()[0];
+        $firstAuthor->setData('familyName', null);
+
+        $P1Pio = new P1Pio($submission);
+
+        $expectedMessages = ['The family name name of an author must be present.'];
+        $this->assertEquals($P1Pio->validateHasMinimumSubmissionData(), $expectedMessages);
     }
 }
