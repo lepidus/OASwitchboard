@@ -9,12 +9,14 @@ class P1PioTest extends PKPTestCase
     use P1PioExpectedTestData;
 
     private $P1Pio;
+    private $submission;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $submission = $this->createTestSubmission();
-        $this->P1Pio = new P1Pio($submission);
+        $journal = $this->createMockedJournal($issn = "0000-0001");
+        $this->submission = $this->createTestSubmission($journal);
+        $this->P1Pio = new P1Pio($this->submission);
     }
 
     protected function getMockedDAOs()
@@ -38,13 +40,15 @@ class P1PioTest extends PKPTestCase
         return [$author];
     }
 
-    private function createTestSubmission(): Submission
+    private function createMockedJournal($issn = null)
     {
         import('classes.journal.Journal');
         $journal = new Journal();
         $journal->setId(rand());
         $journal->setName('Middle Earth papers', 'en_US');
-        $journal->setData('onlineIssn', '0000-0001');
+        if ($issn) {
+            $journal->setData('onlineIssn', $issn);
+        }
 
         $mockJournalDAO = $this->getMockBuilder(JournalDAO::class)
             ->setMethods(['getById'])
@@ -56,6 +60,11 @@ class P1PioTest extends PKPTestCase
 
         DAORegistry::registerDAO('JournalDAO', $mockJournalDAO);
 
+        return $journal;
+    }
+
+    private function createTestSubmission($journal): Submission
+    {
         import('classes.submission.Submission');
         $submission = new Submission();
         $submission->setId(rand());
@@ -191,10 +200,9 @@ class P1PioTest extends PKPTestCase
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessageIfFirstAuthorDoesNotHaveROR()
     {
-        $submission = $this->createTestSubmission();
-        $firstAuthor = $submission->getAuthors()[0];
+        $firstAuthor = $this->submission->getAuthors()[0];
         $firstAuthor->setData('rorId', null);
-        $P1Pio = new P1Pio($submission);
+        $P1Pio = new P1Pio($this->submission);
 
         $expectedMessages = ['The first author of the article must have a ROR associated to its affiliation.'];
         $this->assertEquals($expectedMessages, $P1Pio->validateHasMinimumSubmissionData());
@@ -202,11 +210,10 @@ class P1PioTest extends PKPTestCase
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessageIfAuthorDoesNotHaveFamilyName()
     {
-        $submission = $this->createTestSubmission();
-        $firstAuthor = $submission->getAuthors()[0];
+        $firstAuthor = $this->submission->getAuthors()[0];
         $firstAuthor->setData('familyName', null);
 
-        $P1Pio = new P1Pio($submission);
+        $P1Pio = new P1Pio($this->submission);
 
         $expectedMessages = ['The family name name of an author must be present.'];
         $this->assertEquals($expectedMessages, $P1Pio->validateHasMinimumSubmissionData());
@@ -214,11 +221,10 @@ class P1PioTest extends PKPTestCase
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfAuthorDoesNotHaveAffiliation()
     {
-        $submission = $this->createTestSubmission();
-        $firstAuthor = $submission->getAuthors()[0];
+        $firstAuthor = $this->submission->getAuthors()[0];
         $firstAuthor->setData('affiliation', null);
 
-        $P1Pio = new P1Pio($submission);
+        $P1Pio = new P1Pio($this->submission);
 
         $expectedMessages = ['Affiliation of an author must be set.'];
         $this->assertEquals($expectedMessages, $P1Pio->validateHasMinimumSubmissionData());
@@ -226,13 +232,23 @@ class P1PioTest extends PKPTestCase
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfArticleDoesNotHaveDOIAssociated()
     {
-        $submission = $this->createTestSubmission();
-        $publication = $submission->getCurrentPublication();
+        $publication = $this->submission->getCurrentPublication();
         $publication->setData('pub-id::doi', null);
+
+        $P1Pio = new P1Pio($this->submission);
+
+        $expectedMessages = ['The article must have a DOI associated.'];
+        $this->assertEquals($expectedMessages, $P1Pio->validateHasMinimumSubmissionData());
+    }
+
+    public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfArticleDoesNotHaveISSNAssociated()
+    {
+        $journal = $this->createMockedJournal();
+        $submission = $this->createTestSubmission($journal);
 
         $P1Pio = new P1Pio($submission);
 
-        $expectedMessages = ['The article must have a DOI associated.'];
+        $expectedMessages = ['The journal must have a ISSN or eISSN assigned.'];
         $this->assertEquals($expectedMessages, $P1Pio->validateHasMinimumSubmissionData());
     }
 }
