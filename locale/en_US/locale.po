@@ -34,4 +34,7 @@ msgstr "The OA Switchboard needs: Submission DOI, Journal ISSN, Authors Affiliat
 " Please, check your request parameters and try again."
 
 msgid "plugins.generic.OASwitchboardForOJS.serverError"
-msgstr "Server error when sending message. The OA Switchboard API server encountered an internal error.
+msgstr "Server error when sending message. The OA Switchboard API server encountered an internal error."
+
+msgid "plugins.generic.OASwitchboardForOJS.postRequirementsError"
+msgstr "It seems we don't have the mandatory data for sending the P1-PIO message, please check the submission activity log to understand the pending requirements."

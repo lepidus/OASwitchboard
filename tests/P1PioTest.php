@@ -202,10 +202,12 @@ class P1PioTest extends PKPTestCase
     {
         $firstAuthor = $this->submission->getAuthors()[0];
         $firstAuthor->setData('rorId', null);
-        $P1Pio = new P1Pio($this->submission);
 
-        $expectedMessages = ['The first author of the article must have a ROR associated to its affiliation.'];
-        $this->assertEquals($expectedMessages, $P1Pio->validateHasMinimumSubmissionData());
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            "##plugins.generic.OASwitchboardForOJS.postRequirementsError##"
+        );
+        $P1Pio = new P1Pio($this->submission);
     }
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessageIfAuthorDoesNotHaveFamilyName()
@@ -213,10 +215,11 @@ class P1PioTest extends PKPTestCase
         $firstAuthor = $this->submission->getAuthors()[0];
         $firstAuthor->setData('familyName', null);
 
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            "##plugins.generic.OASwitchboardForOJS.postRequirementsError##"
+        );
         $P1Pio = new P1Pio($this->submission);
-
-        $expectedMessages = ['The family name name of an author must be present.'];
-        $this->assertEquals($expectedMessages, $P1Pio->validateHasMinimumSubmissionData());
     }
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfAuthorDoesNotHaveAffiliation()
@@ -224,10 +227,11 @@ class P1PioTest extends PKPTestCase
         $firstAuthor = $this->submission->getAuthors()[0];
         $firstAuthor->setData('affiliation', null);
 
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            "##plugins.generic.OASwitchboardForOJS.postRequirementsError##"
+        );
         $P1Pio = new P1Pio($this->submission);
-
-        $expectedMessages = ['Affiliation of an author must be set.'];
-        $this->assertEquals($expectedMessages, $P1Pio->validateHasMinimumSubmissionData());
     }
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfArticleDoesNotHaveDOIAssociated()
@@ -235,10 +239,11 @@ class P1PioTest extends PKPTestCase
         $publication = $this->submission->getCurrentPublication();
         $publication->setData('pub-id::doi', null);
 
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            "##plugins.generic.OASwitchboardForOJS.postRequirementsError##"
+        );
         $P1Pio = new P1Pio($this->submission);
-
-        $expectedMessages = ['The article must have a DOI associated.'];
-        $this->assertEquals($expectedMessages, $P1Pio->validateHasMinimumSubmissionData());
     }
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfArticleDoesNotHaveISSNAssociated()
@@ -246,9 +251,10 @@ class P1PioTest extends PKPTestCase
         $journal = $this->createMockedJournal();
         $submission = $this->createTestSubmission($journal);
 
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            "##plugins.generic.OASwitchboardForOJS.postRequirementsError##"
+        );
         $P1Pio = new P1Pio($submission);
-
-        $expectedMessages = ['The journal must have a ISSN or eISSN assigned.'];
-        $this->assertEquals($expectedMessages, $P1Pio->validateHasMinimumSubmissionData());
     }
 }

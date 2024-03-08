@@ -34,3 +34,6 @@ msgstr "El OA Switchboard necesita: DOI de la Publicación, ISSN de la Revista, 
 
 msgid "plugins.generic.OASwitchboardForOJS.serverError"
 msgstr "Error del servidor al enviar el mensaje. El servidor de la API de OA Switchboard encontró un error interno."
+
+msgid "plugins.generic.OASwitchboardForOJS.postRequirementsError"
+msgstr "Parece que no tenemos los datos obligatorios para enviar el mensaje P1-PIO, por favor revise el Registro de actividad de lo envío para entender los requisitos pendientes."

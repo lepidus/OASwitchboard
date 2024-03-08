@@ -3,12 +3,12 @@
 import('plugins.generic.OASwitchboardForOJS.classes.messages.P1PioDataFormat');
 import('plugins.generic.OASwitchboardForOJS.classes.messages.LicenseAcronym');
 import('classes.submission.Submission');
+import('lib.pkp.classes.log.SubmissionLog');
 
 class P1Pio
 {
     use P1PioDataFormat;
     use LicenseAcronym;
-
     private $submission;
     private const ARTICLE_TYPE = 'research-article';
     private const DOI_BASE_URL = 'https://doi.org/';
@@ -17,6 +17,9 @@ class P1Pio
     public function __construct(Submission $submission)
     {
         $this->submission = $submission;
+        if (!empty($this->validateHasMinimumSubmissionData())) {
+            throw new Exception(__('plugins.generic.OASwitchboardForOJS.postRequirementsError'));
+        }
     }
 
     public function getRecipientAddress()
@@ -117,7 +120,7 @@ class P1Pio
 
         foreach ($data['authors'] as $key => $author) {
             if (empty($author['lastName'])) {
-                $missingDataMessages[] = 'The family name name of an author must be present.';
+                $missingDataMessages[] = 'The family name of an author must be present.';
             }
             if (empty($author['affiliation'])) {
                 $missingDataMessages[] = 'Affiliation of an author must be set.';
