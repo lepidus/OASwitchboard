@@ -33,10 +33,25 @@ msgid "plugins.generic.OASwitchboardForOJS.sendMessageWithSuccess"
 msgstr "A mensagem P1-PIO foi enviada com sucesso para o OA Switchboard"
 
 msgid "plugins.generic.OASwitchboardForOJS.postRequirements"
-msgstr "O OA Switchboard precisa de: DOI da Submissão, ISSN da Revista, Afiliação dos Autores e o primeiro autor deve ter um ID de ROI de afiliação. Por favor, verifique os parâmetros da sua solicitação e tente novamente."
+msgstr "Erro do cliente ao enviar mensagem para o servidor da API do OA Switchboard, mais informações nos logs do sistema."
 
 msgid "plugins.generic.OASwitchboardForOJS.serverError"
 msgstr "Erro do servidor ao enviar a mensagem. O servidor da API do OA Switchboard encontrou um erro interno."
 
 msgid "plugins.generic.OASwitchboardForOJS.postRequirementsError"
 msgstr "Parece que não temos os dados obrigatórios para envio da mensagem P1-PIO, verifique o histórico de atividades da submissão para entender os requisitos pendentes."
+
+msgid "plugins.generic.OASwitchboardForOJS.postRequirementsError.recipient"
+msgstr "O primeiro autor do artigo deve ter um ROR associado à sua afiliação."
+
+msgid "plugins.generic.OASwitchboardForOJS.postRequirementsError.familyName"
+msgstr "O sobrenome de um autor deve estar presente."
+
+msgid "plugins.generic.OASwitchboardForOJS.postRequirementsError.affiliation"
+msgstr "A afiliação de um autor deve ser definida."
+
+msgid "plugins.generic.OASwitchboardForOJS.postRequirementsError.doi"
+msgstr "O artigo deve ter um DOI associado."
+
+msgid "plugins.generic.OASwitchboardForOJS.postRequirementsError.issn"
+msgstr "A revista deve ter um ISSN ou eISSN atribuído."

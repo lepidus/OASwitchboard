@@ -126,7 +126,7 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
 
             if ($e->getP1PioErrors()) {
                 foreach ($e->getP1PioErrors() as $error) {
-                    $this->sendNotification($userId, $error, NOTIFICATION_TYPE_WARNING);
+                    $this->sendNotification($userId, __($error), NOTIFICATION_TYPE_WARNING);
                     $this->registerSubmissionEventLog($request, $submission, $error);
                 }
             }

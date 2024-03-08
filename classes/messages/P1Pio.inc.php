@@ -117,22 +117,22 @@ class P1Pio
         $data = $message['data'];
 
         if (empty($header['to']['address'])) {
-            $missingDataMessages[] = 'The first author of the article must have a ROR associated to its affiliation.';
+            $missingDataMessages[] = 'plugins.generic.OASwitchboardForOJS.postRequirementsError.recipient';
         }
 
         foreach ($data['authors'] as $key => $author) {
             if (empty($author['lastName'])) {
-                $missingDataMessages[] = 'The family name of an author must be present.';
+                $missingDataMessages[] = 'plugins.generic.OASwitchboardForOJS.postRequirementsError.familyName';
             }
             if (empty($author['affiliation'])) {
-                $missingDataMessages[] = 'Affiliation of an author must be set.';
+                $missingDataMessages[] = 'plugins.generic.OASwitchboardForOJS.postRequirementsError.affiliation';
             }
         }
         if (empty($data['article']['doi'])) {
-            $missingDataMessages[] = 'The article must have a DOI associated.';
+            $missingDataMessages[] = 'plugins.generic.OASwitchboardForOJS.postRequirementsError.doi';
         }
         if (empty($data['journal']['id'])) {
-            $missingDataMessages[] = 'The journal must have a ISSN or eISSN assigned.';
+            $missingDataMessages[] = 'plugins.generic.OASwitchboardForOJS.postRequirementsError.issn';
         }
 
         return $missingDataMessages;
