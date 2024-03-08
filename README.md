@@ -12,31 +12,36 @@ The current version sends P1-PIO messages with only the mandatory data about the
 
 The latest release of this plugin is compatible with **OJS 3.3.0**
 
-## Journal Requirements
+## Requirements
 
-Make sure to fulfill these requirements in your journal so that the P1-PIO Message can be sent to OASwitchboard in the moment of publication.
+Make sure to fulfill these requirements so that the P1-PIO Message can be sent to OASwitchboard in the moment of article publication.
+
+### Journal Requirements
 
 1. **api_key_secret**
 
 The OJS instance must have the `api_key_secret` configuration set up, you may contact your system administrator to do that.
+
 This is required to use the API credentials provided, that are stored encrypted in the OJS database.
 
-2. **ROR Plugin enabled**
+2. **ISSN**
 
-* The ROR Plugin must be installed and active in the journal.
+The Journal must have at least one ISSN configured, either digital or print.
 
-* In a submission, all authors must have an Affiliation, and the first author must specify the ROR ID.
+3. **ROR Plugin enabled**
 
-3. **DOI Plugin enabled and configured**
+The ROR Plugin must be installed and active in the journal. It can be installed from the plugin gallery.
 
-* The DOI Plugin must be enabled and properly configured in the journal.
+4. **DOI Plugin enabled and configured**
 
-* The publication must have a DOI associated to it.
+The DOI Plugin must be active and properly configured in the journal.
 
-4. **ISSN**
+### Publication Requirements
 
-* The Journal must have at least one ISSN configured, either digital or print.
-
+* All authors of the article must have an **affiliation** set
+* At least the first author's affiliation must specify the **ROR ID** (ROR plugin needed).
+* The publication must have a **DOI associated** to it.
+* The authors need to have **family name** besides the given name.
 
 ## Plugin Installation
 
@@ -50,11 +55,14 @@ Click Save and the plugin will be installed on your website.
 
 ## Usage
 
-* First of all, make sure you have met all [requirements for properly sending P1-PIO messages from your journal](#journal-requirements).
+* First of all, make sure you have met all [requirements for properly sending the P1-PIO messages](#requirements).
 
 * After installing the plugin, go to the plugin Settings, and enter your credentials for accessing the OASwitchboard API.
+  * You may need different credentials for the *sandbox* API.
 
-* In the moment of the publication of an article, a P1-PIO Message will be sent via the OASwitchboard API, using the access credentials.
+* In the moment of the publication of an article, a P1-PIO Message will be sent to OASwitchboard via API, if all publication requirements are met.
+  * In success, you should see a green notification on screen reload.
+  * If any problems block the message from being sent, such as publication requirements, you should see a red notification detailing the problem, and the information is persisted in the '*Activity Log*' of the publication.
 
 ## Credits
 
