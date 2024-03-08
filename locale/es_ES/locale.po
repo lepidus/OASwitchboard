@@ -29,6 +29,9 @@ msgstr "Contraseña:"
 msgid "plugins.generic.OASwitchboardForOJS.settings.apiAuthenticatorFailed"
 msgstr "No se pudo autenticar, por favor, comprueba las credenciales de API de OA Switchboard nuevamente"
 
+msgid "plugins.generic.OASwitchboardForOJS.sendMessageWithSuccess"
+msgstr "El mensaje P1-PIO se envió correctamente al OA Switchboard"
+
 msgid "plugins.generic.OASwitchboardForOJS.postRequirements"
 msgstr "El OA Switchboard necesita: DOI de la Publicación, ISSN de la Revista, Afilición de los Autores y el primer autor debe tener un ID de afiliación ROI. Por favor, verifique los parámetros de su solicitud e intente nuevamente."
 

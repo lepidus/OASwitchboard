@@ -29,6 +29,9 @@ msgstr "Password:"
 msgid "plugins.generic.OASwitchboardForOJS.settings.apiAuthenticatorFailed"
 msgstr "Failed to authenticate, please check the OA Switchboard API credentials again"
 
+msgid "plugins.generic.OASwitchboardForOJS.sendMessageWithSuccess"
+msgstr "The P1-PIO message was successfully sent to the OA Switchboard"
+
 msgid "plugins.generic.OASwitchboardForOJS.postRequirements"
 msgstr "The OA Switchboard needs: Submission DOI, Journal ISSN, Authors Affiliation and the first author must have affiliation ROI ID."
 " Please, check your request parameters and try again."
@@ -38,3 +41,4 @@ msgstr "Server error when sending message. The OA Switchboard API server encount
 
 msgid "plugins.generic.OASwitchboardForOJS.postRequirementsError"
 msgstr "It seems we don't have the mandatory data for sending the P1-PIO message, please check the submission activity log to understand the pending requirements."
+

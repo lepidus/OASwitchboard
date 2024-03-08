@@ -97,12 +97,12 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
         );
     }
 
-    private function sendWarningNotification($userId, $message)
+    private function sendNotification($userId, $message, $notificationType)
     {
         $notificationManager = new NotificationManager();
         $notificationManager->createTrivialNotification(
             $userId,
-            NOTIFICATION_TYPE_WARNING,
+            $notificationType,
             array('contents' => $message)
         );
     }
@@ -113,19 +113,20 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
         $submission = & $args[2];
         $contextId = PKPApplication::get()->getRequest()->getContext()->getId();
         $OASwitchboard = new OASwitchboardService($this, $contextId, $submission);
+        $request = PKPApplication::get()->getRequest();
+        $userId = $request->getUser()->getId();
 
         try {
             if ($publication->getData('status') === STATUS_PUBLISHED) {
                 $OASwitchboard->sendP1PioMessage();
+                $this->sendNotification($userId, __('plugins.generic.OASwitchboardForOJS.sendMessageWithSuccess'), NOTIFICATION_TYPE_SUCCESS);
             }
         } catch (Exception $e) {
-            $request = PKPApplication::get()->getRequest();
-            $userId = $request->getUser()->getId();
-            $this->sendWarningNotification($userId, $e->getMessage());
+            $this->sendNotification($userId, $e->getMessage(), NOTIFICATION_TYPE_WARNING);
 
             if ($e->getP1PioErrors()) {
                 foreach ($e->getP1PioErrors() as $error) {
-                    $this->sendWarningNotification($userId, $error);
+                    $this->sendNotification($userId, $error, NOTIFICATION_TYPE_WARNING);
                     $this->registerSubmissionEventLog($request, $submission, $error);
                 }
             }
