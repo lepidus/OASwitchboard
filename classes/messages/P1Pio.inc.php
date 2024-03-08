@@ -2,13 +2,14 @@
 
 import('plugins.generic.OASwitchboardForOJS.classes.messages.P1PioDataFormat');
 import('plugins.generic.OASwitchboardForOJS.classes.messages.LicenseAcronym');
+import('plugins.generic.OASwitchboardForOJS.classes.exceptions.P1PioException');
 import('classes.submission.Submission');
+import('lib.pkp.classes.log.SubmissionLog');
 
 class P1Pio
 {
     use P1PioDataFormat;
     use LicenseAcronym;
-
     private $submission;
     private const ARTICLE_TYPE = 'research-article';
     private const DOI_BASE_URL = 'https://doi.org/';
@@ -17,6 +18,10 @@ class P1Pio
     public function __construct(Submission $submission)
     {
         $this->submission = $submission;
+        $minimumData = $this->validateHasMinimumSubmissionData();
+        if (!empty($minimumData)) {
+            throw new P1PioException(__('plugins.generic.OASwitchboardForOJS.postRequirementsError'), 0, $minimumData);
+        }
     }
 
     public function getRecipientAddress()
@@ -103,59 +108,33 @@ class P1Pio
         return $this->assembleMessage();
     }
 
-    public function validateSubmissionHasMandatoryData(): array
+    public function validateHasMinimumSubmissionData(): array
     {
-        $data['authors'] = $this->getAuthorsData();
-        $data['article'] = $this->getArticleData();
-        $data['journal'] = $this->getJournalData();
+        $missingDataMessages = [];
 
-        $requiredFields = [
-            'authors' => [
-                [
-                    'lastName',
-                    'firstName',
-                    'affiliation',
-                    'institutions' => ['name', 'ror']
-                ]
-            ],
-            'article' => [
-                'title',
-                'doi',
-                'type',
-                'vor' => ['publication', 'license']
-            ],
-            'journal' => ['name', 'id']
-        ];
+        $message = $this->getContent();
+        $header = $message['header'];
+        $data = $message['data'];
 
-        $missingFields = [];
-
-        foreach ($requiredFields as $section => $fields) {
-            foreach ($fields as $key => $field) {
-                if (is_array($field)) {
-                    // Check nested fields
-                    foreach ($field as $nestedField => $subFields) {
-                        if (is_array($subFields)) {
-                            foreach ($subFields as $subField) {
-                                if (!isset($data[$section][$key][$nestedField][0][$subField])) {
-                                    $missingFields[] = "Missing '$subField' in the '$nestedField' sub-section of the '$key' sub-section of the '$section' section.";
-                                }
-                            }
-                        } else {
-                            // Non-nested field
-                            if (!isset($data[$section][$key][$subFields])) {
-                                $missingFields[] = "Missing '$subFields' in the '$key' sub-section of the '$section' section.";
-                            }
-                        }
-                    }
-                } else {
-                    // Check non-nested fields
-                    if (!isset($data[$section]) || !isset($data[$section][$field])) {
-                        $missingFields[] = "Missing '$field' in the '$section' section.";
-                    }
-                }
-            }
+        if (empty($header['to']['address'])) {
+            $missingDataMessages[] = 'plugins.generic.OASwitchboardForOJS.postRequirementsError.recipient';
         }
 
-        return $missingFields;
+        foreach ($data['authors'] as $key => $author) {
+            if (empty($author['lastName'])) {
+                $missingDataMessages[] = 'plugins.generic.OASwitchboardForOJS.postRequirementsError.familyName';
+            }
+            if (empty($author['affiliation'])) {
+                $missingDataMessages[] = 'plugins.generic.OASwitchboardForOJS.postRequirementsError.affiliation';
+            }
+        }
+        if (empty($data['article']['doi'])) {
+            $missingDataMessages[] = 'plugins.generic.OASwitchboardForOJS.postRequirementsError.doi';
+        }
+        if (empty($data['journal']['id'])) {
+            $missingDataMessages[] = 'plugins.generic.OASwitchboardForOJS.postRequirementsError.issn';
+        }
+
+        return $missingDataMessages;
     }
 }

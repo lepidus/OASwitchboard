@@ -9,12 +9,14 @@ class P1PioTest extends PKPTestCase
     use P1PioExpectedTestData;
 
     private $P1Pio;
+    private $submission;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $submission = $this->createTestSubmission();
-        $this->P1Pio = new P1Pio($submission);
+        $journal = $this->createMockedJournal($issn = "0000-0001");
+        $this->submission = $this->createTestSubmission($journal);
+        $this->P1Pio = new P1Pio($this->submission);
     }
 
     protected function getMockedDAOs()
@@ -28,7 +30,6 @@ class P1PioTest extends PKPTestCase
     {
         import('classes.article.Author');
         $author = new Author();
-        $author->setData('publicationId', 1234);
         $author->setGivenName('Iris', 'pt_BR');
         $author->setFamilyName('Castanheiras', 'pt_BR');
         $author->setAffiliation('Lepidus Tecnologia', 'pt_BR');
@@ -39,13 +40,15 @@ class P1PioTest extends PKPTestCase
         return [$author];
     }
 
-    private function createTestSubmission(): Submission
+    private function createMockedJournal($issn = null)
     {
         import('classes.journal.Journal');
         $journal = new Journal();
         $journal->setId(rand());
         $journal->setName('Middle Earth papers', 'en_US');
-        $journal->setData('onlineIssn', '0000-0001');
+        if ($issn) {
+            $journal->setData('onlineIssn', $issn);
+        }
 
         $mockJournalDAO = $this->getMockBuilder(JournalDAO::class)
             ->setMethods(['getById'])
@@ -57,6 +60,11 @@ class P1PioTest extends PKPTestCase
 
         DAORegistry::registerDAO('JournalDAO', $mockJournalDAO);
 
+        return $journal;
+    }
+
+    private function createTestSubmission($journal): Submission
+    {
         import('classes.submission.Submission');
         $submission = new Submission();
         $submission->setId(rand());
@@ -185,8 +193,68 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals($this->getExpectedJournalArray(), $data['journal']);
     }
 
-    public function testP1PioValidateSubmissionHasMandatoryData()
+    public function testValidateHasMinimumSubmissionDataReturnsEmptyIfAllMandatoryDataIsPassed()
     {
-        $this->assertTrue(empty($this->P1Pio->validateSubmissionHasMandatoryData()));
+        $this->assertTrue(empty($this->P1Pio->validateHasMinimumSubmissionData()));
+    }
+
+    public function testValidateHasMinimumSubmissionDataShouldReturnMessageIfFirstAuthorDoesNotHaveROR()
+    {
+        $firstAuthor = $this->submission->getAuthors()[0];
+        $firstAuthor->setData('rorId', null);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            "##plugins.generic.OASwitchboardForOJS.postRequirementsError##"
+        );
+        $P1Pio = new P1Pio($this->submission);
+    }
+
+    public function testValidateHasMinimumSubmissionDataShouldReturnMessageIfAuthorDoesNotHaveFamilyName()
+    {
+        $firstAuthor = $this->submission->getAuthors()[0];
+        $firstAuthor->setData('familyName', null);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            "##plugins.generic.OASwitchboardForOJS.postRequirementsError##"
+        );
+        $P1Pio = new P1Pio($this->submission);
+    }
+
+    public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfAuthorDoesNotHaveAffiliation()
+    {
+        $firstAuthor = $this->submission->getAuthors()[0];
+        $firstAuthor->setData('affiliation', null);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            "##plugins.generic.OASwitchboardForOJS.postRequirementsError##"
+        );
+        $P1Pio = new P1Pio($this->submission);
+    }
+
+    public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfArticleDoesNotHaveDOIAssociated()
+    {
+        $publication = $this->submission->getCurrentPublication();
+        $publication->setData('pub-id::doi', null);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            "##plugins.generic.OASwitchboardForOJS.postRequirementsError##"
+        );
+        $P1Pio = new P1Pio($this->submission);
+    }
+
+    public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfArticleDoesNotHaveISSNAssociated()
+    {
+        $journal = $this->createMockedJournal();
+        $submission = $this->createTestSubmission($journal);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            "##plugins.generic.OASwitchboardForOJS.postRequirementsError##"
+        );
+        $P1Pio = new P1Pio($submission);
     }
 }

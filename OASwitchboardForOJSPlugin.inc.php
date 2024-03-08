@@ -86,26 +86,50 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
         }
     }
 
+    private function registerSubmissionEventLog($request, $submission, $error)
+    {
+        SubmissionLog::logEvent(
+            $request,
+            $submission,
+            SUBMISSION_LOG_TYPE_DEFAULT,
+            $error,
+            []
+        );
+    }
+
+    private function sendNotification($userId, $message, $notificationType)
+    {
+        $notificationManager = new NotificationManager();
+        $notificationManager->createTrivialNotification(
+            $userId,
+            $notificationType,
+            array('contents' => $message)
+        );
+    }
+
     public function sendOASwitchboardMessage($hookName, $args)
     {
         $publication = & $args[0];
         $submission = & $args[2];
         $contextId = PKPApplication::get()->getRequest()->getContext()->getId();
         $OASwitchboard = new OASwitchboardService($this, $contextId, $submission);
+        $request = PKPApplication::get()->getRequest();
+        $userId = $request->getUser()->getId();
 
         try {
             if ($publication->getData('status') === STATUS_PUBLISHED) {
                 $OASwitchboard->sendP1PioMessage();
+                $this->sendNotification($userId, __('plugins.generic.OASwitchboardForOJS.sendMessageWithSuccess'), NOTIFICATION_TYPE_SUCCESS);
             }
         } catch (Exception $e) {
-            import('classes.notification.NotificationManager');
-            $notificationManager = new NotificationManager();
-            $userId = PKPApplication::get()->getRequest()->getUser()->getId();
-            $notificationManager->createTrivialNotification(
-                $userId,
-                NOTIFICATION_TYPE_WARNING,
-                array('contents' => $e->getMessage())
-            );
+            $this->sendNotification($userId, $e->getMessage(), NOTIFICATION_TYPE_WARNING);
+
+            if ($e->getP1PioErrors()) {
+                foreach ($e->getP1PioErrors() as $error) {
+                    $this->sendNotification($userId, __($error), NOTIFICATION_TYPE_WARNING);
+                    $this->registerSubmissionEventLog($request, $submission, $error);
+                }
+            }
             throw $e;
         }
     }
