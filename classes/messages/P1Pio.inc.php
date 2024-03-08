@@ -2,6 +2,7 @@
 
 import('plugins.generic.OASwitchboardForOJS.classes.messages.P1PioDataFormat');
 import('plugins.generic.OASwitchboardForOJS.classes.messages.LicenseAcronym');
+import('plugins.generic.OASwitchboardForOJS.classes.exceptions.P1PioException');
 import('classes.submission.Submission');
 import('lib.pkp.classes.log.SubmissionLog');
 
@@ -17,8 +18,9 @@ class P1Pio
     public function __construct(Submission $submission)
     {
         $this->submission = $submission;
-        if (!empty($this->validateHasMinimumSubmissionData())) {
-            throw new Exception(__('plugins.generic.OASwitchboardForOJS.postRequirementsError'));
+        $minimumData = $this->validateHasMinimumSubmissionData();
+        if (!empty($minimumData)) {
+            throw new P1PioException(__('plugins.generic.OASwitchboardForOJS.postRequirementsError'), 0, $minimumData);
         }
     }
 
