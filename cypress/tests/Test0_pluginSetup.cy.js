@@ -20,7 +20,7 @@ describe('Setup OASwitchboard plugin', function () {
 
         cy.get('form#OASwitchboardSettingsForm').should('be.visible')
         
-        cy.contains('OA Switchboard');
+        cy.contains('OA Switchboard Plugin');
         cy.contains('Please, enter your Open Access Switchboard credentials below, to allow the plugin to access the API.')
         
         cy.get('input[name=OASUsername]').should('be.visible');

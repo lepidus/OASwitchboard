@@ -10,7 +10,7 @@ describe('Setup OASwitchboard invalid credentials', function () {
         cy.get('tr#' + pluginRowId + ' a.show_extras').click();
         cy.get('a[id^=' + pluginRowId + '-settings-button]').click();
 
-        cy.contains('OA Switchboard Integration Plugin for OJS');
+        cy.contains('OA Switchboard Plugin');
         
         cy.contains('Please, enter your Open Access Switchboard credentials below, to allow the plugin to access the API.');
         cy.get('input[name=OASUsername]').should('be.visible');
