@@ -1,58 +1,58 @@
-msgid "plugins.generic.OASwitchboardForOJS.displayName"
-msgstr "OA Switchboard Integration Plugin for OJS"
+msgid "plugins.generic.OASwitchboard.displayName"
+msgstr "OA Switchboard Plugin"
 
-msgid "plugins.generic.OASwitchboardForOJS.settings.apiKeyIsEmpty"
+msgid "plugins.generic.OASwitchboard.settings.apiKeyIsEmpty"
 msgstr "Your site administrator must set a secret in the config file ('api_key_secret')."
 
-msgid "plugins.generic.OASwitchboardForOJS.description"
-msgstr "Allows sending P1-PIO messages to OA Switchboard."
+msgid "plugins.generic.OASwitchboard.description"
+msgstr "Allows sending P1-PIO messages to OA Switchboard, automatically, at the publication of an article."
 
-msgid "plugins.generic.OASwitchboardForOJS.settings.description"
+msgid "plugins.generic.OASwitchboard.settings.description"
 msgstr "Please, enter your Open Access Switchboard credentials below, to allow the plugin to access the API."
 
-msgid "plugins.generic.OASwitchboardForOJS.settings.useApiForTests"
+msgid "plugins.generic.OASwitchboard.settings.useApiForTests"
 msgstr "Use API for tests"
 
-msgid "plugins.generic.OASwitchboardForOJS.settings.useApiForTests.option.label"
+msgid "plugins.generic.OASwitchboard.settings.useApiForTests.option.label"
 msgstr "Use sandbox API for plugin testing purposes."
 
-msgid "plugins.generic.OASwitchboardForOJS.settings.description.hasCredentials"
+msgid "plugins.generic.OASwitchboard.settings.description.hasCredentials"
 msgstr "The API credentials are ready to use! Currently using credentials for: <strong>{$username}</strong>."
 "<br>You can edit the credentials below, or click the Cancel button."
 
-msgid "plugins.generic.OASwitchboardForOJS.settings.username"
+msgid "plugins.generic.OASwitchboard.settings.username"
 msgstr "Username:"
 
-msgid "plugins.generic.OASwitchboardForOJS.settings.password"
+msgid "plugins.generic.OASwitchboard.settings.password"
 msgstr "Password:"
 
-msgid "plugins.generic.OASwitchboardForOJS.settings.apiAuthenticatorFailed"
+msgid "plugins.generic.OASwitchboard.settings.apiAuthenticatorFailed"
 msgstr "Failed to authenticate, please check the OA Switchboard API credentials again"
 
-msgid "plugins.generic.OASwitchboardForOJS.sendMessageWithSuccess"
+msgid "plugins.generic.OASwitchboard.sendMessageWithSuccess"
 msgstr "The P1-PIO message was successfully sent to the OA Switchboard"
 
-msgid "plugins.generic.OASwitchboardForOJS.postRequirements"
+msgid "plugins.generic.OASwitchboard.postRequirements"
 msgstr "Client error when sending message to OA Switchboard API server, more information in the system log."
 
-msgid "plugins.generic.OASwitchboardForOJS.serverError"
+msgid "plugins.generic.OASwitchboard.serverError"
 msgstr "Server error when sending message. The OA Switchboard API server encountered an internal error."
 
-msgid "plugins.generic.OASwitchboardForOJS.postRequirementsError"
+msgid "plugins.generic.OASwitchboard.postRequirementsError"
 msgstr "It seems we don't have the mandatory data for sending the P1-PIO message, please check the submission activity log to understand the pending requirements."
 
-msgid "plugins.generic.OASwitchboardForOJS.postRequirementsError.recipient"
+msgid "plugins.generic.OASwitchboard.postRequirementsError.recipient"
 msgstr "The first author of the article must have a ROR associated to its affiliation."
 
-msgid "plugins.generic.OASwitchboardForOJS.postRequirementsError.familyName"
+msgid "plugins.generic.OASwitchboard.postRequirementsError.familyName"
 msgstr "The family name of an author must be present."
 
-msgid "plugins.generic.OASwitchboardForOJS.postRequirementsError.affiliation"
+msgid "plugins.generic.OASwitchboard.postRequirementsError.affiliation"
 msgstr "Affiliation of an author must be set."
 
-msgid "plugins.generic.OASwitchboardForOJS.postRequirementsError.doi"
+msgid "plugins.generic.OASwitchboard.postRequirementsError.doi"
 msgstr "The article must have a DOI associated."
 
-msgid "plugins.generic.OASwitchboardForOJS.postRequirementsError.issn"
+msgid "plugins.generic.OASwitchboard.postRequirementsError.issn"
 msgstr "The journal must have a ISSN or eISSN assigned."
 

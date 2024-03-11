@@ -1,12 +1,9 @@
-# Open Access Switchboard For OJS
+# Open Access Switchboard Plugin
 
-This plugin integrates OJS to the [Open Access Switchboard](https://www.oaswitchboard.org/) API.
+This plugin enables **[OJS](https://pkp.sfu.ca/software/ojs/)** journals to automatically send **P1-PIO** type messages to the **[Open Access Switchboard](https://www.oaswitchboard.org/)** API at the moment of article publication.
 
-It enables journals to automatically send **P1-PIO** type messages to OASwitchboard, in the moment of the publication of articles, containing public information.
-
-The current version sends P1-PIO messages with only the mandatory data about the article.
-
-> Notice: This plugin is not yet ready for general use.
+> The current version of this plugin sends P1-PIO messages with only the mandatory data about the article.
+For that reason, it may not be ready for a comprehensive general use.
 
 ## Compatibility
 
@@ -45,11 +42,11 @@ The DOI Plugin must be active and properly configured in the journal.
 
 ## Plugin Installation
 
-1. To download the plugin, go to the [Releases page](https://github.com/lepidus/OASwitchboardForOJS/releases) and download the tar.gz package of the latest release compatible with your website.
+1. To download the plugin, go to the [Releases page](https://github.com/lepidus/OASwitchboard/releases) and download the tar.gz package of the latest release compatible with your website.
 
 2. Enter the administration area of ​​your OJS website through the *Dashboard*.
 
-    Navigate to `Settings` > `Website` > `Plugins` > `Upload a new plugin` and select the file **`OASwitchboardForOJS.tar.gz`**.
+    Navigate to `Settings` > `Website` > `Plugins` > `Upload a new plugin` and select the file **`OASwitchboard.tar.gz`**.
 
 Click Save and the plugin will be installed on your website.
 

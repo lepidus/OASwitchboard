@@ -9,7 +9,7 @@ jobs:
   create-release:
     name: Create release and package
     env:
-      PLUGIN_NAME: OASwitchboardForOJS
+      PLUGIN_NAME: OASwitchboard
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

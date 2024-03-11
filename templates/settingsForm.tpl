@@ -8,34 +8,34 @@
 
 <script>
     $(function() {ldelim}
-    $('#OASwitchboardForOJSSettingsForm').pkpHandler('$.pkp.controllers.form.AjaxFormHandler');
+    $('#OASwitchboardSettingsForm').pkpHandler('$.pkp.controllers.form.AjaxFormHandler');
     {rdelim});
 </script>
 
-<div id="OASwitchboardForOJSSettings">
-    <form class="pkp_form" id="OASwitchboardForOJSSettingsForm" method="post"
+<div id="OASwitchboardSettings">
+    <form class="pkp_form" id="OASwitchboardSettingsForm" method="post"
         action="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="settings" save=true}">
         {csrf}
 
         <div id="description">
         {if $hasCredentials}
-            <p>{translate key="plugins.generic.OASwitchboardForOJS.settings.description.hasCredentials" username=$username|escape}</p>
+            <p>{translate key="plugins.generic.OASwitchboard.settings.description.hasCredentials" username=$username|escape}</p>
         {else}
-            <p>{translate key="plugins.generic.OASwitchboardForOJS.settings.description"}</p>
+            <p>{translate key="plugins.generic.OASwitchboard.settings.description"}</p>
         {/if}
         </div>
-        {include file="controllers/notification/inPlaceNotification.tpl" notificationId="OASwitchboardForOJSSettingsFormNotification"}
+        {include file="controllers/notification/inPlaceNotification.tpl" notificationId="OASwitchboardSettingsFormNotification"}
 
         {fbvFormArea id="authForm"}
-            {fbvFormSection for="sandBoxAPI" title="plugins.generic.OASwitchboardForOJS.settings.useApiForTests" list="true"}
-                {fbvElement type="checkbox" name="isSandBoxAPI" label="plugins.generic.OASwitchboardForOJS.settings.useApiForTests.option.label" id="isSandBoxAPI" checked=$isSandBoxAPI}
+            {fbvFormSection for="sandBoxAPI" title="plugins.generic.OASwitchboard.settings.useApiForTests" list="true"}
+                {fbvElement type="checkbox" name="isSandBoxAPI" label="plugins.generic.OASwitchboard.settings.useApiForTests.option.label" id="isSandBoxAPI" checked=$isSandBoxAPI}
             {/fbvFormSection}
 
-            {fbvFormSection label="plugins.generic.OASwitchboardForOJS.settings.username" required=true}
+            {fbvFormSection label="plugins.generic.OASwitchboard.settings.username" required=true}
                 {fbvElement type="text" id="OASUsername" value=$username|escape size=$fbvStyles.size.MEDIUM}
             {/fbvFormSection}
 
-            {fbvFormSection label="plugins.generic.OASwitchboardForOJS.settings.password" required=true}
+            {fbvFormSection label="plugins.generic.OASwitchboard.settings.password" required=true}
                 {fbvElement type="text" password="true" id="OASPassword" value=$password|escape size=$fbvStyles.size.MEDIUM}
             {/fbvFormSection}
 

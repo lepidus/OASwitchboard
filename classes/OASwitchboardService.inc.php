@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file plugins/generic/OASwitchboardForOJS/classes/OASwitchboard.inc.php
+ * @file plugins/generic/OASwitchboard/classes/OASwitchboard.inc.php
  *
  * Copyright (c) 2024 Lepidus Tecnologia
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
@@ -11,14 +11,14 @@
  * @brief OASwitchboard plugin class
  */
 
-import('plugins.generic.OASwitchboardForOJS.classes.messages.P1Pio');
-import('plugins.generic.OASwitchboardForOJS.lib.APIKeyEncryption.APIKeyEncryption');
-import('plugins.generic.OASwitchboardForOJS.OASwitchboardForOJSPlugin');
-import('plugins.generic.OASwitchboardForOJS.classes.api.OASwitchboardAPIClient');
+import('plugins.generic.OASwitchboard.classes.messages.P1Pio');
+import('plugins.generic.OASwitchboard.lib.APIKeyEncryption.APIKeyEncryption');
+import('plugins.generic.OASwitchboard.OASwitchboardPlugin');
+import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIClient');
 
 class OASwitchboardService
 {
-    private OASwitchboardForOJSPlugin $plugin;
+    private OASwitchboardPlugin $plugin;
     private OASwitchboardAPIClient $apiClient;
     private $contextId;
     private $submission;

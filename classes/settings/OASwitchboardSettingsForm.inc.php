@@ -1,10 +1,10 @@
 <?php
 
 import('lib.pkp.classes.form.Form');
-import('plugins.generic.OASwitchboardForOJS.lib.APIKeyEncryption.APIKeyEncryption');
-import('plugins.generic.OASwitchboardForOJS.classes.api.OASwitchboardAPIClient');
+import('plugins.generic.OASwitchboard.lib.APIKeyEncryption.APIKeyEncryption');
+import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIClient');
 
-class OASwitchboardForOJSSettingsForm extends Form
+class OASwitchboardSettingsForm extends Form
 {
     private $plugin;
     private $contextId;
@@ -38,7 +38,7 @@ class OASwitchboardForOJSSettingsForm extends Form
         $notificationManager->createTrivialNotification(
             $user->getId(),
             NOTIFICATION_TYPE_ERROR,
-            array('contents' => __('plugins.generic.OASwitchboardForOJS.settings.apiAuthenticatorFailed'))
+            array('contents' => __('plugins.generic.OASwitchboard.settings.apiAuthenticatorFailed'))
         );
     }
 

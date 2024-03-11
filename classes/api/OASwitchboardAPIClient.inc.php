@@ -53,12 +53,12 @@ class OASwitchboardAPIClient
         } catch (ServerException $e) {
             error_log($e);
             throw new Exception(
-                __('plugins.generic.OASwitchboardForOJS.serverError')
+                __('plugins.generic.OASwitchboard.serverError')
             );
         } catch (ClientException $e) {
             error_log($e);
             throw new Exception(
-                __('plugins.generic.OASwitchboardForOJS.postRequirements')
+                __('plugins.generic.OASwitchboard.postRequirements')
             );
         }
     }

@@ -1,5 +1,5 @@
 variables:
-    PLUGIN_NAME: 'OASwitchboardForOJS'
+    PLUGIN_NAME: 'OASwitchboard'
 
 include:
   - project: 'documentacao-e-tarefas/modelosparaintegracaocontinua'
