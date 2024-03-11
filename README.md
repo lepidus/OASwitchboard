@@ -1,12 +1,9 @@
-# Open Access Switchboard OJS Plugin
+# Open Access Switchboard Plugin
 
-This plugin integrates [OJS]() to the [Open Access Switchboard](https://www.oaswitchboard.org/) API.
+This plugin enables **[OJS](https://pkp.sfu.ca/software/ojs/)** journals to automatically send **P1-PIO** type messages to the **[Open Access Switchboard](https://www.oaswitchboard.org/)** API at the moment of article publication.
 
-It enables journals to automatically send **P1-PIO** type messages to OASwitchboard, in the moment of the publication of articles, containing public information.
-
-The current version sends P1-PIO messages with only the mandatory data about the article.
-
-> Notice: This plugin is not yet ready for general use.
+> The current version of this plugin sends P1-PIO messages with only the mandatory data about the article.
+For that reason, it may not be ready for a comprehensive general use.
 
 ## Compatibility
 
