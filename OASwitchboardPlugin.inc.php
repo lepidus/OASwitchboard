@@ -112,12 +112,12 @@ class OASwitchboardPlugin extends GenericPlugin
         $publication = & $args[0];
         $submission = & $args[2];
         $contextId = PKPApplication::get()->getRequest()->getContext()->getId();
-        $OASwitchboard = new OASwitchboardService($this, $contextId, $submission);
         $request = PKPApplication::get()->getRequest();
         $userId = $request->getUser()->getId();
 
         try {
             if ($publication->getData('status') === STATUS_PUBLISHED) {
+                $OASwitchboard = new OASwitchboardService($this, $contextId, $submission);
                 $OASwitchboard->sendP1PioMessage();
                 $this->sendNotification($userId, __('plugins.generic.OASwitchboard.sendMessageWithSuccess'), NOTIFICATION_TYPE_SUCCESS);
             }
@@ -132,5 +132,17 @@ class OASwitchboardPlugin extends GenericPlugin
             }
             throw $e;
         }
+    }
+
+    public function getCanEnable()
+    {
+        $request = Application::get()->getRequest();
+        return $request->getContext() !== null;
+    }
+
+    public function getCanDisable()
+    {
+        $request = Application::get()->getRequest();
+        return $request->getContext() !== null;
     }
 }
