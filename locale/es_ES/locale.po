@@ -29,6 +29,9 @@ msgstr "Contraseña:"
 msgid "plugins.generic.OASwitchboard.settings.apiAuthenticatorFailed"
 msgstr "No se pudo autenticar, por favor, comprueba las credenciales de API de OA Switchboard nuevamente"
 
+msgid "plugins.generic.OASwitchboard.pluginIsNotConfigured"
+msgstr "El módulo OA Switchboard debe configurarse para enviar correctamente el mensaje P1-PIO."
+
 msgid "plugins.generic.OASwitchboard.sendMessageWithSuccess"
 msgstr "El mensaje P1-PIO se envió correctamente al OA Switchboard"
 
