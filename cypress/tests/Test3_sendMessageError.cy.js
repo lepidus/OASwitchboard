@@ -1,4 +1,4 @@
-describe('Bad Request Error when submission is published', function () {
+describe('Error when submission is published', function () {
     it('Access submission', function () {
         cy.login('dbarnes', null, 'publicknowledge');
         cy.get('#archive-button').click();
