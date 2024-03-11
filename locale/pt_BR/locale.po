@@ -5,7 +5,7 @@ msgid "plugins.generic.OASwitchboard.settings.apiKeyIsEmpty"
 msgstr "O administrador do seu site deve definir um segredo no arquivo de configuração ('api_key_secret')."
 
 msgid "plugins.generic.OASwitchboard.description"
-msgstr "Permite o envio de mensagens P1-PIO para a OA Switchboard, de forma automática, no momento da publicação de um artigo."
+msgstr "Permite o envio de mensagens para a OA Switchboard, de forma automática, no momento da publicação de um artigo."
 
 msgid "plugins.generic.OASwitchboard.settings.description"
 msgstr "Por favor, insira suas credenciais do Open Access Switchboard, para permitir que o plugin acesse a API."
@@ -30,10 +30,10 @@ msgid "plugins.generic.OASwitchboard.settings.apiAuthenticatorFailed"
 msgstr "Não foi possível autenticar, por favor, cheque novamente as credenciais da API OA Switchboard"
 
 msgid "plugins.generic.OASwitchboard.pluginIsNotConfigured"
-msgstr "O plugin OA Switchboard precisa ser configurado para que envie a mensagem P1-PIO com êxito."
+msgstr "O plugin OA Switchboard precisa ser configurado para que envie a mensagem com êxito."
 
 msgid "plugins.generic.OASwitchboard.sendMessageWithSuccess"
-msgstr "A mensagem P1-PIO foi enviada com sucesso para o OA Switchboard"
+msgstr "A mensagem foi enviada com sucesso para o OA Switchboard"
 
 msgid "plugins.generic.OASwitchboard.postRequirements"
 msgstr "Erro do cliente ao enviar mensagem para o servidor da API do OA Switchboard, mais informações nos logs do sistema."
@@ -42,7 +42,7 @@ msgid "plugins.generic.OASwitchboard.serverError"
 msgstr "Erro do servidor ao enviar a mensagem. O servidor da API do OA Switchboard encontrou um erro interno."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError"
-msgstr "Parece que não temos os dados obrigatórios para envio da mensagem P1-PIO, verifique o histórico de atividades da submissão para entender os requisitos pendentes."
+msgstr "Não temos os dados obrigatórios para envio da mensagem para o OA Switchboard, verifique o histórico de atividades da submissão para entender os requisitos pendentes."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.recipient"
 msgstr "O primeiro autor do artigo deve ter um ROR associado à sua afiliação."

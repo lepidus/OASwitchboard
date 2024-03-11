@@ -5,7 +5,7 @@ msgid "plugins.generic.OASwitchboard.settings.apiKeyIsEmpty"
 msgstr "Your site administrator must set a secret in the config file ('api_key_secret')."
 
 msgid "plugins.generic.OASwitchboard.description"
-msgstr "Allows sending P1-PIO messages to OA Switchboard, automatically, at the publication of an article."
+msgstr "Allows sending messages to OA Switchboard, automatically, at the publication of an article."
 
 msgid "plugins.generic.OASwitchboard.settings.description"
 msgstr "Please, enter your Open Access Switchboard credentials below, to allow the plugin to access the API."
@@ -30,10 +30,10 @@ msgid "plugins.generic.OASwitchboard.settings.apiAuthenticatorFailed"
 msgstr "Failed to authenticate, please check the OA Switchboard API credentials again"
 
 msgid "plugins.generic.OASwitchboard.pluginIsNotConfigured"
-msgstr "The OA Switchboard plugin needs to be configured to successfully send the P1-PIO message."
+msgstr "The OA Switchboard plugin needs to be configured to successfully send the message."
 
 msgid "plugins.generic.OASwitchboard.sendMessageWithSuccess"
-msgstr "The P1-PIO message was successfully sent to the OA Switchboard"
+msgstr "The message was successfully sent to the OA Switchboard"
 
 msgid "plugins.generic.OASwitchboard.postRequirements"
 msgstr "Client error when sending message to OA Switchboard API server, more information in the system log."
@@ -42,7 +42,7 @@ msgid "plugins.generic.OASwitchboard.serverError"
 msgstr "Server error when sending message. The OA Switchboard API server encountered an internal error."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError"
-msgstr "It seems we don't have the mandatory data for sending the P1-PIO message, please check the submission activity log to understand the pending requirements."
+msgstr "We don't have the mandatory data for sending the message, please check the submission activity log to understand the pending requirements."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.recipient"
 msgstr "The first author of the article must have a ROR associated to its affiliation."
