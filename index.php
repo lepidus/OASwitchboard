@@ -7,6 +7,6 @@
  *
  */
 
-require_once('OASwitchboardForOJSPlugin.inc.php');
+require_once('OASwitchboardPlugin.inc.php');
 
-return new OASwitchboardForOJSPlugin();
+return new OASwitchboardPlugin();

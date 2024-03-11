@@ -1,8 +1,8 @@
 <?php
 
-import('plugins.generic.OASwitchboardForOJS.classes.messages.P1PioDataFormat');
-import('plugins.generic.OASwitchboardForOJS.classes.messages.LicenseAcronym');
-import('plugins.generic.OASwitchboardForOJS.classes.exceptions.P1PioException');
+import('plugins.generic.OASwitchboard.classes.messages.P1PioDataFormat');
+import('plugins.generic.OASwitchboard.classes.messages.LicenseAcronym');
+import('plugins.generic.OASwitchboard.classes.exceptions.P1PioException');
 import('classes.submission.Submission');
 import('lib.pkp.classes.log.SubmissionLog');
 
@@ -20,7 +20,7 @@ class P1Pio
         $this->submission = $submission;
         $minimumData = $this->validateHasMinimumSubmissionData();
         if (!empty($minimumData)) {
-            throw new P1PioException(__('plugins.generic.OASwitchboardForOJS.postRequirementsError'), 0, $minimumData);
+            throw new P1PioException(__('plugins.generic.OASwitchboard.postRequirementsError'), 0, $minimumData);
         }
     }
 
@@ -117,22 +117,22 @@ class P1Pio
         $data = $message['data'];
 
         if (empty($header['to']['address'])) {
-            $missingDataMessages[] = 'plugins.generic.OASwitchboardForOJS.postRequirementsError.recipient';
+            $missingDataMessages[] = 'plugins.generic.OASwitchboard.postRequirementsError.recipient';
         }
 
         foreach ($data['authors'] as $key => $author) {
             if (empty($author['lastName'])) {
-                $missingDataMessages[] = 'plugins.generic.OASwitchboardForOJS.postRequirementsError.familyName';
+                $missingDataMessages[] = 'plugins.generic.OASwitchboard.postRequirementsError.familyName';
             }
             if (empty($author['affiliation'])) {
-                $missingDataMessages[] = 'plugins.generic.OASwitchboardForOJS.postRequirementsError.affiliation';
+                $missingDataMessages[] = 'plugins.generic.OASwitchboard.postRequirementsError.affiliation';
             }
         }
         if (empty($data['article']['doi'])) {
-            $missingDataMessages[] = 'plugins.generic.OASwitchboardForOJS.postRequirementsError.doi';
+            $missingDataMessages[] = 'plugins.generic.OASwitchboard.postRequirementsError.doi';
         }
         if (empty($data['journal']['id'])) {
-            $missingDataMessages[] = 'plugins.generic.OASwitchboardForOJS.postRequirementsError.issn';
+            $missingDataMessages[] = 'plugins.generic.OASwitchboard.postRequirementsError.issn';
         }
 
         return $missingDataMessages;

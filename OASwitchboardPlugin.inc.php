@@ -1,20 +1,20 @@
 <?php
 /**
- * @file plugins/generic/OASwitchboardForOJS/OASwitchboardForOJSPlugin.inc.php
+ * @file plugins/generic/OASwitchboard/OASwitchboardPlugin.inc.php
  *
  * Copyright (c) 2024 Lepidus Tecnologia
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
- * @class OASwitchboardForOJSPlugin
- * @ingroup plugins_generic_OASwitchboardForOJS
+ * @class OASwitchboardPlugin
+ * @ingroup plugins_generic_OASwitchboard
  *
- * @brief OASwitchboardForOJS plugin class
+ * @brief OASwitchboard plugin class
  */
 
 import('lib.pkp.classes.plugins.GenericPlugin');
-import('plugins.generic.OASwitchboardForOJS.classes.OASwitchboardService');
+import('plugins.generic.OASwitchboard.classes.OASwitchboardService');
 
-class OASwitchboardForOJSPlugin extends GenericPlugin
+class OASwitchboardPlugin extends GenericPlugin
 {
     public function register($category, $path, $mainContextId = null)
     {
@@ -25,12 +25,12 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
 
     public function getDisplayName()
     {
-        return __('plugins.generic.OASwitchboardForOJS.displayName');
+        return __('plugins.generic.OASwitchboard.displayName');
     }
 
     public function getDescription()
     {
-        return __('plugins.generic.OASwitchboardForOJS.description');
+        return __('plugins.generic.OASwitchboard.description');
     }
 
     public function getActions($request, $actionArgs)
@@ -69,8 +69,8 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
         switch ($request->getUserVar('verb')) {
             case 'settings':
                 $context = $request->getContext();
-                $this->import('classes.settings.OASwitchboardForOJSSettingsForm');
-                $form = new OASwitchboardForOJSSettingsForm($this, $context->getId());
+                $this->import('classes.settings.OASwitchboardSettingsForm');
+                $form = new OASwitchboardSettingsForm($this, $context->getId());
                 $form->initData();
                 if ($request->getUserVar('save')) {
                     $form->readInputData();
@@ -119,7 +119,7 @@ class OASwitchboardForOJSPlugin extends GenericPlugin
         try {
             if ($publication->getData('status') === STATUS_PUBLISHED) {
                 $OASwitchboard->sendP1PioMessage();
-                $this->sendNotification($userId, __('plugins.generic.OASwitchboardForOJS.sendMessageWithSuccess'), NOTIFICATION_TYPE_SUCCESS);
+                $this->sendNotification($userId, __('plugins.generic.OASwitchboard.sendMessageWithSuccess'), NOTIFICATION_TYPE_SUCCESS);
             }
         } catch (Exception $e) {
             $this->sendNotification($userId, $e->getMessage(), NOTIFICATION_TYPE_WARNING);

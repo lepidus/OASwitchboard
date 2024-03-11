@@ -1,9 +1,9 @@
 <?php
 
 import('lib.pkp.tests.PKPTestCase');
-import('plugins.generic.OASwitchboardForOJS.classes.api.OASwitchboardAPIClient');
-import('plugins.generic.OASwitchboardForOJS.tests.helpers.ClientInterfaceForTests');
-import('plugins.generic.OASwitchboardForOJS.classes.messages.P1Pio');
+import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIClient');
+import('plugins.generic.OASwitchboard.tests.helpers.ClientInterfaceForTests');
+import('plugins.generic.OASwitchboard.classes.messages.P1Pio');
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Response;
@@ -28,7 +28,7 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $apiClient = new OASwitchboardAPIClient($httpClientMock);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "##plugins.generic.OASwitchboardForOJS.serverError##"
+            "##plugins.generic.OASwitchboard.serverError##"
         );
         $statusCode = $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
     }
@@ -42,7 +42,7 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $apiClient = new OASwitchboardAPIClient($httpClientMock);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "##plugins.generic.OASwitchboardForOJS.postRequirements##"
+            "##plugins.generic.OASwitchboard.postRequirements##"
         );
         $statusCode = $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
     }
@@ -70,7 +70,7 @@ class OASwitchboardAPIClientTest extends PKPTestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "##plugins.generic.OASwitchboardForOJS.serverError##"
+            "##plugins.generic.OASwitchboard.serverError##"
         );
         $apiClient->getAuthorization('test@example.com', 'password');
     }
@@ -85,7 +85,7 @@ class OASwitchboardAPIClientTest extends PKPTestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "##plugins.generic.OASwitchboardForOJS.postRequirements##"
+            "##plugins.generic.OASwitchboard.postRequirements##"
         );
         $apiClient->getAuthorization('test@example.com', 'password');
     }

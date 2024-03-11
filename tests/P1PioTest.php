@@ -1,8 +1,8 @@
 <?php
 
 import('lib.pkp.tests.PKPTestCase');
-import('plugins.generic.OASwitchboardForOJS.classes.messages.P1Pio');
-import('plugins.generic.OASwitchboardForOJS.tests.helpers.P1PioExpectedTestData');
+import('plugins.generic.OASwitchboard.classes.messages.P1Pio');
+import('plugins.generic.OASwitchboard.tests.helpers.P1PioExpectedTestData');
 
 class P1PioTest extends PKPTestCase
 {
@@ -205,7 +205,7 @@ class P1PioTest extends PKPTestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "##plugins.generic.OASwitchboardForOJS.postRequirementsError##"
+            "##plugins.generic.OASwitchboard.postRequirementsError##"
         );
         $P1Pio = new P1Pio($this->submission);
     }
@@ -217,7 +217,7 @@ class P1PioTest extends PKPTestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "##plugins.generic.OASwitchboardForOJS.postRequirementsError##"
+            "##plugins.generic.OASwitchboard.postRequirementsError##"
         );
         $P1Pio = new P1Pio($this->submission);
     }
@@ -229,7 +229,7 @@ class P1PioTest extends PKPTestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "##plugins.generic.OASwitchboardForOJS.postRequirementsError##"
+            "##plugins.generic.OASwitchboard.postRequirementsError##"
         );
         $P1Pio = new P1Pio($this->submission);
     }
@@ -241,7 +241,7 @@ class P1PioTest extends PKPTestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "##plugins.generic.OASwitchboardForOJS.postRequirementsError##"
+            "##plugins.generic.OASwitchboard.postRequirementsError##"
         );
         $P1Pio = new P1Pio($this->submission);
     }
@@ -253,7 +253,7 @@ class P1PioTest extends PKPTestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "##plugins.generic.OASwitchboardForOJS.postRequirementsError##"
+            "##plugins.generic.OASwitchboard.postRequirementsError##"
         );
         $P1Pio = new P1Pio($submission);
     }
