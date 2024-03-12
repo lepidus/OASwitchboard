@@ -42,7 +42,7 @@ msgid "plugins.generic.OASwitchboard.serverError"
 msgstr "Server error when sending message. The OA Switchboard API server encountered an internal error."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError"
-msgstr "We don't have the mandatory data for sending the message, please check the submission activity log to understand the pending requirements."
+msgstr "We don't have the mandatory data for sending the message to the OA Switchboard, please check the submission activity log to understand the pending requirements."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.recipient"
 msgstr "The first author of the article must have a ROR associated to its affiliation."
