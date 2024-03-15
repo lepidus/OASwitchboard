@@ -17,7 +17,7 @@ Make sure to fulfill these requirements so that the P1-PIO Message can be sent t
 
 1. **api_key_secret**
 
-The OJS instance must have the `api_key_secret` configuration set up, you may contact your system administrator to do that.
+The OJS instance must have the `api_key_secret` configuration set up, you may contact your system administrator to do that (see [this post](https://forum.pkp.sfu.ca/t/how-to-generate-a-api-key-secret-code-in-ojs-3/72008)).
 
 This is required to use the API credentials provided, that are stored encrypted in the OJS database.
 
