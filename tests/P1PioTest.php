@@ -29,15 +29,24 @@ class P1PioTest extends PKPTestCase
     private function createTestAuthors($publication): array
     {
         import('classes.article.Author');
-        $author = new Author();
-        $author->setGivenName('Iris', 'pt_BR');
-        $author->setFamilyName('Castanheiras', 'pt_BR');
-        $author->setAffiliation('Lepidus Tecnologia', 'pt_BR');
+        $firstAuthor = new Author();
+        $firstAuthor->setId(123);
+        $firstAuthor->setGivenName('Iris', 'pt_BR');
+        $firstAuthor->setFamilyName('Castanheiras', 'pt_BR');
+        $firstAuthor->setAffiliation('Lepidus Tecnologia', 'pt_BR');
 
-        $author->setData('publicationId', $publication->getId());
-        $author->setData('rorId', 'https://ror.org/xxxxxxxxrecipient');
+        $firstAuthor->setData('publicationId', $publication->getId());
+        $firstAuthor->setData('rorId', 'https://ror.org/xxxxxxxxrecipient');
 
-        return [$author];
+        $secondAuthor = new Author();
+        $secondAuthor->setId(321);
+        $secondAuthor->setGivenName('Yves', 'pt_BR');
+        $secondAuthor->setFamilyName('Amorim', 'pt_BR');
+        $secondAuthor->setAffiliation('Lepidus Tecnologia', 'pt_BR');
+
+        $secondAuthor->setData('publicationId', $publication->getId());
+
+        return [$firstAuthor, $secondAuthor];
     }
 
     private function createMockedJournal($issn = null)
@@ -63,7 +72,7 @@ class P1PioTest extends PKPTestCase
         return $journal;
     }
 
-    private function createTestSubmission($journal): Submission
+    private function createTestSubmission($journal, $hasPrimaryContactId = false): Submission
     {
         import('classes.submission.Submission');
         $submission = new Submission();
@@ -77,7 +86,9 @@ class P1PioTest extends PKPTestCase
         $publication->setData('pub-id::doi', '00.0000/mearth.0000');
 
         $authors = $this->createTestAuthors($publication);
-
+        if ($hasPrimaryContactId) {
+            $publication->setData('primaryContactId', $authors[1]->getId());
+        }
         $publication->setData('authors', $authors);
         $publication->setData('submissionId', $submission->getId());
         $submission->setData('currentPublicationId', $publication->getId());
@@ -87,10 +98,42 @@ class P1PioTest extends PKPTestCase
         return $submission;
     }
 
-    public function testGetRecipient()
+    public function testGetRecipientByFirstAuthorWithRORAssociated()
     {
         $recipientRor = $this->P1Pio->getRecipientAddress();
         $this->assertEquals('https://ror.org/xxxxxxxxrecipient', $recipientRor);
+    }
+
+    public function testGetRecipientBySecondAuthorWithRORAssociated()
+    {
+        $authors = $this->submission->getAuthors();
+        $firstAuthor = $authors[0];
+        $firstAuthor->setData('rorId', null);
+        $secondAuthor = $authors[1];
+        $secondAuthor->setData('rorId', 'https://ror.org/secondRecipient');
+        $publication = $this->submission->getCurrentPublication();
+        $publication->setData("authors", [$firstAuthor, $secondAuthor]);
+        $P1Pio = new P1Pio($this->submission);
+
+        $recipientRor = $P1Pio->getRecipientAddress();
+        $this->assertEquals('https://ror.org/secondRecipient', $recipientRor);
+    }
+
+    public function testGetRecipientByAuthorThatIsPrimaryContactOfPublication()
+    {
+        $hasPrimaryContact = true;
+        $journal = $this->createMockedJournal($issn = "0000-0001");
+        $newSubmission = $this->createTestSubmission($journal, $hasPrimaryContact);
+        $authors = $newSubmission->getAuthors();
+        $firstAuthor = $authors[0];
+        $secondAuthor = $authors[1];
+        $secondAuthor->setData('rorId', 'https://ror.org/secondRecipient');
+        $publication = $newSubmission->getCurrentPublication();
+        $publication->setData("authors", [$firstAuthor, $secondAuthor]);
+        $P1Pio = new P1Pio($newSubmission);
+
+        $recipientRor = $P1Pio->getRecipientAddress();
+        $this->assertEquals('https://ror.org/secondRecipient', $recipientRor);
     }
 
     public function testRecipientAddressIsFirstAuthorFirstInstitutionAddress()

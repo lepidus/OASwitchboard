@@ -27,9 +27,8 @@ class P1Pio
     public function getRecipientAddress()
     {
         $authors = $this->submission->getAuthors();
-        $rorId = $this->getRorIdByAuthors($authors);
 
-        return $rorId;
+        return $this->getRorIdByAuthors($authors);
     }
 
     private function getRorIdByAuthors($authors)
@@ -49,7 +48,6 @@ class P1Pio
 
         return null;
     }
-
     public function getAuthorsData(): array
     {
         $authors = $this->submission->getAuthors();
