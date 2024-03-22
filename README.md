@@ -36,7 +36,7 @@ The DOI Plugin must be active and properly configured in the journal.
 ### Publication Requirements
 
 * All authors of the article must have an **affiliation** set
-* At least the first author's affiliation must specify the **ROR ID** (ROR plugin needed).
+* At least one author of the article must have a **ROR ID** associated with their affiliation (requires ROR plugin). The plugin prioritizes the **ROR ID** of the author that is the primary contact of the publication.
 * The publication must have a **DOI associated** to it.
 * The authors need to have **family name** besides the given name.
 
