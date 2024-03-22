@@ -27,27 +27,9 @@ class P1Pio
     public function getRecipientAddress()
     {
         $authors = $this->submission->getAuthors();
-        $rorId = $this->getRorIdByAuthors($authors);
+        $firstAuthor = $authors[0];
 
-        return $rorId;
-    }
-
-    private function getRorIdByAuthors($authors)
-    {
-        $publication = $this->submission->getCurrentPublication();
-        foreach ($authors as $author) {
-            $authorIsPrimaryContact = $author->getId() === $publication->getData('primaryContactId');
-            if ($authorIsPrimaryContact && $author->getData('rorId')) {
-                return $author->getData('rorId');
-            }
-        }
-        foreach ($authors as $author) {
-            if ($author->getData('rorId')) {
-                return $author->getData('rorId');
-            }
-        }
-
-        return null;
+        return $firstAuthor->getData('rorId');
     }
 
     public function getAuthorsData(): array
