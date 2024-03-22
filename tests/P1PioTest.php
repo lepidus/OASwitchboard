@@ -37,7 +37,14 @@ class P1PioTest extends PKPTestCase
         $author->setData('publicationId', $publication->getId());
         $author->setData('rorId', 'https://ror.org/xxxxxxxxrecipient');
 
-        return [$author];
+        $author2 = new Author();
+        $author2->setGivenName('Yves', 'pt_BR');
+        $author2->setFamilyName('Amorim', 'pt_BR');
+        $author2->setAffiliation('Lepidus Tecnologia', 'pt_BR');
+
+        $author2->setData('publicationId', $publication->getId());
+
+        return [$author, $author2];
     }
 
     private function createMockedJournal($issn = null)
@@ -87,7 +94,7 @@ class P1PioTest extends PKPTestCase
         return $submission;
     }
 
-    public function testGetRecipient()
+    public function testGetRecipientByFirstAuthorWithRORAssociated()
     {
         $recipientRor = $this->P1Pio->getRecipientAddress();
         $this->assertEquals('https://ror.org/xxxxxxxxrecipient', $recipientRor);

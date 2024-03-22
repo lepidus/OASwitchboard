@@ -22,6 +22,17 @@ trait P1PioExpectedTestData
                         'ror' => 'https://ror.org/xxxxxxxxrecipient'
                     ]
                 ]
+            ],
+            [
+                'lastName' => 'Amorim',
+                'firstName' => 'Yves',
+                'affiliation' => 'Lepidus Tecnologia',
+                'institutions' => [
+                    [
+                        'name' => 'Lepidus Tecnologia',
+                        'ror' => ''
+                    ]
+                ]
             ]
         ];
         return $authors;
