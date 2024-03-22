@@ -35,13 +35,19 @@ class P1Pio
     {
         $publication = $this->submission->getCurrentPublication();
         foreach ($authors as $author) {
+            $authorIsPrimaryContact = $author->getId() === $publication->getData('primaryContactId');
+            if ($authorIsPrimaryContact && $author->getData('rorId')) {
+                return $author->getData('rorId');
+            }
+        }
+        foreach ($authors as $author) {
             if ($author->getData('rorId')) {
                 return $author->getData('rorId');
             }
         }
+
         return null;
     }
-
     public function getAuthorsData(): array
     {
         $authors = $this->submission->getAuthors();
