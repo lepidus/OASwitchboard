@@ -29,22 +29,22 @@ class P1PioTest extends PKPTestCase
     private function createTestAuthors($publication): array
     {
         import('classes.article.Author');
-        $author = new Author();
-        $author->setGivenName('Iris', 'pt_BR');
-        $author->setFamilyName('Castanheiras', 'pt_BR');
-        $author->setAffiliation('Lepidus Tecnologia', 'pt_BR');
+        $firstAuthor = new Author();
+        $firstAuthor->setGivenName('Iris', 'pt_BR');
+        $firstAuthor->setFamilyName('Castanheiras', 'pt_BR');
+        $firstAuthor->setAffiliation('Lepidus Tecnologia', 'pt_BR');
 
-        $author->setData('publicationId', $publication->getId());
-        $author->setData('rorId', 'https://ror.org/xxxxxxxxrecipient');
+        $firstAuthor->setData('publicationId', $publication->getId());
+        $firstAuthor->setData('rorId', 'https://ror.org/xxxxxxxxrecipient');
 
-        $author2 = new Author();
-        $author2->setGivenName('Yves', 'pt_BR');
-        $author2->setFamilyName('Amorim', 'pt_BR');
-        $author2->setAffiliation('Lepidus Tecnologia', 'pt_BR');
+        $secondAuthor = new Author();
+        $secondAuthor->setGivenName('Yves', 'pt_BR');
+        $secondAuthor->setFamilyName('Amorim', 'pt_BR');
+        $secondAuthor->setAffiliation('Lepidus Tecnologia', 'pt_BR');
 
-        $author2->setData('publicationId', $publication->getId());
+        $secondAuthor->setData('publicationId', $publication->getId());
 
-        return [$author, $author2];
+        return [$firstAuthor, $secondAuthor];
     }
 
     private function createMockedJournal($issn = null)
