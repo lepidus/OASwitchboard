@@ -45,7 +45,7 @@ msgid "plugins.generic.OASwitchboard.postRequirementsError"
 msgstr "Não temos os dados obrigatórios para envio da mensagem para o OA Switchboard, verifique o histórico de atividades da submissão para entender os requisitos pendentes."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.recipient"
-msgstr "O primeiro autor do artigo deve ter um ROR associado à sua afiliação."
+msgstr "Pelo menos um autor do artigo deve ter um ROR associado à sua afiliação."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.familyName"
 msgstr "O sobrenome de um autor deve estar presente."

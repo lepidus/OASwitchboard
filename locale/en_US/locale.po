@@ -45,7 +45,7 @@ msgid "plugins.generic.OASwitchboard.postRequirementsError"
 msgstr "We don't have the mandatory data for sending the message to the OA Switchboard, please check the submission activity log to understand the pending requirements."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.recipient"
-msgstr "The first author of the article must have a ROR associated to its affiliation."
+msgstr "At least one author of the article must have a ROR associated with their affiliation."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.familyName"
 msgstr "The family name of an author must be present."
