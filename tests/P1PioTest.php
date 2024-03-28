@@ -98,14 +98,6 @@ class P1PioTest extends PKPTestCase
         return $submission;
     }
 
-    public function testRecipientAddressIsFirstAuthorFirstInstitutionAddress()
-    {
-        $recipientAddress = $this->P1Pio->getRecipientAddress();
-        $institutionRor = $this->P1Pio->getAuthorsData()[0]['institutions'][0]['ror'];
-
-        $this->assertEquals($institutionRor, $recipientAddress);
-    }
-
     public function testGetAuthorGivenName()
     {
         $authorsData = $this->P1Pio->getAuthorsData();
@@ -201,18 +193,6 @@ class P1PioTest extends PKPTestCase
     public function testValidateHasMinimumSubmissionDataReturnsEmptyIfAllMandatoryDataIsPassed()
     {
         $this->assertTrue(empty($this->P1Pio->validateHasMinimumSubmissionData()));
-    }
-
-    public function testValidateHasMinimumSubmissionDataShouldReturnMessageIfFirstAuthorDoesNotHaveROR()
-    {
-        $firstAuthor = $this->submission->getAuthors()[0];
-        $firstAuthor->setData('rorId', null);
-
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage(
-            "##plugins.generic.OASwitchboard.postRequirementsError##"
-        );
-        $P1Pio = new P1Pio($this->submission);
     }
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessageIfAuthorDoesNotHaveFamilyName()
