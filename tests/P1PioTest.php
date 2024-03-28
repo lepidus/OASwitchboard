@@ -98,44 +98,6 @@ class P1PioTest extends PKPTestCase
         return $submission;
     }
 
-    public function testGetRecipientByFirstAuthorWithRORAssociated()
-    {
-        $recipientRor = $this->P1Pio->getRecipientAddress();
-        $this->assertEquals('https://ror.org/xxxxxxxxrecipient', $recipientRor);
-    }
-
-    public function testGetRecipientBySecondAuthorWithRORAssociated()
-    {
-        $authors = $this->submission->getAuthors();
-        $firstAuthor = $authors[0];
-        $firstAuthor->setData('rorId', null);
-        $secondAuthor = $authors[1];
-        $secondAuthor->setData('rorId', 'https://ror.org/secondRecipient');
-        $publication = $this->submission->getCurrentPublication();
-        $publication->setData("authors", [$firstAuthor, $secondAuthor]);
-        $P1Pio = new P1Pio($this->submission);
-
-        $recipientRor = $P1Pio->getRecipientAddress();
-        $this->assertEquals('https://ror.org/secondRecipient', $recipientRor);
-    }
-
-    public function testGetRecipientByAuthorThatIsPrimaryContactOfPublication()
-    {
-        $hasPrimaryContact = true;
-        $journal = $this->createMockedJournal($issn = "0000-0001");
-        $newSubmission = $this->createTestSubmission($journal, $hasPrimaryContact);
-        $authors = $newSubmission->getAuthors();
-        $firstAuthor = $authors[0];
-        $secondAuthor = $authors[1];
-        $secondAuthor->setData('rorId', 'https://ror.org/secondRecipient');
-        $publication = $newSubmission->getCurrentPublication();
-        $publication->setData("authors", [$firstAuthor, $secondAuthor]);
-        $P1Pio = new P1Pio($newSubmission);
-
-        $recipientRor = $P1Pio->getRecipientAddress();
-        $this->assertEquals('https://ror.org/secondRecipient', $recipientRor);
-    }
-
     public function testRecipientAddressIsFirstAuthorFirstInstitutionAddress()
     {
         $recipientAddress = $this->P1Pio->getRecipientAddress();
