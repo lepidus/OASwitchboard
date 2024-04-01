@@ -24,30 +24,6 @@ class P1Pio
         }
     }
 
-    public function getRecipientAddress()
-    {
-        $authors = $this->submission->getAuthors();
-
-        return $this->getRorIdByAuthors($authors);
-    }
-
-    private function getRorIdByAuthors($authors)
-    {
-        $publication = $this->submission->getCurrentPublication();
-        foreach ($authors as $author) {
-            $authorIsPrimaryContact = $author->getId() === $publication->getData('primaryContactId');
-            if ($authorIsPrimaryContact && $author->getData('rorId')) {
-                return $author->getData('rorId');
-            }
-        }
-        foreach ($authors as $author) {
-            if ($author->getData('rorId')) {
-                return $author->getData('rorId');
-            }
-        }
-
-        return null;
-    }
     public function getAuthorsData(): array
     {
         $authors = $this->submission->getAuthors();
@@ -131,10 +107,6 @@ class P1Pio
         $message = $this->getContent();
         $header = $message['header'];
         $data = $message['data'];
-
-        if (empty($header['to']['address'])) {
-            $missingDataMessages[] = 'plugins.generic.OASwitchboard.postRequirementsError.recipient';
-        }
 
         foreach ($data['authors'] as $key => $author) {
             if (empty($author['lastName'])) {

@@ -5,7 +5,7 @@ trait P1PioExpectedTestData
     private function getExpectedRecipient()
     {
         return [
-            "address" => "https://ror.org/xxxxxxxxrecipient"
+            "address" => "https://ror.org/broadcast"
         ];
     }
 

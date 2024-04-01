@@ -9,7 +9,7 @@ trait P1PioDataFormat
                 "type" => "p1",
                 "version" => "v2",
                 "to" => [
-                    "address" => $this->getRecipientAddress(),
+                    "address" => "https://ror.org/broadcast",
                 ],
                 "persistent" => true,
                 "pio" => true

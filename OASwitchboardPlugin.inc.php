@@ -119,6 +119,11 @@ class OASwitchboardPlugin extends GenericPlugin
             if ($publication->getData('status') === STATUS_PUBLISHED) {
                 $OASwitchboard = new OASwitchboardService($this, $contextId, $submission);
                 $OASwitchboard->sendP1PioMessage();
+                if (!OASwitchboardService::isRorAssociated($submission)) {
+                    $keyMessage = 'plugins.generic.OASwitchboard.postRequirementsError.recipient';
+                    $this->sendNotification($userId, __($keyMessage), NOTIFICATION_TYPE_WARNING);
+                    $this->registerSubmissionEventLog($request, $submission, $keyMessage);
+                }
                 $this->sendNotification($userId, __('plugins.generic.OASwitchboard.sendMessageWithSuccess'), NOTIFICATION_TYPE_SUCCESS);
             }
         } catch (Exception $e) {
