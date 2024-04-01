@@ -18,7 +18,7 @@ import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIClient');
 class OASwitchboardService
 {
     private $plugin;
-    private OASwitchboardAPIClient $apiClient;
+    private $apiClient;
     private $contextId;
     private $submission;
 
