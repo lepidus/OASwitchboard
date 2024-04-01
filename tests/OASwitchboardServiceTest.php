@@ -26,4 +26,11 @@ class OASwitchboardServiceTest extends PKPTestCase
     {
         $this->assertTrue(OASwitchboardService::isRorAssociated($this->submission));
     }
+
+    public function testSubmissionWithoutAtLeastOneAuthorWithRorAssociated()
+    {
+        $firstAuthor = $this->submission->getAuthors()[0];
+        $firstAuthor->setData('rorId', null);
+        $this->assertFalse(OASwitchboardService::isRorAssociated($this->submission));
+    }
 }
