@@ -70,4 +70,15 @@ class OASwitchboardService
             throw new Exception(__("plugins.generic.OASwitchboard.pluginIsNotConfigured"));
         }
     }
+
+    public static function isRorAssociated($submission)
+    {
+        $authors = $submission->getAuthors();
+        foreach ($authors as $author) {
+            if ($author->getData('rorId')) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
