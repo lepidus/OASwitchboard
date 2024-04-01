@@ -13,12 +13,11 @@
 
 import('plugins.generic.OASwitchboard.classes.messages.P1Pio');
 import('plugins.generic.OASwitchboard.lib.APIKeyEncryption.APIKeyEncryption');
-import('plugins.generic.OASwitchboard.OASwitchboardPlugin');
 import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIClient');
 
 class OASwitchboardService
 {
-    private OASwitchboardPlugin $plugin;
+    private $plugin;
     private OASwitchboardAPIClient $apiClient;
     private $contextId;
     private $submission;
