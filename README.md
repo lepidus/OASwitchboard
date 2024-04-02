@@ -39,7 +39,7 @@ The DOI Plugin must be active and properly configured in the journal.
 * The publication must have a **DOI associated** to it.
 * The authors need to have **family name** besides the given name.
 
-> The message is sent to the broadcast address. It's recommended that at least one author of the article has a **ROR ID** associated with their affiliation (requires the ROR plugin). However, it's not mandatory to send the message.
+It's recommended that at least one author of the article has a **ROR ID** associated with their affiliation (requires the ROR plugin), in order for the message to be sent to the associated affiliation.
 
 ## Plugin Installation
 
