@@ -1,8 +1,11 @@
 <?php
 
-import('lib.pkp.classes.form.Form');
+namespace APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardSettingsForm;
+
 import('plugins.generic.OASwitchboard.lib.APIKeyEncryption.APIKeyEncryption');
 import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIClient');
+
+use PKP\form\Form;
 
 class OASwitchboardSettingsForm extends Form
 {
@@ -94,4 +97,8 @@ class OASwitchboardSettingsForm extends Form
             return false;
         }
     }
+}
+
+if (!PKP_STRICT_MODE) {
+    class_alias('\APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardSettingsForm', '\OASwitchboardSettingsForm');
 }

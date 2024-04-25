@@ -11,15 +11,24 @@
  * @brief OASwitchboard plugin class
  */
 
-import('lib.pkp.classes.plugins.GenericPlugin');
-import('plugins.generic.OASwitchboard.classes.OASwitchboardService');
+namespace APP\plugins\generic\OASwitchboard;
+
+use PKP\plugins\GenericPlugin;
+use APP\plugins\generic\classes\OASwitchboard\OASwitchboardService;
+use PKP\log\SubmissionLog;
+use PKP\plugins\Hook;
+use APP\core\Application;
+use PKP\linkAction\LinkAction;
+use PKP\linkAction\request\AjaxModal;
+use APP\notification\NotificationManager;
+use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardSettingsForm;
 
 class OASwitchboardPlugin extends GenericPlugin
 {
     public function register($category, $path, $mainContextId = null)
     {
         $success = parent::register($category, $path, $mainContextId);
-        HookRegistry::register('Publication::publish', array($this, 'sendOASwitchboardMessage'));
+        Hook::call('Publication::publish', array($this, 'sendOASwitchboardMessage'));
         return $success;
     }
 
@@ -69,7 +78,6 @@ class OASwitchboardPlugin extends GenericPlugin
         switch ($request->getUserVar('verb')) {
             case 'settings':
                 $context = $request->getContext();
-                $this->import('classes.settings.OASwitchboardSettingsForm');
                 $form = new OASwitchboardSettingsForm($this, $context->getId());
                 $form->initData();
                 if ($request->getUserVar('save')) {
