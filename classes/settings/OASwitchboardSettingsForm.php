@@ -6,6 +6,9 @@ use PKP\form\Form;
 use APP\template\TemplateManager;
 use APP\core\Application;
 use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
+use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
+use APP\notification\NotificationManager;
+use Exception;
 
 class OASwitchboardSettingsForm extends Form
 {
@@ -36,7 +39,6 @@ class OASwitchboardSettingsForm extends Form
     {
         $request = Application::get()->getRequest();
         $user = $request->getUser();
-        import('classes.notification.NotificationManager');
         $notificationManager = new NotificationManager();
         $notificationManager->createTrivialNotification(
             $user->getId(),

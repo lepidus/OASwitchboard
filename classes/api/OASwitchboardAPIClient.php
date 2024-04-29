@@ -1,7 +1,9 @@
 <?php
+namespace APP\plugins\generic\OASwitchboard\classes\api;
 
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\ClientException;
+use Exception;
 
 class OASwitchboardAPIClient
 {
