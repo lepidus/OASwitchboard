@@ -146,7 +146,7 @@ class OASwitchboardPlugin extends GenericPlugin
                 }
                 $this->sendNotification($userId, __('plugins.generic.OASwitchboard.sendMessageWithSuccess'), NOTIFICATION_TYPE_SUCCESS);
             }
-        } catch (Exception | P1PioException $e) {
+        } catch (\Exception | P1PioException $e) {
             $this->sendNotification($userId, $e->getMessage(), NOTIFICATION_TYPE_WARNING);
 
             if ($e->getP1PioErrors()) {
