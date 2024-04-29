@@ -29,8 +29,10 @@ class OASwitchboardPlugin extends GenericPlugin
 {
     public function register($category, $path, $mainContextId = null)
     {
-        $success = parent::register($category, $path, $mainContextId);
-        Hook::call('Publication::publish', array($this, 'sendOASwitchboardMessage'));
+        $success = parent::register($category, $path);
+        if ($success && $this->getEnabled()) {
+            Hook::add('Publication::publish', [$this, 'sendOASwitchboardMessage']);
+        }
         return $success;
     }
 
