@@ -13,9 +13,11 @@
 
 namespace APP\plugins\generic\OASwitchboard\classes;
 
-import('plugins.generic.OASwitchboard.classes.messages.P1Pio');
-import('plugins.generic.OASwitchboard.lib.APIKeyEncryption.APIKeyEncryption');
-import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIClient');
+use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
+use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
+use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
+use Exception;
+use APP\core\Application;
 
 class OASwitchboardService
 {

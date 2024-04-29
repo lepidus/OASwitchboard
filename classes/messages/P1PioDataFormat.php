@@ -1,5 +1,7 @@
 <?php
 
+namespace APP\plugins\generic\OASwitchboard\classes\messages;
+
 trait P1PioDataFormat
 {
     public function assembleMessage()

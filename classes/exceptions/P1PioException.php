@@ -1,5 +1,7 @@
 <?php
 
+namespace APP\plugins\generic\OASwitchboard\classes\exceptions;
+
 class P1PioException extends Exception
 {
     protected $errors;

@@ -1,15 +1,16 @@
 <?php
 
-import('plugins.generic.OASwitchboard.classes.messages.P1PioDataFormat');
-import('plugins.generic.OASwitchboard.classes.messages.LicenseAcronym');
-import('plugins.generic.OASwitchboard.classes.exceptions.P1PioException');
-import('classes.submission.Submission');
-import('lib.pkp.classes.log.SubmissionLog');
+namespace APP\plugins\generic\OASwitchboard\classes\messages;
+
+use APP\submission\Submission;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
+use PKP\db\DAORegistry;
 
 class P1Pio
 {
     use P1PioDataFormat;
     use LicenseAcronym;
+
     private $submission;
     private const ARTICLE_TYPE = 'research-article';
     private const DOI_BASE_URL = 'https://doi.org/';

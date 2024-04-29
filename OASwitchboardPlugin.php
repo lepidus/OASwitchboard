@@ -14,7 +14,7 @@
 namespace APP\plugins\generic\OASwitchboard;
 
 use PKP\plugins\GenericPlugin;
-use APP\plugins\generic\classes\OASwitchboard\OASwitchboardService;
+use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 use PKP\log\SubmissionLog;
 use PKP\plugins\Hook;
 use APP\core\Application;
@@ -121,8 +121,8 @@ class OASwitchboardPlugin extends GenericPlugin
     {
         $publication = & $args[0];
         $submission = & $args[2];
-        $contextId = PKPApplication::get()->getRequest()->getContext()->getId();
-        $request = PKPApplication::get()->getRequest();
+        $contextId = Application::get()->getRequest()->getContext()->getId();
+        $request = Application::get()->getRequest();
         $userId = $request->getUser()->getId();
 
         try {

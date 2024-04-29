@@ -1,5 +1,7 @@
 <?php
 
+namespace APP\plugins\generic\OASwitchboard\classes\messages;
+
 trait LicenseAcronym
 {
     private function getLicenseAcronym($licenseURL)
