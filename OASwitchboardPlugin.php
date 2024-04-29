@@ -22,6 +22,8 @@ use PKP\linkAction\LinkAction;
 use PKP\linkAction\request\AjaxModal;
 use APP\notification\NotificationManager;
 use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardSettingsForm;
+use PKP\core\JSONMessage;
+use APP\template\TemplateManager;
 
 class OASwitchboardPlugin extends GenericPlugin
 {

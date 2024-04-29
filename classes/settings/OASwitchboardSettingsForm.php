@@ -1,11 +1,11 @@
 <?php
 
-namespace APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardSettingsForm;
-
-import('plugins.generic.OASwitchboard.lib.APIKeyEncryption.APIKeyEncryption');
-import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIClient');
+namespace APP\plugins\generic\OASwitchboard\classes\settings;
 
 use PKP\form\Form;
+use APP\template\TemplateManager;
+use APP\core\Application;
+use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
 
 class OASwitchboardSettingsForm extends Form
 {
@@ -26,10 +26,10 @@ class OASwitchboardSettingsForm extends Form
     {
         $fields = ['OASUsername', 'OASPassword'];
         foreach ($fields as $field) {
-            $this->addCheck(new FormValidator($this, $field, FORM_VALIDATOR_REQUIRED_VALUE, null));
+            $this->addCheck(new \PKP\form\validation\FormValidator($this, $field, FORM_VALIDATOR_REQUIRED_VALUE, null));
         }
-        $this->addCheck(new FormValidatorPost($this));
-        $this->addCheck(new FormValidatorCSRF($this));
+        $this->addCheck(new \PKP\form\validation\FormValidatorPost($this));
+        $this->addCheck(new \PKP\form\validation\FormValidatorCSRF($this));
     }
 
     private function authenticationFailNotification(): void

@@ -11,7 +11,7 @@
  * @brief OASwitchboard plugin class
  */
 
-namespace APP\plugins\generic\classes\OASwitchboard\OASwitchboardService;
+namespace APP\plugins\generic\OASwitchboard\classes;
 
 import('plugins.generic.OASwitchboard.classes.messages.P1Pio');
 import('plugins.generic.OASwitchboard.lib.APIKeyEncryption.APIKeyEncryption');
