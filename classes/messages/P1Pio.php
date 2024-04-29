@@ -5,6 +5,7 @@ namespace APP\plugins\generic\OASwitchboard\classes\messages;
 use APP\submission\Submission;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use PKP\db\DAORegistry;
+use APP\facades\Repo;
 
 class P1Pio
 {
@@ -27,7 +28,9 @@ class P1Pio
 
     public function getAuthorsData(): array
     {
-        $authors = $this->submission->getAuthors();
+        $authors = Repo::author()->getCollector()
+                    ->filterByPublicationIds([$this->submission->getCurrentPublication()->getId()])
+                    ->getMany();
         $authorsData = [];
         foreach ($authors as $author) {
             $lastNameRetrieved = $author->getLocalizedFamilyName();

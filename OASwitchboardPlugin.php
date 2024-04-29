@@ -24,6 +24,11 @@ use APP\notification\NotificationManager;
 use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardSettingsForm;
 use PKP\core\JSONMessage;
 use APP\template\TemplateManager;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
+use PKP\core\Core;
+use PKP\log\event\PKPSubmissionEventLogEntry;
+use PKP\security\Validation;
+use APP\facades\Repo;
 
 class OASwitchboardPlugin extends GenericPlugin
 {
@@ -100,13 +105,16 @@ class OASwitchboardPlugin extends GenericPlugin
 
     private function registerSubmissionEventLog($request, $submission, $error)
     {
-        SubmissionLog::logEvent(
-            $request,
-            $submission,
-            SUBMISSION_LOG_TYPE_DEFAULT,
-            $error,
-            []
-        );
+        $eventLog = Repo::eventLog()->newDataObject([
+            'assocType' => Application::ASSOC_TYPE_SUBMISSION,
+            'assocId' => $submission->getId(),
+            'eventType' => PKPSubmissionEventLogEntry::SUBMISSION_LOG_CREATE_VERSION,
+            'userId' => Validation::loggedInAs() ?? $request->getUser()?->getId(),
+            'message' => $error,
+            'isTranslated' => false,
+            'dateLogged' => Core::getCurrentDate(),
+        ]);
+        Repo::eventLog()->add($eventLog);
     }
 
     private function sendNotification($userId, $message, $notificationType)
@@ -138,7 +146,7 @@ class OASwitchboardPlugin extends GenericPlugin
                 }
                 $this->sendNotification($userId, __('plugins.generic.OASwitchboard.sendMessageWithSuccess'), NOTIFICATION_TYPE_SUCCESS);
             }
-        } catch (Exception $e) {
+        } catch (Exception | P1PioException $e) {
             $this->sendNotification($userId, $e->getMessage(), NOTIFICATION_TYPE_WARNING);
 
             if ($e->getP1PioErrors()) {

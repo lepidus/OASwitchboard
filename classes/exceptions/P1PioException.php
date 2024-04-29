@@ -2,6 +2,9 @@
 
 namespace APP\plugins\generic\OASwitchboard\classes\exceptions;
 
+use Exception;
+use Throwable;
+
 class P1PioException extends Exception
 {
     protected $errors;
