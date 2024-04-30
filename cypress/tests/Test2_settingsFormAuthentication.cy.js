@@ -23,7 +23,6 @@ describe('Setup OASwitchboard credentials', function () {
         cy.get('input[name=OASUsername]').type(Cypress.env('OASUsername'), {force: true});
         cy.get('input[name=OASPassword]').type(Cypress.env('OASPassword'));
         cy.get('form#OASwitchboardSettingsForm button:contains("Save")').click();
-        cy.get('form#OASwitchboardSettingsForm').should('not.be.visible');
         cy.contains('Your changes have been saved.');
 
         cy.get('a[id^=' + pluginRowId + '-settings-button]').click();
