@@ -1,4 +1,5 @@
 <?php
+
 namespace APP\plugins\generic\OASwitchboard\classes\api;
 
 use GuzzleHttp\Exception\ServerException;
