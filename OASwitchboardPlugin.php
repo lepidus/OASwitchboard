@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * @file plugins/generic/OASwitchboard/OASwitchboardPlugin.inc.php
+ *
+ * Copyright (c) 2024 Lepidus Tecnologia
+ * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
+ *
+ * @class OASwitchboardPlugin
+ * @ingroup plugins_generic_OASwitchboard
+ *
+ * @brief OASwitchboard plugin class
+ */
+
 namespace APP\plugins\generic\OASwitchboard;
 
 use PKP\plugins\GenericPlugin;
