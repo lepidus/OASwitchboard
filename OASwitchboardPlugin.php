@@ -55,7 +55,6 @@ class OASwitchboardPlugin extends GenericPlugin
     public function getActions($request, $actionArgs)
     {
         $router = $request->getRouter();
-        import('lib.pkp.classes.linkAction.request.AjaxModal');
         return array_merge(
             $this->getEnabled() ? array(
                 new LinkAction(
@@ -82,7 +81,6 @@ class OASwitchboardPlugin extends GenericPlugin
     public function manage($args, $request)
     {
         $user = $request->getUser();
-        import('classes.notification.NotificationManager');
         $notificationManager = new NotificationManager();
 
         switch ($request->getUserVar('verb')) {
@@ -130,8 +128,8 @@ class OASwitchboardPlugin extends GenericPlugin
 
     public function sendOASwitchboardMessage($hookName, $args)
     {
-        $publication = &$args[0];
-        $submission = &$args[2];
+        $publication = & $args[0];
+        $submission = & $args[2];
         $contextId = Application::get()->getRequest()->getContext()->getId();
         $request = Application::get()->getRequest();
         $userId = $request->getUser()->getId();
