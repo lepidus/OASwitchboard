@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file plugins/generic/OASwitchboard/OASwitchboardPlugin.inc.php
  *
