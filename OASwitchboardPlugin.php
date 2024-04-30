@@ -108,7 +108,7 @@ class OASwitchboardPlugin extends GenericPlugin
             'assocType' => Application::ASSOC_TYPE_SUBMISSION,
             'assocId' => $submission->getId(),
             'eventType' => PKPSubmissionEventLogEntry::SUBMISSION_LOG_CREATE_VERSION,
-            'userId' => Validation::loggedInAs() ?? $request->getUser()?->getId(),
+            'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
             'message' => $error,
             'isTranslated' => false,
             'dateLogged' => Core::getCurrentDate(),
