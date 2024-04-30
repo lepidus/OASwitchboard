@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file plugins/generic/OASwitchboard/OASwitchboardPlugin.inc.php
  *
@@ -11,15 +12,33 @@
  * @brief OASwitchboard plugin class
  */
 
-import('lib.pkp.classes.plugins.GenericPlugin');
-import('plugins.generic.OASwitchboard.classes.OASwitchboardService');
+namespace APP\plugins\generic\OASwitchboard;
+
+use PKP\plugins\GenericPlugin;
+use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
+use PKP\log\SubmissionLog;
+use PKP\plugins\Hook;
+use APP\core\Application;
+use PKP\linkAction\LinkAction;
+use PKP\linkAction\request\AjaxModal;
+use APP\notification\NotificationManager;
+use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardSettingsForm;
+use PKP\core\JSONMessage;
+use APP\template\TemplateManager;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
+use PKP\core\Core;
+use PKP\log\event\PKPSubmissionEventLogEntry;
+use PKP\security\Validation;
+use APP\facades\Repo;
 
 class OASwitchboardPlugin extends GenericPlugin
 {
     public function register($category, $path, $mainContextId = null)
     {
-        $success = parent::register($category, $path, $mainContextId);
-        HookRegistry::register('Publication::publish', array($this, 'sendOASwitchboardMessage'));
+        $success = parent::register($category, $path);
+        if ($success && $this->getEnabled()) {
+            Hook::add('Publication::publish', [$this, 'sendOASwitchboardMessage']);
+        }
         return $success;
     }
 
@@ -36,7 +55,6 @@ class OASwitchboardPlugin extends GenericPlugin
     public function getActions($request, $actionArgs)
     {
         $router = $request->getRouter();
-        import('lib.pkp.classes.linkAction.request.AjaxModal');
         return array_merge(
             $this->getEnabled() ? array(
                 new LinkAction(
@@ -63,13 +81,11 @@ class OASwitchboardPlugin extends GenericPlugin
     public function manage($args, $request)
     {
         $user = $request->getUser();
-        import('classes.notification.NotificationManager');
         $notificationManager = new NotificationManager();
 
         switch ($request->getUserVar('verb')) {
             case 'settings':
                 $context = $request->getContext();
-                $this->import('classes.settings.OASwitchboardSettingsForm');
                 $form = new OASwitchboardSettingsForm($this, $context->getId());
                 $form->initData();
                 if ($request->getUserVar('save')) {
@@ -88,13 +104,16 @@ class OASwitchboardPlugin extends GenericPlugin
 
     private function registerSubmissionEventLog($request, $submission, $error)
     {
-        SubmissionLog::logEvent(
-            $request,
-            $submission,
-            SUBMISSION_LOG_TYPE_DEFAULT,
-            $error,
-            []
-        );
+        $eventLog = Repo::eventLog()->newDataObject([
+            'assocType' => Application::ASSOC_TYPE_SUBMISSION,
+            'assocId' => $submission->getId(),
+            'eventType' => PKPSubmissionEventLogEntry::SUBMISSION_LOG_CREATE_VERSION,
+            'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
+            'message' => $error,
+            'isTranslated' => false,
+            'dateLogged' => Core::getCurrentDate(),
+        ]);
+        Repo::eventLog()->add($eventLog);
     }
 
     private function sendNotification($userId, $message, $notificationType)
@@ -111,8 +130,8 @@ class OASwitchboardPlugin extends GenericPlugin
     {
         $publication = & $args[0];
         $submission = & $args[2];
-        $contextId = PKPApplication::get()->getRequest()->getContext()->getId();
-        $request = PKPApplication::get()->getRequest();
+        $contextId = Application::get()->getRequest()->getContext()->getId();
+        $request = Application::get()->getRequest();
         $userId = $request->getUser()->getId();
 
         try {
@@ -126,7 +145,7 @@ class OASwitchboardPlugin extends GenericPlugin
                 }
                 $this->sendNotification($userId, __('plugins.generic.OASwitchboard.sendMessageWithSuccess'), NOTIFICATION_TYPE_SUCCESS);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->sendNotification($userId, $e->getMessage(), NOTIFICATION_TYPE_WARNING);
 
             if ($e->getP1PioErrors()) {

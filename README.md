@@ -7,7 +7,9 @@ For that reason, it may not be ready for a comprehensive general use.
 
 ## Compatibility
 
-The latest release of this plugin is compatible with **OJS 3.3.0**
+This plugin is compatible with the following PKP applications:
+
+- OJS 3.4.0-x
 
 ## Requirements
 

@@ -1,5 +1,7 @@
 <?php
 
+namespace APP\plugins\generic\OASwitchboard\tests\helpers;
+
 trait P1PioExpectedTestData
 {
     private function getExpectedRecipient()

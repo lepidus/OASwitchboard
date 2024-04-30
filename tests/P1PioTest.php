@@ -1,9 +1,11 @@
 <?php
 
-import('lib.pkp.tests.PKPTestCase');
-import('plugins.generic.OASwitchboard.classes.messages.P1Pio');
-import('plugins.generic.OASwitchboard.tests.helpers.P1PioExpectedTestData');
-import('plugins.generic.OASwitchboard.tests.helpers.ObjectFactory');
+namespace APP\plugins\generic\OASwitchboard\tests;
+
+use PKP\tests\PKPTestCase;
+use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
+use APP\plugins\generic\OASwitchboard\tests\helpers\P1PioExpectedTestData;
+use APP\plugins\generic\OASwitchboard\tests\helpers\ObjectFactory;
 
 class P1PioTest extends PKPTestCase
 {
@@ -20,11 +22,9 @@ class P1PioTest extends PKPTestCase
         $this->P1Pio = new P1Pio($this->submission);
     }
 
-    protected function getMockedDAOs()
+    protected function getMockedDAOs(): array
     {
-        return [
-            'JournalDAO'
-        ];
+        return [...parent::getMockedDAOs(), 'JournalDAO'];
     }
 
     public function testGetAuthorGivenName()
@@ -126,10 +126,10 @@ class P1PioTest extends PKPTestCase
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessageIfAuthorDoesNotHaveFamilyName()
     {
-        $firstAuthor = $this->submission->getAuthors()[0];
+        $firstAuthor = $this->submission->getCurrentPublication()->getData('authors')[0];
         $firstAuthor->setData('familyName', null);
 
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         $this->expectExceptionMessage(
             "##plugins.generic.OASwitchboard.postRequirementsError##"
         );
@@ -138,10 +138,10 @@ class P1PioTest extends PKPTestCase
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfAuthorDoesNotHaveAffiliation()
     {
-        $firstAuthor = $this->submission->getAuthors()[0];
+        $firstAuthor = $this->submission->getCurrentPublication()->getData('authors')[0];
         $firstAuthor->setData('affiliation', null);
 
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         $this->expectExceptionMessage(
             "##plugins.generic.OASwitchboard.postRequirementsError##"
         );
@@ -151,9 +151,9 @@ class P1PioTest extends PKPTestCase
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfArticleDoesNotHaveDOIAssociated()
     {
         $publication = $this->submission->getCurrentPublication();
-        $publication->setData('pub-id::doi', null);
+        $publication->setData('doiId', null);
 
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         $this->expectExceptionMessage(
             "##plugins.generic.OASwitchboard.postRequirementsError##"
         );
@@ -165,7 +165,7 @@ class P1PioTest extends PKPTestCase
         $journal = ObjectFactory::createMockedJournal($this);
         $submission = ObjectFactory::createTestSubmission($journal);
 
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         $this->expectExceptionMessage(
             "##plugins.generic.OASwitchboard.postRequirementsError##"
         );

@@ -1,15 +1,17 @@
 <?php
 
-import('plugins.generic.OASwitchboard.classes.messages.P1PioDataFormat');
-import('plugins.generic.OASwitchboard.classes.messages.LicenseAcronym');
-import('plugins.generic.OASwitchboard.classes.exceptions.P1PioException');
-import('classes.submission.Submission');
-import('lib.pkp.classes.log.SubmissionLog');
+namespace APP\plugins\generic\OASwitchboard\classes\messages;
+
+use APP\submission\Submission;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
+use PKP\db\DAORegistry;
+use APP\facades\Repo;
 
 class P1Pio
 {
     use P1PioDataFormat;
     use LicenseAcronym;
+
     private $submission;
     private const ARTICLE_TYPE = 'research-article';
     private const DOI_BASE_URL = 'https://doi.org/';
@@ -26,7 +28,7 @@ class P1Pio
 
     public function getAuthorsData(): array
     {
-        $authors = $this->submission->getAuthors();
+        $authors = $this->submission->getCurrentPublication()->getData('authors');
         $authorsData = [];
         foreach ($authors as $author) {
             $lastNameRetrieved = $author->getLocalizedFamilyName();
@@ -55,8 +57,8 @@ class P1Pio
         $publication = $this->submission->getCurrentPublication();
         $license = $this->submission->getLicenseUrl();
         $licenseAcronym = $this->getLicenseAcronym($license);
-        $doi = $publication->getData('pub-id::doi') ?
-            self::DOI_BASE_URL . $publication->getData('pub-id::doi') :
+        $doi = $publication->getData('doiId') ?
+            self::DOI_BASE_URL . $publication->getData('doiId') :
             "";
         $articleData = [
             'title' => $articleTitle,

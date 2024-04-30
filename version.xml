@@ -12,8 +12,6 @@
 <version>
 	<application>OASwitchboard</application>
 	<type>plugins.generic</type>
-	<release>1.1.0.6</release>
-	<date>2024-04-02</date>
-	<lazy-load>1</lazy-load>
-	<class>OASwitchboardPlugin</class>
+	<release>2.0.0.0</release>
+	<date>2024-04-30</date>
 </version>

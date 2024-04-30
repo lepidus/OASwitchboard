@@ -1,6 +1,10 @@
 <?php
 
-class P1PioException extends Exception
+namespace APP\plugins\generic\OASwitchboard\classes\exceptions;
+
+use Throwable;
+
+class P1PioException extends \Exception
 {
     protected $errors;
 

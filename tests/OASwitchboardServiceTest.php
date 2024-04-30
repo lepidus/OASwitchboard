@@ -1,8 +1,10 @@
 <?php
 
-import('lib.pkp.tests.PKPTestCase');
-import('plugins.generic.OASwitchboard.classes.OASwitchboardService');
-import('plugins.generic.OASwitchboard.tests.helpers.ObjectFactory');
+namespace APP\plugins\generic\OASwitchboard\tests;
+
+use PKP\tests\PKPTestCase;
+use APP\plugins\generic\OASwitchboard\tests\helpers\ObjectFactory;
+use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 
 class OASwitchboardServiceTest extends PKPTestCase
 {
@@ -15,11 +17,9 @@ class OASwitchboardServiceTest extends PKPTestCase
         $this->submission = ObjectFactory::createTestSubmission($journal);
     }
 
-    protected function getMockedDAOs()
+    protected function getMockedDAOs(): array
     {
-        return [
-            'JournalDAO'
-        ];
+        return [...parent::getMockedDAOs(), 'JournalDAO'];
     }
 
     public function testSubmissionAtLeastOneAuthorWithRorAssociated()
@@ -29,7 +29,7 @@ class OASwitchboardServiceTest extends PKPTestCase
 
     public function testSubmissionWithoutAtLeastOneAuthorWithRorAssociated()
     {
-        $firstAuthor = $this->submission->getAuthors()[0];
+        $firstAuthor = $this->submission->getCurrentPublication()->getData('authors')[0];
         $firstAuthor->setData('rorId', null);
         $this->assertFalse(OASwitchboardService::isRorAssociated($this->submission));
     }

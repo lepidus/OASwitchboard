@@ -11,9 +11,14 @@
  * @brief OASwitchboard plugin class
  */
 
-import('plugins.generic.OASwitchboard.classes.messages.P1Pio');
-import('plugins.generic.OASwitchboard.lib.APIKeyEncryption.APIKeyEncryption');
-import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIClient');
+namespace APP\plugins\generic\OASwitchboard\classes;
+
+use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
+use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
+use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
+use Exception;
+use APP\core\Application;
+use APP\facades\Repo;
 
 class OASwitchboardService
 {
@@ -72,7 +77,7 @@ class OASwitchboardService
 
     public static function isRorAssociated($submission)
     {
-        $authors = $submission->getAuthors();
+        $authors = $submission->getCurrentPublication()->getData('authors');
         foreach ($authors as $author) {
             if ($author->getData('rorId')) {
                 return true;
