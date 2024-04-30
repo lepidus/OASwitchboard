@@ -18,6 +18,7 @@ use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
 use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
 use Exception;
 use APP\core\Application;
+use APP\facades\Repo;
 
 class OASwitchboardService
 {
@@ -76,7 +77,9 @@ class OASwitchboardService
 
     public static function isRorAssociated($submission)
     {
-        $authors = $submission->getAuthors();
+        $authors = Repo::author()->getCollector()
+            ->filterByPublicationIds([$submission->getCurrentPublication()->getId()])
+            ->getMany();
         foreach ($authors as $author) {
             if ($author->getData('rorId')) {
                 return true;

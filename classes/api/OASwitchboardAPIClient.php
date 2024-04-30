@@ -3,6 +3,7 @@ namespace APP\plugins\generic\OASwitchboard\classes\api;
 
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\ClientException;
+use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use Exception;
 
 class OASwitchboardAPIClient
