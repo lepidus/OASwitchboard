@@ -77,9 +77,7 @@ class OASwitchboardService
 
     public static function isRorAssociated($submission)
     {
-        $authors = Repo::author()->getCollector()
-            ->filterByPublicationIds([$submission->getCurrentPublication()->getId()])
-            ->getMany();
+        $authors = $submission->getCurrentPublication()->getData('authors');
         foreach ($authors as $author) {
             if ($author->getData('rorId')) {
                 return true;

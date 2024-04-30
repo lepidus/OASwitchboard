@@ -1,9 +1,11 @@
 <?php
 
-import('lib.pkp.tests.PKPTestCase');
-import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIClient');
-import('plugins.generic.OASwitchboard.tests.helpers.ClientInterfaceForTests');
-import('plugins.generic.OASwitchboard.classes.messages.P1Pio');
+namespace APP\plugins\generic\OASwitchboard\tests;
+
+use PKP\tests\PKPTestCase;
+use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
+use APP\plugins\generic\OASwitchboard\tests\helpers\ClientInterfaceForTests;
+use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Response;
@@ -23,10 +25,14 @@ class OASwitchboardAPIClientTest extends PKPTestCase
     {
         $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
         $httpClientMock->method('request')
-            ->willThrowException(new ServerException('Server error', new Request('POST', 'https://sandboxapi.example.org/v2/')));
+            ->willThrowException(new ServerException(
+                'Server error',
+                new Request('POST', 'https://sandboxapi.example.org/v2/'),
+                new Response(500)
+            ));
 
         $apiClient = new OASwitchboardAPIClient($httpClientMock);
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         $this->expectExceptionMessage(
             "##plugins.generic.OASwitchboard.serverError##"
         );
@@ -37,10 +43,14 @@ class OASwitchboardAPIClientTest extends PKPTestCase
     {
         $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
         $httpClientMock->method('request')
-            ->willThrowException(new ClientException('Client error', new Request('POST', 'https://sandboxapi.example.org/v2/')));
+            ->willThrowException(new ClientException(
+                'Client error',
+                new Request('POST', 'https://sandboxapi.example.org/v2/'),
+                new Response(400)
+            ));
 
         $apiClient = new OASwitchboardAPIClient($httpClientMock);
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         $this->expectExceptionMessage(
             "##plugins.generic.OASwitchboard.postRequirements##"
         );
@@ -64,11 +74,15 @@ class OASwitchboardAPIClientTest extends PKPTestCase
     {
         $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
         $httpClientMock->method('request')
-            ->willThrowException(new ServerException('Server error', new Request('POST', 'https://sandboxapi.example.org/v2/')));
+            ->willThrowException(new ServerException(
+                'Server error',
+                new Request('POST', 'https://sandboxapi.example.org/v2/'),
+                new Response(500)
+            ));
 
         $apiClient = new OASwitchboardAPIClient($httpClientMock);
 
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         $this->expectExceptionMessage(
             "##plugins.generic.OASwitchboard.serverError##"
         );
@@ -79,11 +93,15 @@ class OASwitchboardAPIClientTest extends PKPTestCase
     {
         $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
         $httpClientMock->method('request')
-            ->willThrowException(new ClientException('Client error', new Request('POST', 'https://sandboxapi.example.org/v2/')));
+            ->willThrowException(new ClientException(
+                'Client error',
+                new Request('POST', 'https://sandboxapi.example.org/v2/'),
+                new Response(400)
+            ));
 
         $apiClient = new OASwitchboardAPIClient($httpClientMock);
 
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         $this->expectExceptionMessage(
             "##plugins.generic.OASwitchboard.postRequirements##"
         );

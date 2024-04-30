@@ -28,9 +28,7 @@ class P1Pio
 
     public function getAuthorsData(): array
     {
-        $authors = Repo::author()->getCollector()
-                    ->filterByPublicationIds([$this->submission->getCurrentPublication()->getId()])
-                    ->getMany();
+        $authors = $this->submission->getCurrentPublication()->getData('authors');
         $authorsData = [];
         foreach ($authors as $author) {
             $lastNameRetrieved = $author->getLocalizedFamilyName();

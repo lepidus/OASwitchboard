@@ -1,12 +1,18 @@
 <?php
 
-import('lib.pkp.tests.PKPTestCase');
+namespace APP\plugins\generic\OASwitchboard\tests\helpers;
+
+use PKP\tests\PKPTestCase;
+use APP\journal\Journal;
+use PKP\db\DAORegistry;
+use APP\submission\Submission;
+use APP\publication\Publication;
+use APP\author\Author;
 
 class ObjectFactory
 {
     public static function createTestAuthors($publication): array
     {
-        import('classes.article.Author');
         $firstAuthor = new Author();
         $firstAuthor->setId(123);
         $firstAuthor->setGivenName('Iris', 'pt_BR');
@@ -29,7 +35,6 @@ class ObjectFactory
 
     public static function createMockedJournal(PKPTestCase $testClass, $issn = null)
     {
-        import('classes.journal.Journal');
         $journal = new Journal();
         $journal->setId(rand());
         $journal->setName('Middle Earth papers', 'en_US');
@@ -52,16 +57,14 @@ class ObjectFactory
 
     public static function createTestSubmission($journal, $hasPrimaryContactId = false): Submission
     {
-        import('classes.submission.Submission');
         $submission = new Submission();
         $submission->setId(rand());
         $submission->setData('contextId', $journal->getId());
 
-        import('classes.publication.Publication');
         $publication = new Publication();
         $publication->setId(rand());
         $publication->setData('title', 'The International relations of Middle-Earth');
-        $publication->setData('pub-id::doi', '00.0000/mearth.0000');
+        $publication->setData('doiId', '00.0000/mearth.0000');
 
         $authors = ObjectFactory::createTestAuthors($publication);
         if ($hasPrimaryContactId) {
