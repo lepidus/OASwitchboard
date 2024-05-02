@@ -4,6 +4,7 @@ namespace APP\plugins\generic\OASwitchboard\classes\api;
 
 use Firebase\JWT\JWT;
 use PKP\config\Config;
+use Exception;
 
 class APIKeyEncryption
 {
