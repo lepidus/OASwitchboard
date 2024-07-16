@@ -23,12 +23,14 @@ class ObjectFactory
         $firstAuthor->setData('rorId', 'https://ror.org/xxxxxxxxrecipient');
         $firstAuthor->setData('orcid', 'https://orcid.org/0000-0000-0000-0000');
         $firstAuthor->setData('email', 'castanheirasiris@lepidus.com.br');
+        $firstAuthor->setData('seq', 0);
 
         $secondAuthor = new Author();
         $secondAuthor->setId(321);
         $secondAuthor->setGivenName('Yves', 'pt_BR');
         $secondAuthor->setFamilyName('Amorim', 'pt_BR');
         $secondAuthor->setAffiliation('Lepidus Tecnologia', 'pt_BR');
+        $secondAuthor->setData('seq', 1);
 
         $secondAuthor->setData('publicationId', $publication->getId());
 
