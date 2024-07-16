@@ -62,7 +62,7 @@ class ObjectFactory
     public static function createTestSubmission($journal, $hasPrimaryContactId = false): Submission
     {
         $submission = new Submission();
-        $submission->setId(rand());
+        $submission->setId(456);
         $submission->setData('contextId', $journal->getId());
 
         $publication = new Publication();

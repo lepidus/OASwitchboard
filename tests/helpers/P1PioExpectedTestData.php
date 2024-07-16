@@ -55,8 +55,8 @@ trait P1PioExpectedTestData
                 'vor' => [
                     'publication' => 'pure OA journal',
                     'license' => 'CC BY-NC-ND'
-                ]
-
+                ],
+                'submissionId' => '456'
             ];
     }
 
