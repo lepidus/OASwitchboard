@@ -57,6 +57,9 @@ class P1Pio
             if (isset($email) && !empty($email)) {
                 $authorsData[count($authorsData) - 1]['email'] = $email;
             }
+
+            $primaryContactId = $this->submission->getCurrentPublication()->getData('primaryContactId');
+            $authorsData[count($authorsData) - 1]['isCorrespondingAuthor'] = $primaryContactId === $author->getId();
         }
         return $authorsData;
     }

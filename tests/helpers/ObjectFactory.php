@@ -67,6 +67,7 @@ class ObjectFactory
         $publication->setId(rand());
         $publication->setData('title', 'The International relations of Middle-Earth');
         $publication->setData('doiId', '00.0000/mearth.0000');
+        $publication->setData('primaryContactId', 123);
 
         $authors = ObjectFactory::createTestAuthors($publication);
         if ($hasPrimaryContactId) {
