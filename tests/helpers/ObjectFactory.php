@@ -22,6 +22,7 @@ class ObjectFactory
         $firstAuthor->setData('publicationId', $publication->getId());
         $firstAuthor->setData('rorId', 'https://ror.org/xxxxxxxxrecipient');
         $firstAuthor->setData('orcid', 'https://orcid.org/0000-0000-0000-0000');
+        $firstAuthor->setData('email', 'castanheirasiris@lepidus.com.br');
 
         $secondAuthor = new Author();
         $secondAuthor->setId(321);

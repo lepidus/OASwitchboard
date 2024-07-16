@@ -24,7 +24,8 @@ trait P1PioExpectedTestData
                         'ror' => 'https://ror.org/xxxxxxxxrecipient'
                         ]
                     ],
-                'orcid' => 'https://orcid.org/0000-0000-0000-0000'
+                'orcid' => 'https://orcid.org/0000-0000-0000-0000',
+                'email' => 'castanheirasiris@lepidus.com.br'
                 ],
             [
                 'lastName' => 'Amorim',

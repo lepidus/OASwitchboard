@@ -52,6 +52,11 @@ class P1Pio
             if (isset($orcid) && !empty($orcid)) {
                 $authorsData[count($authorsData) - 1]['orcid'] = $orcid;
             }
+
+            $email = $author->getEmail();
+            if (isset($email) && !empty($email)) {
+                $authorsData[count($authorsData) - 1]['email'] = $email;
+            }
         }
         return $authorsData;
     }
