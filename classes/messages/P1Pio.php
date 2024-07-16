@@ -47,6 +47,11 @@ class P1Pio
                     ]
                 ]
             ];
+
+            $orcid = $author->getOrcid();
+            if (isset($orcid) && !empty($orcid)) {
+                $authorsData[count($authorsData) - 1]['orcid'] = $orcid;
+            }
         }
         return $authorsData;
     }
