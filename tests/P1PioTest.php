@@ -17,7 +17,7 @@ class P1PioTest extends PKPTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $journal = ObjectFactory::createMockedJournal($this, $issn = "0000-0001");
+        $journal = ObjectFactory::createMockedJournal($this, $onlineIssn = "0000-0001", $printIssn = "0000-0002");
         $this->submission = ObjectFactory::createTestSubmission($journal);
         $this->P1Pio = new P1Pio($this->submission);
     }

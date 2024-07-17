@@ -64,7 +64,9 @@ trait P1PioExpectedTestData
     {
         $journal = [
             'name' => 'Middle Earth papers',
-            'id' => '0000-0001'
+            'id' => '0000-0001',
+            'eissn' => '0000-0001',
+            'issn' => '0000-0002'
         ];
         return $journal;
     }

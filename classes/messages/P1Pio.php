@@ -94,24 +94,19 @@ class P1Pio
         $journalDao = DAORegistry::getDAO('JournalDAO');
         $journalId = $this->submission->getContextId();
         $journal = $journalDao->getById($journalId);
-        $issn = $this->retrieveIssn($journal);
 
         $journalData = [
             'name' => $journal->getLocalizedName(),
-            'id' => $issn
+            'id' => $this->chooseIssn($journal),
+            'eissn' => $journal->getData('onlineIssn'),
+            'issn' => $journal->getData('printIssn')
         ];
         return $journalData;
     }
 
-    private function retrieveIssn($journal)
+    private function chooseIssn($journal)
     {
-        if ($journal->getData('onlineIssn')) {
-            return $journal->getData('onlineIssn');
-        } elseif ($journal->getData('printIssn')) {
-            return $journal->getData('printIssn');
-        }
-
-        return null;
+        return $journal->getData('onlineIssn') ?: $journal->getData('printIssn') ?: null;
     }
 
     public function getContent(): array
