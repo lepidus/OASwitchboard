@@ -8,6 +8,9 @@ use PKP\db\DAORegistry;
 use APP\submission\Submission;
 use APP\publication\Publication;
 use APP\author\Author;
+use PKP\galley\Galley;
+use PKP\submissionFile\SubmissionFile;
+use PKP\facades\Locale;
 
 class ObjectFactory
 {
@@ -62,6 +65,23 @@ class ObjectFactory
 
     public static function createTestSubmission($journal, $hasPrimaryContactId = false): Submission
     {
+        $galley = new Galley();
+        $galley->setId(rand());
+        $galley->setData('label', 'PDF');
+        $galley->setLocale(Locale::getPrimaryLocale());
+
+        $submissionFile = new SubmissionFile();
+        $submissionFile->setId(9999);
+        $submissionFile->setData('genreId', 1);
+        $submissionFile->setData('mimetype', 'application/pdf');
+        $submissionFile->setData('submissionId', 456);
+        $submissionFile->setData('assocType', PKPApplication::ASSOC_TYPE_SUBMISSION_FILE);
+        $submissionFile->setData('assocId', $galley->getId());
+        $submissionFile->setData('uploaderUserId', 1);
+        $submissionFile->setData('createdAt', '2021-01-01 00:00:00');
+        $submissionFile->setData('fileStage', SubmissionFile::SUBMISSION_FILE_DEPENDENT);
+        // Repo::submissionFile()->add($submissionFile);
+
         $submission = new Submission();
         $submission->setId(456);
         $submission->setData('contextId', $journal->getId());
@@ -78,9 +98,14 @@ class ObjectFactory
         }
         $publication->setData('authors', $authors);
         $publication->setData('submissionId', $submission->getId());
+
         $submission->setData('currentPublicationId', $publication->getId());
         $submission->setData('publications', [$publication]);
         $submission->setLicenseUrl('https://creativecommons.org/licenses/by-nc-nd/4.0/');
+        $submission->setData('galleys', [$galley]);
+
+        $galley->setData('submissionId', $submission->getId());
+        $galley->setData('submissionFileId', $submissionFile->getId());
 
         return $submission;
     }

@@ -6,6 +6,7 @@ use APP\submission\Submission;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use PKP\db\DAORegistry;
 use APP\facades\Repo;
+use PKP\facades\Locale;
 
 class P1Pio
 {
@@ -76,6 +77,8 @@ class P1Pio
         $doi = $publication->getData('doiId') ?
             self::DOI_BASE_URL . $publication->getData('doiId') :
             "";
+        $fileId = $this->getFileId();
+
         $articleData = [
             'title' => $articleTitle,
             'doi' => $doi,
@@ -84,9 +87,35 @@ class P1Pio
                 'publication' => self::OPEN_ACCESS_POLICY,
                 'license' => $licenseAcronym
             ],
-            'submissionId' => (string) $this->submission->getId()
+            'submissionId' => (string) $this->submission->getId(),
+            'manuscript' => [
+                'id' => (string) $fileId
+            ]
         ];
         return $articleData;
+    }
+
+    private function getFileId()
+    {
+        $genreDao = DAORegistry::getDAO('GenreDAO');
+        $articleTextGenreId = $genreDao->getByKey('SUBMISSION')->getId();
+
+        $galleys = $this->submission->getGalleys();
+
+        $galleyFileId = [];
+
+        foreach ($galleys as $galley) {
+            $submissionFileId = $galley->getData('submissionFileId');
+            $genreId = Repo::submissionFile()->get($submissionFileId)->getData('genreId');
+
+            if ($genreId === $articleTextGenreId) {
+                if (Locale::getPrimaryLocale() == $galley->getLocale()) {
+                    $galleyFileId[] = $submissionFileId;
+                }
+            }
+        }
+
+        return $galleyFileId[0];
     }
 
     public function getJournalData(): array
