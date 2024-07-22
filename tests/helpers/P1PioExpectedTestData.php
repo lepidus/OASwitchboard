@@ -58,7 +58,7 @@ trait P1PioExpectedTestData
                 ],
                 'submissionId' => '456',
                 'manuscript' => [
-                    'id' => '0'
+                    'id' => '9999'
                 ]
             ];
     }

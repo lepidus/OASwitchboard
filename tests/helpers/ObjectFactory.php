@@ -11,6 +11,8 @@ use APP\author\Author;
 use PKP\galley\Galley;
 use PKP\submissionFile\SubmissionFile;
 use PKP\facades\Locale;
+use APP\core\Application;
+use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 
 class ObjectFactory
 {
@@ -72,15 +74,18 @@ class ObjectFactory
 
         $submissionFile = new SubmissionFile();
         $submissionFile->setId(9999);
-        $submissionFile->setData('genreId', 1);
+
+        $genreDao = DAORegistry::getDAO('GenreDAO');
+        $articleTextGenreId = $genreDao->getByKey('SUBMISSION')->getId();
+        $submissionFile->setData('genreId', $articleTextGenreId);
         $submissionFile->setData('mimetype', 'application/pdf');
         $submissionFile->setData('submissionId', 456);
-        $submissionFile->setData('assocType', PKPApplication::ASSOC_TYPE_SUBMISSION_FILE);
+        $submissionFile->setData('assocType', Application::ASSOC_TYPE_SUBMISSION_FILE);
         $submissionFile->setData('assocId', $galley->getId());
         $submissionFile->setData('uploaderUserId', 1);
         $submissionFile->setData('createdAt', '2021-01-01 00:00:00');
         $submissionFile->setData('fileStage', SubmissionFile::SUBMISSION_FILE_DEPENDENT);
-        // Repo::submissionFile()->add($submissionFile);
+        $submissionFile->setData('fileId', 1234);
 
         $submission = new Submission();
         $submission->setId(456);
@@ -108,5 +113,19 @@ class ObjectFactory
         $galley->setData('submissionFileId', $submissionFile->getId());
 
         return $submission;
+    }
+
+    public static function createP1PioMock(PKPTestCase $testClass, $submission)
+    {
+        $P1PioMock = $testClass->getMockBuilder(P1Pio::class)
+            ->setConstructorArgs([$submission])
+            ->setMethods(['getGenreOfSubmissionFile'])
+            ->getMock();
+
+        $P1PioMock->expects($testClass->any())
+            ->method('getGenreOfSubmissionFile')
+            ->will($testClass->returnValue(1));
+
+        return $P1PioMock;
     }
 }

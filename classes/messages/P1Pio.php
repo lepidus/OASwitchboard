@@ -77,7 +77,6 @@ class P1Pio
         $doi = $publication->getData('doiId') ?
             self::DOI_BASE_URL . $publication->getData('doiId') :
             "";
-        $fileId = $this->getFileId();
 
         $articleData = [
             'title' => $articleTitle,
@@ -87,11 +86,15 @@ class P1Pio
                 'publication' => self::OPEN_ACCESS_POLICY,
                 'license' => $licenseAcronym
             ],
-            'submissionId' => (string) $this->submission->getId(),
-            'manuscript' => [
-                'id' => (string) $fileId
-            ]
+            'submissionId' => (string) $this->submission->getId()
         ];
+
+        $fileId = $this->getFileId();
+        if ($fileId) {
+            $articleData['manuscript'] = [
+                'id' => (string) $fileId
+            ];
+        }
         return $articleData;
     }
 
@@ -106,8 +109,7 @@ class P1Pio
 
         foreach ($galleys as $galley) {
             $submissionFileId = $galley->getData('submissionFileId');
-            $genreId = Repo::submissionFile()->get($submissionFileId)->getData('genreId');
-
+            $genreId = $this->getGenreOfSubmissionFile($submissionFileId);
             if ($genreId === $articleTextGenreId) {
                 if (Locale::getPrimaryLocale() == $galley->getLocale()) {
                     $galleyFileId[] = $submissionFileId;
@@ -115,7 +117,12 @@ class P1Pio
             }
         }
 
-        return $galleyFileId[0];
+        return isset($galleyFileId[0]) ? $galleyFileId[0] : null;
+    }
+
+    public function getGenreOfSubmissionFile($submissionFileId)
+    {
+        return Repo::submissionFile()->get($submissionFileId)->getData('genreId');
     }
 
     public function getJournalData(): array
