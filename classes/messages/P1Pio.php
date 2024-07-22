@@ -90,6 +90,7 @@ class P1Pio
             'manuscript' => [
                 'dates' => [
                     'submission' => $this->submission->getDateSubmitted(),
+                    'publication' => $this->submission->getDatePublished()
                 ]
             ]
         ];

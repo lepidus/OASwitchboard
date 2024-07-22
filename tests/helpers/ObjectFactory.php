@@ -90,7 +90,6 @@ class ObjectFactory
         $submission = new Submission();
         $submission->setId(456);
         $submission->setData('contextId', $journal->getId());
-        $submission->setDateSubmitted('2021-01-01 00:00:00');
 
         $publication = new Publication();
         $publication->setId(rand());
@@ -109,6 +108,9 @@ class ObjectFactory
         $submission->setData('publications', [$publication]);
         $submission->setLicenseUrl('https://creativecommons.org/licenses/by-nc-nd/4.0/');
         $submission->setData('galleys', [$galley]);
+
+        $submission->setDateSubmitted('2021-01-01 00:00:00');
+        $submission->setDatePublished('2021-03-01 00:00:00');
 
         $galley->setData('submissionId', $submission->getId());
         $galley->setData('submissionFileId', $submissionFile->getId());
