@@ -90,6 +90,7 @@ class ObjectFactory
         $submission = new Submission();
         $submission->setId(456);
         $submission->setData('contextId', $journal->getId());
+        $submission->setDateSubmitted('2021-01-01 00:00:00');
 
         $publication = new Publication();
         $publication->setId(rand());

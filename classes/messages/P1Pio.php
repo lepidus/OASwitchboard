@@ -86,14 +86,17 @@ class P1Pio
                 'publication' => self::OPEN_ACCESS_POLICY,
                 'license' => $licenseAcronym
             ],
-            'submissionId' => (string) $this->submission->getId()
+            'submissionId' => (string) $this->submission->getId(),
+            'manuscript' => [
+                'dates' => [
+                    'submission' => $this->submission->getDateSubmitted(),
+                ]
+            ]
         ];
 
         $fileId = $this->getFileId();
         if ($fileId) {
-            $articleData['manuscript'] = [
-                'id' => (string) $fileId
-            ];
+            $articleData['manuscript']['id'] = (string) $fileId;
         }
         return $articleData;
     }
