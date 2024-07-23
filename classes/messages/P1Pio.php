@@ -7,6 +7,7 @@ use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use PKP\db\DAORegistry;
 use APP\facades\Repo;
 use PKP\facades\Locale;
+use PKP\decision\Decision;
 
 class P1Pio
 {
@@ -89,8 +90,9 @@ class P1Pio
             'submissionId' => (string) $this->submission->getId(),
             'manuscript' => [
                 'dates' => [
-                    'submission' => $this->submission->getDateSubmitted(),
-                    'publication' => $this->submission->getDatePublished()
+                    'submission' => (string) date('Y-m-d', strtotime($this->submission->getDateSubmitted())),
+                    'acceptance' => (string) $this->getAcceptanceDate(),
+                    'publication' => (string) date('Y-m-d', strtotime($this->submission->getDatePublished()))
                 ]
             ]
         ];
@@ -99,7 +101,27 @@ class P1Pio
         if ($fileId) {
             $articleData['manuscript']['id'] = (string) $fileId;
         }
+
         return $articleData;
+    }
+
+    private function getAcceptanceDate(): ?string
+    {
+        $editorialDecision = $this->getSubmissionDecisions();
+
+        foreach ($editorialDecision as $decision) {
+            if ($decision->getData('stageId') === 3 && $decision->getData('decision') === Decision::ACCEPT) {
+                return date('Y-m-d', strtotime($decision->getData('dateDecided')));
+            }
+        }
+        return null;
+    }
+
+    public function getSubmissionDecisions(): array
+    {
+        return Repo::decision()->getCollector()
+            ->filterBySubmissionIds([$this->submission->getId()])
+            ->getMany()->toArray();
     }
 
     private function getFileId()

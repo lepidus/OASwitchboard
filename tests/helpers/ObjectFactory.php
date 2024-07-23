@@ -13,6 +13,7 @@ use PKP\submissionFile\SubmissionFile;
 use PKP\facades\Locale;
 use APP\core\Application;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
+use PKP\decision\Decision;
 
 class ObjectFactory
 {
@@ -122,13 +123,21 @@ class ObjectFactory
     {
         $P1PioMock = $testClass->getMockBuilder(P1Pio::class)
             ->setConstructorArgs([$submission])
-            ->setMethods(['getGenreOfSubmissionFile'])
+            ->setMethods(['getGenreOfSubmissionFile', 'getSubmissionDecisions'])
             ->getMock();
 
         $P1PioMock->expects($testClass->any())
             ->method('getGenreOfSubmissionFile')
             ->will($testClass->returnValue(1));
 
+        $decision = new Decision();
+        $decision->setData('stageId', 3);
+        $decision->setData('decision', Decision::ACCEPT);
+        $decision->setData('dateDecided', '2021-02-01');
+
+        $P1PioMock->expects($testClass->any())
+            ->method('getSubmissionDecisions')
+            ->will($testClass->returnValue([$decision]));
         return $P1PioMock;
     }
 }
