@@ -6,6 +6,8 @@ use APP\submission\Submission;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use PKP\db\DAORegistry;
 use APP\facades\Repo;
+use PKP\facades\Locale;
+use PKP\decision\Decision;
 
 class P1Pio
 {
@@ -47,6 +49,22 @@ class P1Pio
                     ]
                 ]
             ];
+
+            $orcid = $author->getOrcid();
+            if (isset($orcid) && !empty($orcid)) {
+                $authorsData[count($authorsData) - 1]['orcid'] = $orcid;
+            }
+
+            $email = $author->getEmail();
+            if (isset($email) && !empty($email)) {
+                $authorsData[count($authorsData) - 1]['email'] = $email;
+            }
+
+            $primaryContactId = $this->submission->getCurrentPublication()->getData('primaryContactId');
+            $authorsData[count($authorsData) - 1]['isCorrespondingAuthor'] = $primaryContactId === $author->getId();
+
+            $contributorSequence = $author->getData('seq') + 1;
+            $authorsData[count($authorsData) - 1]['listingorder'] = $contributorSequence;
         }
         return $authorsData;
     }
@@ -60,6 +78,7 @@ class P1Pio
         $doi = $publication->getData('doiId') ?
             self::DOI_BASE_URL . $publication->getData('doiId') :
             "";
+
         $articleData = [
             'title' => $articleTitle,
             'doi' => $doi,
@@ -67,9 +86,69 @@ class P1Pio
             'vor' => [
                 'publication' => self::OPEN_ACCESS_POLICY,
                 'license' => $licenseAcronym
+            ],
+            'submissionId' => (string) $this->submission->getId(),
+            'manuscript' => [
+                'dates' => [
+                    'submission' => (string) date('Y-m-d', strtotime($this->submission->getDateSubmitted())),
+                    'acceptance' => (string) $this->getAcceptanceDate(),
+                    'publication' => (string) date('Y-m-d', strtotime($this->submission->getDatePublished()))
+                ]
             ]
         ];
+
+        $fileId = $this->getFileId();
+        if ($fileId) {
+            $articleData['manuscript']['id'] = (string) $fileId;
+        }
+
         return $articleData;
+    }
+
+    private function getAcceptanceDate(): ?string
+    {
+        $editorialDecision = $this->getSubmissionDecisions();
+
+        foreach ($editorialDecision as $decision) {
+            if ($decision->getData('stageId') === 3 && $decision->getData('decision') === Decision::ACCEPT) {
+                return date('Y-m-d', strtotime($decision->getData('dateDecided')));
+            }
+        }
+        return null;
+    }
+
+    public function getSubmissionDecisions(): array
+    {
+        return Repo::decision()->getCollector()
+            ->filterBySubmissionIds([$this->submission->getId()])
+            ->getMany()->toArray();
+    }
+
+    private function getFileId()
+    {
+        $genreDao = DAORegistry::getDAO('GenreDAO');
+        $articleTextGenreId = $genreDao->getByKey('SUBMISSION')->getId();
+
+        $galleys = $this->submission->getGalleys();
+
+        $galleyFileId = [];
+
+        foreach ($galleys as $galley) {
+            $submissionFileId = $galley->getData('submissionFileId');
+            $genreId = $this->getGenreOfSubmissionFile($submissionFileId);
+            if ($genreId === $articleTextGenreId) {
+                if (Locale::getPrimaryLocale() == $galley->getLocale()) {
+                    $galleyFileId[] = $submissionFileId;
+                }
+            }
+        }
+
+        return isset($galleyFileId[0]) ? $galleyFileId[0] : null;
+    }
+
+    public function getGenreOfSubmissionFile($submissionFileId)
+    {
+        return Repo::submissionFile()->get($submissionFileId)->getData('genreId');
     }
 
     public function getJournalData(): array
@@ -77,24 +156,19 @@ class P1Pio
         $journalDao = DAORegistry::getDAO('JournalDAO');
         $journalId = $this->submission->getContextId();
         $journal = $journalDao->getById($journalId);
-        $issn = $this->retrieveIssn($journal);
 
         $journalData = [
             'name' => $journal->getLocalizedName(),
-            'id' => $issn
+            'id' => $this->chooseIssn($journal),
+            'eissn' => $journal->getData('onlineIssn'),
+            'issn' => $journal->getData('printIssn')
         ];
         return $journalData;
     }
 
-    private function retrieveIssn($journal)
+    private function chooseIssn($journal)
     {
-        if ($journal->getData('onlineIssn')) {
-            return $journal->getData('onlineIssn');
-        } elseif ($journal->getData('printIssn')) {
-            return $journal->getData('printIssn');
-        }
-
-        return null;
+        return $journal->getData('onlineIssn') ?: $journal->getData('printIssn') ?: null;
     }
 
     public function getContent(): array

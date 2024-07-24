@@ -17,9 +17,9 @@ class P1PioTest extends PKPTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $journal = ObjectFactory::createMockedJournal($this, $issn = "0000-0001");
+        $journal = ObjectFactory::createMockedJournal($this, $onlineIssn = "0000-0001", $printIssn = "0000-0002");
         $this->submission = ObjectFactory::createTestSubmission($journal);
-        $this->P1Pio = new P1Pio($this->submission);
+        $this->P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
     }
 
     protected function getMockedDAOs(): array
@@ -133,7 +133,7 @@ class P1PioTest extends PKPTestCase
         $this->expectExceptionMessage(
             "##plugins.generic.OASwitchboard.postRequirementsError##"
         );
-        $P1Pio = new P1Pio($this->submission);
+        $P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
     }
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfAuthorDoesNotHaveAffiliation()
@@ -145,7 +145,7 @@ class P1PioTest extends PKPTestCase
         $this->expectExceptionMessage(
             "##plugins.generic.OASwitchboard.postRequirementsError##"
         );
-        $P1Pio = new P1Pio($this->submission);
+        $P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
     }
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfArticleDoesNotHaveDOIAssociated()
@@ -157,7 +157,7 @@ class P1PioTest extends PKPTestCase
         $this->expectExceptionMessage(
             "##plugins.generic.OASwitchboard.postRequirementsError##"
         );
-        $P1Pio = new P1Pio($this->submission);
+        $P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
     }
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfArticleDoesNotHaveISSNAssociated()
@@ -169,6 +169,6 @@ class P1PioTest extends PKPTestCase
         $this->expectExceptionMessage(
             "##plugins.generic.OASwitchboard.postRequirementsError##"
         );
-        $P1Pio = new P1Pio($submission);
+        $P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
     }
 }

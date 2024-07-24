@@ -8,6 +8,12 @@ use PKP\db\DAORegistry;
 use APP\submission\Submission;
 use APP\publication\Publication;
 use APP\author\Author;
+use PKP\galley\Galley;
+use PKP\submissionFile\SubmissionFile;
+use PKP\facades\Locale;
+use APP\core\Application;
+use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
+use PKP\decision\Decision;
 
 class ObjectFactory
 {
@@ -21,25 +27,30 @@ class ObjectFactory
 
         $firstAuthor->setData('publicationId', $publication->getId());
         $firstAuthor->setData('rorId', 'https://ror.org/xxxxxxxxrecipient');
+        $firstAuthor->setData('orcid', 'https://orcid.org/0000-0000-0000-0000');
+        $firstAuthor->setData('email', 'castanheirasiris@lepidus.com.br');
+        $firstAuthor->setData('seq', 0);
 
         $secondAuthor = new Author();
         $secondAuthor->setId(321);
         $secondAuthor->setGivenName('Yves', 'pt_BR');
         $secondAuthor->setFamilyName('Amorim', 'pt_BR');
         $secondAuthor->setAffiliation('Lepidus Tecnologia', 'pt_BR');
+        $secondAuthor->setData('seq', 1);
 
         $secondAuthor->setData('publicationId', $publication->getId());
 
         return [$firstAuthor, $secondAuthor];
     }
 
-    public static function createMockedJournal(PKPTestCase $testClass, $issn = null)
+    public static function createMockedJournal(PKPTestCase $testClass, $onlineIssn = null, $printIssn = null)
     {
         $journal = new Journal();
         $journal->setId(rand());
         $journal->setName('Middle Earth papers', 'en_US');
-        if ($issn) {
-            $journal->setData('onlineIssn', $issn);
+        if ($printIssn and $onlineIssn) {
+            $journal->setData('onlineIssn', $onlineIssn);
+            $journal->setData('printIssn', $printIssn);
         }
 
         $mockJournalDAO = $testClass->getMockBuilder(JournalDAO::class)
@@ -57,14 +68,35 @@ class ObjectFactory
 
     public static function createTestSubmission($journal, $hasPrimaryContactId = false): Submission
     {
+        $galley = new Galley();
+        $galley->setId(rand());
+        $galley->setData('label', 'PDF');
+        $galley->setLocale(Locale::getPrimaryLocale());
+
+        $submissionFile = new SubmissionFile();
+        $submissionFile->setId(9999);
+
+        $genreDao = DAORegistry::getDAO('GenreDAO');
+        $articleTextGenreId = $genreDao->getByKey('SUBMISSION')->getId();
+        $submissionFile->setData('genreId', $articleTextGenreId);
+        $submissionFile->setData('mimetype', 'application/pdf');
+        $submissionFile->setData('submissionId', 456);
+        $submissionFile->setData('assocType', Application::ASSOC_TYPE_SUBMISSION_FILE);
+        $submissionFile->setData('assocId', $galley->getId());
+        $submissionFile->setData('uploaderUserId', 1);
+        $submissionFile->setData('createdAt', '2021-01-01 00:00:00');
+        $submissionFile->setData('fileStage', SubmissionFile::SUBMISSION_FILE_DEPENDENT);
+        $submissionFile->setData('fileId', 1234);
+
         $submission = new Submission();
-        $submission->setId(rand());
+        $submission->setId(456);
         $submission->setData('contextId', $journal->getId());
 
         $publication = new Publication();
         $publication->setId(rand());
         $publication->setData('title', 'The International relations of Middle-Earth');
         $publication->setData('doiId', '00.0000/mearth.0000');
+        $publication->setData('primaryContactId', 123);
 
         $authors = ObjectFactory::createTestAuthors($publication);
         if ($hasPrimaryContactId) {
@@ -72,10 +104,40 @@ class ObjectFactory
         }
         $publication->setData('authors', $authors);
         $publication->setData('submissionId', $submission->getId());
+
         $submission->setData('currentPublicationId', $publication->getId());
         $submission->setData('publications', [$publication]);
         $submission->setLicenseUrl('https://creativecommons.org/licenses/by-nc-nd/4.0/');
+        $submission->setData('galleys', [$galley]);
+
+        $submission->setDateSubmitted('2021-01-01 00:00:00');
+        $submission->setDatePublished('2021-03-01 00:00:00');
+
+        $galley->setData('submissionId', $submission->getId());
+        $galley->setData('submissionFileId', $submissionFile->getId());
 
         return $submission;
+    }
+
+    public static function createP1PioMock(PKPTestCase $testClass, $submission)
+    {
+        $P1PioMock = $testClass->getMockBuilder(P1Pio::class)
+            ->setConstructorArgs([$submission])
+            ->setMethods(['getGenreOfSubmissionFile', 'getSubmissionDecisions'])
+            ->getMock();
+
+        $P1PioMock->expects($testClass->any())
+            ->method('getGenreOfSubmissionFile')
+            ->will($testClass->returnValue(1));
+
+        $decision = new Decision();
+        $decision->setData('stageId', 3);
+        $decision->setData('decision', Decision::ACCEPT);
+        $decision->setData('dateDecided', '2021-02-01');
+
+        $P1PioMock->expects($testClass->any())
+            ->method('getSubmissionDecisions')
+            ->will($testClass->returnValue([$decision]));
+        return $P1PioMock;
     }
 }
