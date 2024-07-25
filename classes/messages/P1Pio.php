@@ -81,7 +81,7 @@ class P1Pio
 
         $articleData = [
             'title' => $articleTitle,
-            'doi' => $doi,
+            'doi' => (string) $doi,
             'type' => self::ARTICLE_TYPE,
             'vor' => [
                 'publication' => self::OPEN_ACCESS_POLICY,
@@ -158,10 +158,10 @@ class P1Pio
         $journal = $journalDao->getById($journalId);
 
         $journalData = [
-            'name' => $journal->getLocalizedName(),
-            'id' => $this->chooseIssn($journal),
-            'eissn' => $journal->getData('onlineIssn'),
-            'issn' => $journal->getData('printIssn')
+            'name' => (string) $journal->getLocalizedName(),
+            'id' => (string) $this->chooseIssn($journal),
+            'eissn' => (string) $journal->getData('onlineIssn'),
+            'issn' => (string) $journal->getData('printIssn')
         ];
         return $journalData;
     }
