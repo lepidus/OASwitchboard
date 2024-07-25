@@ -14,6 +14,7 @@ use PKP\facades\Locale;
 use APP\core\Application;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use PKP\decision\Decision;
+use PKP\doi\Doi;
 
 class ObjectFactory
 {
@@ -95,9 +96,12 @@ class ObjectFactory
         $publication = new Publication();
         $publication->setId(rand());
         $publication->setData('title', 'The International relations of Middle-Earth');
-        $publication->setData('doiId', '00.0000/mearth.0000');
-        $publication->setData('primaryContactId', 123);
 
+        $doiObject = new Doi();
+        $doiObject->setData('doi', '00.0000/mearth.0000');
+        $publication->setData('doiObject', $doiObject);
+
+        $publication->setData('primaryContactId', 123);
         $authors = ObjectFactory::createTestAuthors($publication);
         if ($hasPrimaryContactId) {
             $publication->setData('primaryContactId', $authors[1]->getId());

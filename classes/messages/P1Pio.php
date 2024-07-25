@@ -75,8 +75,8 @@ class P1Pio
         $publication = $this->submission->getCurrentPublication();
         $license = $this->submission->getLicenseUrl();
         $licenseAcronym = $this->getLicenseAcronym($license);
-        $doi = $publication->getData('doiId') ?
-            self::DOI_BASE_URL . $publication->getData('doiId') :
+        $doi = $publication->getDoi() ?
+            self::DOI_BASE_URL . $publication->getDoi() :
             "";
 
         $articleData = [

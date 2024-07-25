@@ -151,7 +151,7 @@ class P1PioTest extends PKPTestCase
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfArticleDoesNotHaveDOIAssociated()
     {
         $publication = $this->submission->getCurrentPublication();
-        $publication->setData('doiId', null);
+        $publication->setData('doiObject', null);
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage(
