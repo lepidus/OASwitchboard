@@ -43,4 +43,15 @@ describe('Send P1-PIO message with success', function () {
         cy.get('.app__notifications').contains("At least one author of the article must have a ROR associated with their affiliation.");
         cy.get('.app__notifications').contains("The message was successfully sent to the OA Switchboard");
     })
+
+    it('Check the message on sandbox and validate funding', function () {
+        cy.visit('https://sandboxhub.oaswitchboard.org/');
+        cy.get('#\\31').type(Cypress.env('OASUsername'));
+        cy.get('#\\32 ').type(Cypress.env('OASPassword'));
+        cy.get('.sc-kGXeez').click();
+        cy.get('tbody > :nth-child(1) > :nth-child(2)').click();
+        cy.get('.modal-content').contains("funders:");
+        cy.get('.modal-content').contains("name: Universidade Federal de Santa Catarina");
+        cy.get('.modal-content').contains("fundref: http://dx.doi.org/10.13039/501100007082");
+    })
 })
