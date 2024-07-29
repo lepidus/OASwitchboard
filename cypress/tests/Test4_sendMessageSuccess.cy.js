@@ -5,6 +5,25 @@ describe('Send P1-PIO message with success', function () {
         cy.get('a:contains("DOIs")').click();
         cy.assignDoisByTitle('Antimicrobial, heavy metal resistance and plasmid profile of coliforms isolated from nosocomial infections in a hospital in Isfahan, Iran');
     })
+
+    it('Install Funding Plugin', function () {
+        cy.login('admin', 'admin', 'publicknowledge');
+        cy.contains('a', 'Website').click();
+        cy.get('#plugins-button').click();
+        cy.get('#pluginGallery-button').click();
+        cy.get('span').contains('Funding').click();
+        cy.get('[id^=pluginGallery-installPlugin-button-]').click();
+        cy.get('.ok').click();
+    }) 
+
+    it('Enable Funding Plugin', function () {
+        cy.login('dbarnes', null, 'publicknowledge');
+        cy.contains('a', 'Website').click();
+        cy.get('#plugins-button').click();
+        cy.get('input[id^=select-cell-FundingPlugin]').check();
+        cy.get('input[id^=select-cell-FundingPlugin]').should('be.checked');
+    })
+
     it('Send Message to OA Switchboard', function () {
         cy.login('dbarnes', null, 'publicknowledge');
         cy.get('#archive-button').click();
