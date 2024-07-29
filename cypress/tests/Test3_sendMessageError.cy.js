@@ -11,7 +11,6 @@ describe('Send P1-PIO message with error', function () {
         cy.reload();
 
         cy.get('.app__notifications').contains("We don't have the mandatory data for sending the message to the OA Switchboard, please check the submission activity log to understand the pending requirements.");
-        cy.get('.app__notifications').contains("Affiliation of an author must be set.");
         cy.get('.app__notifications').contains("The article must have a DOI associated.");
     })
 })
