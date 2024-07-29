@@ -31,6 +31,11 @@ describe('Send P1-PIO message with success', function () {
         cy.get('#publication-button').click();
         cy.get('button:contains("Unpublish")').click();
         cy.get('.pkpButton--isPrimary').contains("Unpublish").click();
+        cy.get('#fundingGridInWorkflow-button').click();
+        cy.get('[id^=component-plugins-generic-funding-controllers-grid-fundergrid-addFunder-button-]').click();
+        cy.get('input.ui-widget-content.ui-autocomplete-input').should('be.visible').first().focus().type("Universidade Federal de Santa Catarina [http://dx.doi.org/10.13039/501100007082]", {delay: 0});
+        cy.get('#funderForm > .formButtons > [id^=submitFormButton-]').click();
+
         cy.get('.pkpPublication__header > .pkpHeader__actions > button.pkpButton').contains("Schedule For Publication").click();
         cy.get('.pkpFormPage__footer button:contains("Publish")').click();
         cy.reload();
