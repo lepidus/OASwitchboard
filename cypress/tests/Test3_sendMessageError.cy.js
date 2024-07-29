@@ -6,7 +6,7 @@ describe('Send P1-PIO message with error', function () {
         cy.get('#publication-button').click();
         cy.get('button:contains("Unpublish")').click();
         cy.get('.pkpButton--isPrimary').contains("Unpublish").click();
-        cy.get('.pkpPublication__header > .pkpHeader__actions > button.pkpButton').contains("Publish").click();
+        cy.get('.pkpPublication__header > .pkpHeader__actions > button.pkpButton').contains("Schedule For Publication").click();
         cy.get('.pkpFormPage__footer button:contains("Publish")').click();
         cy.reload();
 
