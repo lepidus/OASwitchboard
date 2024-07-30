@@ -6,7 +6,6 @@ use APP\submission\Submission;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use PKP\db\DAORegistry;
 use APP\facades\Repo;
-use PKP\facades\Locale;
 use PKP\decision\Decision;
 use PKP\plugins\PluginRegistry;
 
@@ -152,27 +151,46 @@ class P1Pio
 
     private function getFileId()
     {
-        $genreDao = DAORegistry::getDAO('GenreDAO');
-        $articleTextGenreId = $genreDao->getByKey('SUBMISSION')->getId();
+        $journal = DAORegistry::getDAO('JournalDAO')->getById($this->submission->getData('contextId'));
+        $galleys = $this->getArticleTextGalleys();
 
-        $galleys = $this->submission->getGalleys();
-
-        $galleyFileId = [];
-
-        foreach ($galleys as $galley) {
-            $submissionFileId = $galley->getData('submissionFileId');
-            $genreId = $this->getGenreOfSubmissionFile($submissionFileId);
-            if ($genreId === $articleTextGenreId) {
-                if (Locale::getPrimaryLocale() == $galley->getLocale()) {
-                    $galleyFileId[] = $submissionFileId;
-                }
-            }
+        if (count($galleys) > 1) {
+            return $this->getFirstPrimaryLocaleGalleyFileId($galleys, $journal->getPrimaryLocale());
         }
 
-        return isset($galleyFileId[0]) ? $galleyFileId[0] : null;
+        return empty($galleys) ? null : $galleys[0]->getData('submissionFileId');
     }
 
-    public function getGenreOfSubmissionFile($submissionFileId)
+    private function getFirstPrimaryLocaleGalleyFileId($galleys, $primaryLocale)
+    {
+        foreach ($galleys as $galley) {
+            if ($galley->getData('locale') === $primaryLocale) {
+                return $galley->getData('submissionFileId');
+            }
+        }
+    }
+
+    private function getArticleTextGenreId(): int
+    {
+        return DAORegistry::getDAO('GenreDAO')
+            ->getByKey('SUBMISSION', $this->submission->getData('contextId'))
+            ->getId();
+    }
+
+    private function getArticleTextGalleys(): array
+    {
+        $articleTextGalleys = [];
+        foreach ($this->submission->getGalleys() as $galley) {
+            $submissionFileId = $galley->getData('submissionFileId');
+            $genreId = $this->getGenreIdOfSubmissionFile($submissionFileId);
+            if ($genreId === $this->getArticleTextGenreId()) {
+                $articleTextGalleys[] = $galley;
+            }
+        }
+        return $articleTextGalleys;
+    }
+
+    public function getGenreIdOfSubmissionFile($submissionFileId)
     {
         return Repo::submissionFile()->get($submissionFileId)->getData('genreId');
     }

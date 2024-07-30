@@ -10,7 +10,6 @@ use APP\publication\Publication;
 use APP\author\Author;
 use PKP\galley\Galley;
 use PKP\submissionFile\SubmissionFile;
-use PKP\facades\Locale;
 use APP\core\Application;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use PKP\decision\Decision;
@@ -47,7 +46,7 @@ class ObjectFactory
     public static function createMockedJournal(PKPTestCase $testClass, $onlineIssn = null, $printIssn = null)
     {
         $journal = new Journal();
-        $journal->setId(rand());
+        $journal->setId(1);
         $journal->setName('Middle Earth papers', 'en_US');
         if ($printIssn and $onlineIssn) {
             $journal->setData('onlineIssn', $onlineIssn);
@@ -72,22 +71,10 @@ class ObjectFactory
         $galley = new Galley();
         $galley->setId(rand());
         $galley->setData('label', 'PDF');
-        $galley->setLocale(Locale::getPrimaryLocale());
+        $galley->setLocale($journal->getPrimaryLocale());
 
         $submissionFile = new SubmissionFile();
         $submissionFile->setId(9999);
-
-        $genreDao = DAORegistry::getDAO('GenreDAO');
-        $articleTextGenreId = $genreDao->getByKey('SUBMISSION')->getId();
-        $submissionFile->setData('genreId', $articleTextGenreId);
-        $submissionFile->setData('mimetype', 'application/pdf');
-        $submissionFile->setData('submissionId', 456);
-        $submissionFile->setData('assocType', Application::ASSOC_TYPE_SUBMISSION_FILE);
-        $submissionFile->setData('assocId', $galley->getId());
-        $submissionFile->setData('uploaderUserId', 1);
-        $submissionFile->setData('createdAt', '2021-01-01 00:00:00');
-        $submissionFile->setData('fileStage', SubmissionFile::SUBMISSION_FILE_DEPENDENT);
-        $submissionFile->setData('fileId', 1234);
 
         $submission = new Submission();
         $submission->setId(456);
@@ -127,11 +114,11 @@ class ObjectFactory
     {
         $P1PioMock = $testClass->getMockBuilder(P1Pio::class)
             ->setConstructorArgs([$submission])
-            ->setMethods(['getGenreOfSubmissionFile', 'getSubmissionDecisions'])
+            ->setMethods(['getGenreIdOfSubmissionFile', 'getSubmissionDecisions'])
             ->getMock();
 
         $P1PioMock->expects($testClass->any())
-            ->method('getGenreOfSubmissionFile')
+            ->method('getGenreIdOfSubmissionFile')
             ->will($testClass->returnValue(1));
 
         $decision = new Decision();
