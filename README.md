@@ -9,6 +9,18 @@ This plugin enables **[OJS](https://pkp.sfu.ca/software/ojs/)** journals to auto
 
 The list of metadata fields included in the message can be found [here](#what-metadata-fields-are-included-in-the-message).
 
+# Table of Contents
+1. [Open Access Switchboard Plugin](#open-access-switchboard-plugin)
+2. [Version support](#version-support)
+3. [Plugin Installation](#plugin-installation)
+4. [Requirements for usage](#requirements-for-usage)
+    - [Journal Requirements](#journal-requirements)
+    - [Publication Requirements](#publication-requirements)
+5. [Usage](#usage)
+6. [What metadata fields are included in the message?](#what-metadata-fields-are-included-in-the-message)
+7. [Credits](#credits)
+8. [License](#license)
+
 ## Version support
 
 The `main` branch of this repository is compatible with OJS 3.4.0.x.
