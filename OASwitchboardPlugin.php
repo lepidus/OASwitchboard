@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file plugins/generic/OASwitchboard/OASwitchboardPlugin.inc.php
+ * @file plugins/generic/OASwitchboard/OASwitchboardPlugin.php
  *
  * Copyright (c) 2024 Lepidus Tecnologia
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
