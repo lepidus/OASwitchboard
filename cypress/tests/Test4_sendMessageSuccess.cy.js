@@ -38,7 +38,6 @@ describe('Send P1-PIO message with success', function () {
 
         cy.get('.pkpPublication__header > .pkpHeader__actions > button.pkpButton').contains("Schedule For Publication").click();
         cy.get('.pkpFormPage__footer button:contains("Publish")').click();
-        cy.reload();
 
         cy.get('.app__notifications').contains("At least one author of the article must have a ROR associated with their affiliation.");
         cy.get('.app__notifications').contains("The message was successfully sent to the OA Switchboard");
