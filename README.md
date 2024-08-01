@@ -4,18 +4,11 @@
 [![GitHub release](https://img.shields.io/github/v/release/lepidus/OASwitchboard)](https://github.com/lepidus/OASwitchboard/releases)
 [![License type](https://img.shields.io/github/license/lepidus/OASwitchboard)](https://github.com/lepidus/OASwitchboard/blob/main/LICENSE)
 [![Number of downloads](https://img.shields.io/github/downloads/lepidus/OASwitchboard/total)](https://github.com/lepidus/OASwitchboard/releases)
-[![Contributors](https://img.shields.io/github/contributors-anon/lepidus/OASwitchboard)](https://github.com/lepidus/OASwitchboard/graphs/contributors)
 
 This plugin enables **[OJS](https://pkp.sfu.ca/software/ojs/)** journals to automatically send **P1-PIO** type messages to the **[Open Access Switchboard](https://www.oaswitchboard.org/)** API at the moment of article publication.
 
 > The current version of this plugin sends P1-PIO messages with only the mandatory data about the article.
 For that reason, it may not be ready for a comprehensive general use.
-
-## Compatibility
-
-This plugin is compatible with the following PKP applications:
-
-- OJS 3.4.0-x
 
 ## Requirements
 
