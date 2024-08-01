@@ -31,7 +31,7 @@ class OASwitchboardPlugin extends GenericPlugin
         $success = parent::register($category, $path);
         if ($success && $this->getEnabled()) {
             $hookCallbacks = new HookCallbacks($this);
-            Hook::add('Publication::publish', [$this, 'sendOASwitchboardMessage']);
+            Hook::add('Publication::publish', [$hookCallbacks, 'sendOASwitchboardMessage']);
         }
         return $success;
     }
