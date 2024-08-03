@@ -120,7 +120,7 @@ The metadata retrieved from OJS and sent to OA Switchboard is listed below in th
 
 ## Credits
 
-This plugin was conceived and sponsored by [OA Switchboard](https://www.oaswitchboard.org/).
+This plugin was developed to [OA Switchboard](https://www.oaswitchboard.org/).
 
 Developed by [Lepidus Tecnologia](https://github.com/lepidus).
 
@@ -129,3 +129,4 @@ Developed by [Lepidus Tecnologia](https://github.com/lepidus).
 This plugin is licensed under the GNU General Public License v3.0 - [See the License file.](/LICENSE)
 
 Copyright (c) 2024 Lepidus Tecnologia.
+Copyright (c) 2024 Stichting OA Switchboard
