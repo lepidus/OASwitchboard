@@ -14,6 +14,7 @@ class P1Pio
     private const ARTICLE_TYPE = 'research-article';
     private const DOI_BASE_URL = 'https://doi.org/';
     private const OPEN_ACCESS_POLICY = 'pure OA journal';
+    private const REVIEW_STAGE_DECISION = 3;
 
     public function __construct(Submission $submission)
     {
@@ -114,7 +115,7 @@ class P1Pio
         $decisions = $editDecisionDao->getEditorDecisions($this->submission->getId());
 
         foreach ($decisions as $decision) {
-            if ($decision['stageId'] == '3' && $decision['decision'] == '1') {
+            if ($decision['stageId'] == self::REVIEW_STAGE_DECISION && $decision['decision'] == SUBMISSION_EDITOR_DECISION_ACCEPT) {
                 return $decision['dateDecided'];
             }
         }
