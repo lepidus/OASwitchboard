@@ -15,7 +15,7 @@ class P1PioTest extends PKPTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $journal = ObjectFactory::createMockedJournal($this, $issn = "0000-0001");
+        $journal = $journal = ObjectFactory::createMockedJournal($this, $onlineIssn = "0000-0001", $printIssn = "0000-0002");
         $this->submission = ObjectFactory::createTestSubmission($journal, true);
         $this->P1Pio = new P1Pio($this->submission);
     }
@@ -137,6 +137,13 @@ class P1PioTest extends PKPTestCase
         $journalData = $this->P1Pio->getJournalData();
         $this->assertEquals('Middle Earth papers', $journalData['name']);
         $this->assertEquals('0000-0001', $journalData['id']);
+    }
+
+    public function testGetJournalIssnAndEissn()
+    {
+        $journalData = $this->P1Pio->getJournalData();
+        $this->assertEquals('0000-0002', $journalData['issn']);
+        $this->assertEquals('0000-0001', $journalData['eissn']);
     }
 
     public function testP1PioMessageHeader()

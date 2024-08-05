@@ -11,7 +11,7 @@ class OASwitchboardServiceTest extends PKPTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $journal = ObjectFactory::createMockedJournal($this, $issn = "0000-0001");
+        $journal = $journal = ObjectFactory::createMockedJournal($this, $onlineIssn = "0000-0001", $printIssn = "0000-0002");
         $this->submission = ObjectFactory::createTestSubmission($journal);
     }
 

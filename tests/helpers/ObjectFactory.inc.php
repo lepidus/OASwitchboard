@@ -33,14 +33,15 @@ class ObjectFactory
         return [$firstAuthor, $secondAuthor];
     }
 
-    public static function createMockedJournal(PKPTestCase $testClass, $issn = null)
+    public static function createMockedJournal(PKPTestCase $testClass, $onlineIssn = null, $printIssn = null)
     {
         import('classes.journal.Journal');
         $journal = new Journal();
         $journal->setId(rand());
         $journal->setName('Middle Earth papers', 'en_US');
-        if ($issn) {
-            $journal->setData('onlineIssn', $issn);
+        if ($printIssn && $onlineIssn) {
+            $journal->setData('onlineIssn', $onlineIssn);
+            $journal->setData('printIssn', $printIssn);
         }
 
         $mockJournalDAO = $testClass->getMockBuilder(JournalDAO::class)
