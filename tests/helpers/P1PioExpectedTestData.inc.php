@@ -59,6 +59,7 @@ trait P1PioExpectedTestData
                     'id' => '9999',
                     'dates' => [
                         'submission' => '2021-01-01',
+                        'acceptance' => '2021-01-20',
                         'publication' => '2021-03-01'
                     ]
                 ]

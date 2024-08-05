@@ -146,6 +146,13 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals($publicationDate, "2021-03-01");
     }
 
+    public function testGetAcceptanceDate()
+    {
+        $articleData = $this->P1Pio->getArticleData();
+        $acceptanceDate = $articleData['manuscript']['dates']['acceptance'];
+        $this->assertEquals($acceptanceDate, "2021-01-20");
+    }
+
     public function testGetJournalName()
     {
         $journalData = $this->P1Pio->getJournalData();

@@ -87,6 +87,7 @@ class P1Pio
             'manuscript' => [
                 'dates' => [
                     'submission' => (string) date('Y-m-d', strtotime($this->submission->getDateSubmitted())),
+                    'acceptance' => (string) $this->getAcceptanceDate(),
                     'publication' => (string) date('Y-m-d', strtotime($this->submission->getDatePublished()))
                 ]
             ]
@@ -98,6 +99,27 @@ class P1Pio
         }
 
         return $articleData;
+    }
+
+    private function getAcceptanceDate(): ?string
+    {
+        $dateDecided = $this->getSubmissionDateDecided();
+
+        return !is_null($dateDecided) ? date('Y-m-d', strtotime($dateDecided)) : null;
+    }
+
+    public function getSubmissionDateDecided(): ?string
+    {
+        $editDecisionDao = DAORegistry::getDAO('EditDecisionDAO');
+        $decisions = $editDecisionDao->getEditorDecisions($this->submission->getId());
+
+        foreach ($decisions as $decision) {
+            if ($decision['stageId'] == '3' && $decision['decision'] == '1') {
+                return $decision['dateDecided'];
+            }
+        }
+
+        return null;
     }
 
     private function getFileId()
