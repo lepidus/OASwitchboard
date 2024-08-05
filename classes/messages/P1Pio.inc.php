@@ -86,7 +86,8 @@ class P1Pio
             'submissionId' => (string) $this->submission->getId(),
             'manuscript' => [
                 'dates' => [
-                    'submission' => (string) date('Y-m-d', strtotime($this->submission->getDateSubmitted()))
+                    'submission' => (string) date('Y-m-d', strtotime($this->submission->getDateSubmitted())),
+                    'publication' => (string) date('Y-m-d', strtotime($this->submission->getDatePublished()))
                 ]
             ]
 

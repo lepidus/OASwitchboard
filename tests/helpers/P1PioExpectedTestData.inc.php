@@ -58,7 +58,8 @@ trait P1PioExpectedTestData
                 'manuscript' => [
                     'id' => '9999',
                     'dates' => [
-                        'submission' => '2021-01-01'
+                        'submission' => '2021-01-01',
+                        'publication' => '2021-03-01'
                     ]
                 ]
             ];

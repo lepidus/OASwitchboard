@@ -92,6 +92,7 @@ class ObjectFactory
         $submission->setLicenseUrl('https://creativecommons.org/licenses/by-nc-nd/4.0/');
 
         $submission->setDateSubmitted('2021-01-01 00:00:00');
+        $submission->setDatePublished('2021-03-01 00:00:00');
 
         $galley->setData('submissionId', $submission->getId());
         $galley->setData('submissionFileId', $submissionFile->getId());
