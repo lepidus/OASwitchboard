@@ -33,6 +33,7 @@ class P1Pio
             $lastName = is_array($lastNameRetrieved) ? reset($lastNameRetrieved) : $lastNameRetrieved;
             $firstName = $author->getLocalizedGivenName();
             $affiliationName = $author->getLocalizedAffiliation();
+            $orcid = $author->getOrcid();
 
             $authorsData[] = [
                 'lastName' => $lastName,
@@ -43,11 +44,12 @@ class P1Pio
                         'name' => (string)$affiliationName,
                         'ror' => (string)$author->getData('rorId')
                     ]
-                ]
+                ],
             ];
-            $orcid = $author->getOrcid();
-            if (isset($orcid) && !empty($orcid)) {
-                $authorsData[count($authorsData) - 1]['orcid'] = $orcid;
+
+            $lastAuthorIndex = count($authorsData) - 1;
+            if (!empty($orcid)) {
+                $authorsData[$lastAuthorIndex]['orcid'] = $orcid;
             }
         }
         return $authorsData;
