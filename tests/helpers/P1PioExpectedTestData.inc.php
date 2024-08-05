@@ -57,6 +57,9 @@ trait P1PioExpectedTestData
                 'submissionId' => $this->submission->getId(),
                 'manuscript' => [
                     'id' => '9999',
+                    'dates' => [
+                        'submission' => '2021-01-01'
+                    ]
                 ]
             ];
     }
