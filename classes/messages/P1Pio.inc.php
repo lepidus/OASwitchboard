@@ -59,6 +59,9 @@ class P1Pio
 
             $primaryContactId = $this->submission->getCurrentPublication()->getData('primaryContactId');
             $authorsData[$lastAuthorIndex]['isCorrespondingAuthor'] = $primaryContactId === $author->getId();
+
+            $contributorSequence = $author->getData('seq') + 1;
+            $authorsData[$lastAuthorIndex]['listingorder'] = $contributorSequence;
         }
         return $authorsData;
     }

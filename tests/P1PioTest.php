@@ -87,6 +87,15 @@ class P1PioTest extends PKPTestCase
         $this->assertFalse($isNotCorrespondingAuthor);
     }
 
+    public function testGetListingOrder()
+    {
+        $authorsData = $this->P1Pio->getAuthorsData();
+        $listingOrderFirstAuthor = $authorsData[0]['listingorder'];
+        $this->assertEquals(1, $listingOrderFirstAuthor);
+        $listingOrderSecondAuthor = $authorsData[1]['listingorder'];
+        $this->assertEquals(2, $listingOrderSecondAuthor);
+    }
+
     public function testGetArticleTitle()
     {
         $articleData = $this->P1Pio->getArticleData();

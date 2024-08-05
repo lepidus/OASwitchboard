@@ -18,6 +18,7 @@ class ObjectFactory
         $firstAuthor->setOrcid('https://orcid.org/0000-0000-0000-0000');
         $firstAuthor->setEmail('castanheirasiris@lepidus.com.br');
         $firstAuthor->setData('isCorrespondingAuthor', false);
+        $firstAuthor->setData('seq', 0);
 
         $secondAuthor = new Author();
         $secondAuthor->setId(321);
@@ -27,6 +28,7 @@ class ObjectFactory
 
         $secondAuthor->setData('publicationId', $publication->getId());
         $secondAuthor->setData('isCorrespondingAuthor', true);
+        $secondAuthor->setData('seq', 1);
 
         return [$firstAuthor, $secondAuthor];
     }
