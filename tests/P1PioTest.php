@@ -64,6 +64,13 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals($affiliation, 'Lepidus Tecnologia');
     }
 
+    public function testGetAuthorOrcid()
+    {
+        $authorsData = $this->P1Pio->getAuthorsData();
+        $orcid = $authorsData[0]['orcid'];
+        $this->assertEquals($orcid, 'https://orcid.org/0000-0000-0000-0000');
+    }
+
     public function testGetArticleTitle()
     {
         $articleData = $this->P1Pio->getArticleData();

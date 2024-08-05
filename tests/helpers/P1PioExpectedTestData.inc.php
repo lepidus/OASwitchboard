@@ -21,7 +21,8 @@ trait P1PioExpectedTestData
                         'name' => 'Lepidus Tecnologia',
                         'ror' => 'https://ror.org/xxxxxxxxrecipient'
                     ]
-                ]
+                ],
+                'orcid' => 'https://orcid.org/0000-0000-0000-0000'
             ],
             [
                 'lastName' => 'Amorim',
