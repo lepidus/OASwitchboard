@@ -99,7 +99,32 @@ class P1Pio
             $articleData['manuscript']['id'] = (string) $fileId;
         }
 
+        $funders = $this->getFundersData();
+        if (!empty($funders)) {
+            $articleData['funders'] = $funders;
+        }
         return $articleData;
+    }
+
+    public function getFundersData(): array
+    {
+        $foundFunders = [];
+        $fundingPlugin = PluginRegistry::getPlugin('generic', 'FundingPlugin');
+        if (!is_null($fundingPlugin)) {
+            if ($fundingPlugin->getEnabled()) {
+                $funderDao = DAORegistry::getDAO('FunderDAO');
+                $funders = $funderDao->getBySubmissionId($this->submission->getId())->toArray();
+                if (!empty($funders)) {
+                    foreach ($funders as $funder) {
+                        $foundFunders[] = [
+                            'name' => (string) $funder->getFunderName(),
+                            'fundref' => (string) $funder->getFunderIdentification()
+                        ];
+                    }
+                }
+            }
+        }
+        return $foundFunders;
     }
 
     private function getAcceptanceDate(): ?string
