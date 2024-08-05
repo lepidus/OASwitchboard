@@ -82,7 +82,8 @@ class P1Pio
             'vor' => [
                 'publication' => self::OPEN_ACCESS_POLICY,
                 'license' => $licenseAcronym
-            ]
+            ],
+            'submissionId' => (string) $this->submission->getId()
         ];
         return $articleData;
     }

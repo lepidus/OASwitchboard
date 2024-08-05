@@ -125,6 +125,13 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals('CC BY-NC-ND', $vor['license']);
     }
 
+    public function testGetSubmissionId()
+    {
+        $articleData = $this->P1Pio->getArticleData();
+        $submissionId = $articleData['submissionId'];
+        $this->assertEquals($submissionId, $this->submission->getId());
+    }
+
     public function testGetJournalName()
     {
         $journalData = $this->P1Pio->getJournalData();
