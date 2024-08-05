@@ -37,7 +37,7 @@ class ObjectFactory
     {
         import('classes.journal.Journal');
         $journal = new Journal();
-        $journal->setId(rand());
+        $journal->setId(1);
         $journal->setName('Middle Earth papers', 'en_US');
         if ($printIssn && $onlineIssn) {
             $journal->setData('onlineIssn', $onlineIssn);
@@ -59,6 +59,16 @@ class ObjectFactory
 
     public static function createTestSubmission($journal, $hasPrimaryContactId = false): Submission
     {
+        import('classes.article.ArticleGalley');
+        $galley = new ArticleGalley();
+        $galley->setId(rand());
+        $galley->setData('label', 'PDF');
+        $galley->setLocale($journal->getPrimaryLocale());
+
+        import('lib.pkp.classes.submission.SubmissionFile');
+        $submissionFile = new SubmissionFile();
+        $submissionFile->setId(9999);
+
         import('classes.submission.Submission');
         $submission = new Submission();
         $submission->setId(rand());
@@ -78,8 +88,27 @@ class ObjectFactory
         $publication->setData('submissionId', $submission->getId());
         $submission->setData('currentPublicationId', $publication->getId());
         $submission->setData('publications', [$publication]);
+        $submission->setData('galleys', [$galley]);
         $submission->setLicenseUrl('https://creativecommons.org/licenses/by-nc-nd/4.0/');
+
+        $galley->setData('submissionId', $submission->getId());
+        $galley->setData('submissionFileId', $submissionFile->getId());
 
         return $submission;
     }
+
+    public static function createP1PioMock(PKPTestCase $testClass, $submission)
+    {
+        $P1PioMock = $testClass->getMockBuilder(P1Pio::class)
+            ->setConstructorArgs([$submission])
+            ->setMethods(['getGenreIdOfSubmissionFile', 'getSubmissionDecisions'])
+            ->getMock();
+
+        $P1PioMock->expects($testClass->any())
+            ->method('getGenreIdOfSubmissionFile')
+            ->will($testClass->returnValue(1));
+
+        return $P1PioMock;
+    }
+
 }

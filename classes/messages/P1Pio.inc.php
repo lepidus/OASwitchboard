@@ -85,7 +85,58 @@ class P1Pio
             ],
             'submissionId' => (string) $this->submission->getId()
         ];
+        $fileId = $this->getFileId();
+        if ($fileId) {
+            $articleData['manuscript']['id'] = (string) $fileId;
+        }
+
         return $articleData;
+    }
+
+    private function getFileId()
+    {
+        $journal = DAORegistry::getDAO('JournalDAO')->getById($this->submission->getData('contextId'));
+        $galleys = $this->getArticleTextGalleys();
+
+        if (count($galleys) > 1) {
+            return $this->getFirstPrimaryLocaleGalleyFileId($galleys, $journal->getPrimaryLocale());
+        }
+
+        return empty($galleys) ? null : $galleys[0]->getData('submissionFileId');
+    }
+
+    private function getFirstPrimaryLocaleGalleyFileId($galleys, $primaryLocale)
+    {
+        foreach ($galleys as $galley) {
+            if ($galley->getData('locale') === $primaryLocale) {
+                return $galley->getData('submissionFileId');
+            }
+        }
+    }
+
+    private function getArticleTextGenreId(): int
+    {
+        return DAORegistry::getDAO('GenreDAO')
+            ->getByKey('SUBMISSION', $this->submission->getData('contextId'))
+            ->getId();
+    }
+
+    private function getArticleTextGalleys(): array
+    {
+        $articleTextGalleys = [];
+        foreach ($this->submission->getGalleys() as $galley) {
+            $submissionFileId = $galley->getData('submissionFileId');
+            $genreId = $this->getGenreIdOfSubmissionFile($submissionFileId);
+            if ($genreId === $this->getArticleTextGenreId()) {
+                $articleTextGalleys[] = $galley;
+            }
+        }
+        return $articleTextGalleys;
+    }
+
+    public function getGenreIdOfSubmissionFile($submissionFileId)
+    {
+        return Services::get('submissionFile')->get($submissionFileId)->getData('genreId');
     }
 
     public function getJournalData(): array

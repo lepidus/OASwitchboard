@@ -54,8 +54,10 @@ trait P1PioExpectedTestData
                     'publication' => 'pure OA journal',
                     'license' => 'CC BY-NC-ND'
                 ],
-                'submissionId' => $this->submission->getId()
-
+                'submissionId' => $this->submission->getId(),
+                'manuscript' => [
+                    'id' => '9999',
+                ]
             ];
     }
 
