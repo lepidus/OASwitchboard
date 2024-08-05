@@ -71,6 +71,13 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals($orcid, 'https://orcid.org/0000-0000-0000-0000');
     }
 
+    public function testGetAuthorEmail()
+    {
+        $authorsData = $this->P1Pio->getAuthorsData();
+        $email = $authorsData[0]['email'];
+        $this->assertEquals($email, 'castanheirasiris@lepidus.com.br');
+    }
+
     public function testGetArticleTitle()
     {
         $articleData = $this->P1Pio->getArticleData();
