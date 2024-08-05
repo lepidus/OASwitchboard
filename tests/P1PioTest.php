@@ -16,7 +16,7 @@ class P1PioTest extends PKPTestCase
     {
         parent::setUp();
         $journal = ObjectFactory::createMockedJournal($this, $issn = "0000-0001");
-        $this->submission = ObjectFactory::createTestSubmission($journal);
+        $this->submission = ObjectFactory::createTestSubmission($journal, true);
         $this->P1Pio = new P1Pio($this->submission);
     }
 
@@ -76,6 +76,15 @@ class P1PioTest extends PKPTestCase
         $authorsData = $this->P1Pio->getAuthorsData();
         $email = $authorsData[0]['email'];
         $this->assertEquals($email, 'castanheirasiris@lepidus.com.br');
+    }
+
+    public function testGetIsCorrespondingAuthor()
+    {
+        $authorsData = $this->P1Pio->getAuthorsData();
+        $isCorrespondingAuthor = $authorsData[1]['isCorrespondingAuthor'];
+        $this->assertTrue($isCorrespondingAuthor);
+        $isNotCorrespondingAuthor = $authorsData[0]['isCorrespondingAuthor'];
+        $this->assertFalse($isNotCorrespondingAuthor);
     }
 
     public function testGetArticleTitle()

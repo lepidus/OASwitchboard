@@ -23,7 +23,8 @@ trait P1PioExpectedTestData
                     ]
                 ],
                 'orcid' => 'https://orcid.org/0000-0000-0000-0000',
-                'email' => 'castanheirasiris@lepidus.com.br'
+                'email' => 'castanheirasiris@lepidus.com.br',
+                'isCorrespondingAuthor' => false
             ],
             [
                 'lastName' => 'Amorim',
@@ -34,7 +35,8 @@ trait P1PioExpectedTestData
                         'name' => 'Lepidus Tecnologia',
                         'ror' => ''
                     ]
-                ]
+                ],
+                'isCorrespondingAuthor' => true
             ]
         ];
         return $authors;
