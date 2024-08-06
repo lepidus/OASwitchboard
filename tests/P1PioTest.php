@@ -15,9 +15,9 @@ class P1PioTest extends PKPTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $journal = ObjectFactory::createMockedJournal($this, $issn = "0000-0001");
-        $this->submission = ObjectFactory::createTestSubmission($journal);
-        $this->P1Pio = new P1Pio($this->submission);
+        $journal = $journal = ObjectFactory::createMockedJournal($this, $onlineIssn = "0000-0001", $printIssn = "0000-0002");
+        $this->submission = ObjectFactory::createTestSubmission($journal, true);
+        $this->P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
     }
 
     protected function getMockedDAOs()
@@ -64,6 +64,38 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals($affiliation, 'Lepidus Tecnologia');
     }
 
+    public function testGetAuthorOrcid()
+    {
+        $authorsData = $this->P1Pio->getAuthorsData();
+        $orcid = $authorsData[0]['orcid'];
+        $this->assertEquals($orcid, 'https://orcid.org/0000-0000-0000-0000');
+    }
+
+    public function testGetAuthorEmail()
+    {
+        $authorsData = $this->P1Pio->getAuthorsData();
+        $email = $authorsData[0]['email'];
+        $this->assertEquals($email, 'castanheirasiris@lepidus.com.br');
+    }
+
+    public function testGetIsCorrespondingAuthor()
+    {
+        $authorsData = $this->P1Pio->getAuthorsData();
+        $isCorrespondingAuthor = $authorsData[1]['isCorrespondingAuthor'];
+        $this->assertTrue($isCorrespondingAuthor);
+        $isNotCorrespondingAuthor = $authorsData[0]['isCorrespondingAuthor'];
+        $this->assertFalse($isNotCorrespondingAuthor);
+    }
+
+    public function testGetListingOrder()
+    {
+        $authorsData = $this->P1Pio->getAuthorsData();
+        $listingOrderFirstAuthor = $authorsData[0]['listingorder'];
+        $this->assertEquals(1, $listingOrderFirstAuthor);
+        $listingOrderSecondAuthor = $authorsData[1]['listingorder'];
+        $this->assertEquals(2, $listingOrderSecondAuthor);
+    }
+
     public function testGetArticleTitle()
     {
         $articleData = $this->P1Pio->getArticleData();
@@ -93,11 +125,46 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals('CC BY-NC-ND', $vor['license']);
     }
 
+    public function testGetSubmissionId()
+    {
+        $articleData = $this->P1Pio->getArticleData();
+        $submissionId = $articleData['submissionId'];
+        $this->assertEquals($submissionId, $this->submission->getId());
+    }
+
+    public function testGetSubmissionDate()
+    {
+        $articleData = $this->P1Pio->getArticleData();
+        $submissionDate = $articleData['manuscript']['dates']['submission'];
+        $this->assertEquals($submissionDate, "2021-01-01");
+    }
+
+    public function testGetPublicationDate()
+    {
+        $articleData = $this->P1Pio->getArticleData();
+        $publicationDate = $articleData['manuscript']['dates']['publication'];
+        $this->assertEquals($publicationDate, "2021-03-01");
+    }
+
+    public function testGetAcceptanceDate()
+    {
+        $articleData = $this->P1Pio->getArticleData();
+        $acceptanceDate = $articleData['manuscript']['dates']['acceptance'];
+        $this->assertEquals($acceptanceDate, "2021-01-20");
+    }
+
     public function testGetJournalName()
     {
         $journalData = $this->P1Pio->getJournalData();
         $this->assertEquals('Middle Earth papers', $journalData['name']);
         $this->assertEquals('0000-0001', $journalData['id']);
+    }
+
+    public function testGetJournalIssnAndEissn()
+    {
+        $journalData = $this->P1Pio->getJournalData();
+        $this->assertEquals('0000-0002', $journalData['issn']);
+        $this->assertEquals('0000-0001', $journalData['eissn']);
     }
 
     public function testP1PioMessageHeader()
@@ -133,7 +200,7 @@ class P1PioTest extends PKPTestCase
         $this->expectExceptionMessage(
             "##plugins.generic.OASwitchboard.postRequirementsError##"
         );
-        $P1Pio = new P1Pio($this->submission);
+        $P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
     }
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfAuthorDoesNotHaveAffiliation()
@@ -145,7 +212,7 @@ class P1PioTest extends PKPTestCase
         $this->expectExceptionMessage(
             "##plugins.generic.OASwitchboard.postRequirementsError##"
         );
-        $P1Pio = new P1Pio($this->submission);
+        $P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
     }
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfArticleDoesNotHaveDOIAssociated()
@@ -157,7 +224,7 @@ class P1PioTest extends PKPTestCase
         $this->expectExceptionMessage(
             "##plugins.generic.OASwitchboard.postRequirementsError##"
         );
-        $P1Pio = new P1Pio($this->submission);
+        $P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
     }
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfArticleDoesNotHaveISSNAssociated()
@@ -169,6 +236,6 @@ class P1PioTest extends PKPTestCase
         $this->expectExceptionMessage(
             "##plugins.generic.OASwitchboard.postRequirementsError##"
         );
-        $P1Pio = new P1Pio($submission);
+        $P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
     }
 }
