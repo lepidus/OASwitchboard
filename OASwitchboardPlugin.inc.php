@@ -12,6 +12,7 @@
  */
 
 import('lib.pkp.classes.plugins.GenericPlugin');
+import('plugins.generic.OASwitchboard.classes.settings.Manage');
 
 class OASwitchboardPlugin extends GenericPlugin
 {
@@ -65,28 +66,8 @@ class OASwitchboardPlugin extends GenericPlugin
 
     public function manage($args, $request)
     {
-        $user = $request->getUser();
-        import('classes.notification.NotificationManager');
-        $notificationManager = new NotificationManager();
-
-        switch ($request->getUserVar('verb')) {
-            case 'settings':
-                $context = $request->getContext();
-                $this->import('classes.settings.OASwitchboardSettingsForm');
-                $form = new OASwitchboardSettingsForm($this, $context->getId());
-                $form->initData();
-                if ($request->getUserVar('save')) {
-                    $form->readInputData();
-                    if ($form->validate() && $form->validateAPICredentials()) {
-                        $form->execute();
-                        $notificationManager->createTrivialNotification($user->getId(), NOTIFICATION_TYPE_SUCCESS);
-                        return new JSONMessage(true);
-                    }
-                }
-                return new JSONMessage(true, $form->fetch($request));
-            default:
-                return parent::manage($verb, $args, $message, $messageParams);
-        }
+        $manage = new Manage($this);
+        return $manage->execute($args, $request);
     }
 
     public function getCanEnable()
