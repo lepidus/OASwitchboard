@@ -12,14 +12,17 @@
  */
 
 import('lib.pkp.classes.plugins.GenericPlugin');
-import('plugins.generic.OASwitchboard.classes.OASwitchboardService');
 
 class OASwitchboardPlugin extends GenericPlugin
 {
     public function register($category, $path, $mainContextId = null)
     {
         $success = parent::register($category, $path, $mainContextId);
-        HookRegistry::register('Publication::publish', array($this, 'sendOASwitchboardMessage'));
+        if ($success && $this->getEnabled()) {
+            import('plugins.generic.OASwitchboard.classes.HookCallbacks');
+            $hookCallbacks = new HookCallbacks($this);
+            HookRegistry::register('Publication::publish', array($hookCallbacks, 'sendOASwitchboardMessage'));
+        }
         return $success;
     }
 
@@ -83,59 +86,6 @@ class OASwitchboardPlugin extends GenericPlugin
                 return new JSONMessage(true, $form->fetch($request));
             default:
                 return parent::manage($verb, $args, $message, $messageParams);
-        }
-    }
-
-    private function registerSubmissionEventLog($request, $submission, $error)
-    {
-        SubmissionLog::logEvent(
-            $request,
-            $submission,
-            SUBMISSION_LOG_TYPE_DEFAULT,
-            $error,
-            []
-        );
-    }
-
-    private function sendNotification($userId, $message, $notificationType)
-    {
-        $notificationManager = new NotificationManager();
-        $notificationManager->createTrivialNotification(
-            $userId,
-            $notificationType,
-            array('contents' => $message)
-        );
-    }
-
-    public function sendOASwitchboardMessage($hookName, $args)
-    {
-        $publication = & $args[0];
-        $submission = & $args[2];
-        $contextId = PKPApplication::get()->getRequest()->getContext()->getId();
-        $request = PKPApplication::get()->getRequest();
-        $userId = $request->getUser()->getId();
-
-        try {
-            if ($publication->getData('status') === STATUS_PUBLISHED) {
-                $OASwitchboard = new OASwitchboardService($this, $contextId, $submission);
-                $OASwitchboard->sendP1PioMessage();
-                if (!OASwitchboardService::isRorAssociated($submission)) {
-                    $keyMessage = 'plugins.generic.OASwitchboard.postRequirementsError.recipient';
-                    $this->sendNotification($userId, __($keyMessage), NOTIFICATION_TYPE_WARNING);
-                    $this->registerSubmissionEventLog($request, $submission, $keyMessage);
-                }
-                $this->sendNotification($userId, __('plugins.generic.OASwitchboard.sendMessageWithSuccess'), NOTIFICATION_TYPE_SUCCESS);
-            }
-        } catch (Exception $e) {
-            $this->sendNotification($userId, $e->getMessage(), NOTIFICATION_TYPE_WARNING);
-
-            if ($e->getP1PioErrors()) {
-                foreach ($e->getP1PioErrors() as $error) {
-                    $this->sendNotification($userId, __($error), NOTIFICATION_TYPE_WARNING);
-                    $this->registerSubmissionEventLog($request, $submission, $error);
-                }
-            }
-            throw $e;
         }
     }
 
