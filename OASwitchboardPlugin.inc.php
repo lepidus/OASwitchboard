@@ -24,6 +24,7 @@ class OASwitchboardPlugin extends GenericPlugin
             import('plugins.generic.OASwitchboard.classes.HookCallbacks');
             $hookCallbacks = new HookCallbacks($this);
             HookRegistry::register('Publication::publish', array($hookCallbacks, 'sendOASwitchboardMessage'));
+            HookRegistry::register('TemplateManager::display', [$hookCallbacks, 'addJavaScripts']);
         }
         return $success;
     }
