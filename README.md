@@ -1,15 +1,31 @@
 # Open Access Switchboard Plugin
 
+[![OJS compatibility](https://img.shields.io/badge/ojs-3.3.0.x-brightgreen)](https://github.com/pkp/ojs/tree/stable-3_3_0)
+[![License type](https://img.shields.io/github/license/lepidus/OASwitchboard)](https://github.com/lepidus/OASwitchboard/blob/main/LICENSE)
+
 This plugin enables **[OJS](https://pkp.sfu.ca/software/ojs/)** journals to automatically send **P1-PIO** type messages to the **[Open Access Switchboard](https://www.oaswitchboard.org/)** API at the moment of article publication.
 
-> The current version of this plugin sends P1-PIO messages with only the mandatory data about the article.
-For that reason, it may not be ready for a comprehensive general use.
+The list of metadata fields included in the message can be found [here](#what-metadata-fields-are-included-in-the-message).
 
-## Compatibility
+## Version support
 
-The latest release of this plugin is compatible with **OJS 3.3.0**
+The `main` branch of this repository is compatible with OJS 3.4.0.x.
 
-## Requirements
+A version compatible with OJS 3.3.0.x is available in the [`stable-3_3_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_3_0) branch.
+
+You can find the latest version of the plugin compatible with your OJS version in the [Releases page](https://github.com/lepidus/OASwitchboard/releases).
+
+## Plugin Installation
+
+1. To download the plugin, go to the [Releases page](https://github.com/lepidus/OASwitchboard/releases) and download the tar.gz package of the latest release compatible with your website.
+
+2. Enter the administration area of ​​your OJS website through the *Dashboard*.
+
+    Navigate to `Settings` > `Website` > `Plugins` > `Upload a new plugin` and select the file **`OASwitchboard.tar.gz`**.
+
+Click Save and the plugin will be installed on your website.
+
+## Requirements for usage
 
 Make sure to fulfill these requirements so that the P1-PIO Message can be sent to OASwitchboard in the moment of article publication.
 
@@ -25,10 +41,6 @@ This is required to use the API credentials provided, that are stored encrypted 
 
 The Journal must have at least one ISSN configured, either digital or print.
 
-3. **ROR Plugin enabled**
-
-The ROR Plugin must be installed and active in the journal. It can be installed from the plugin gallery.
-
 4. **DOI Plugin enabled and configured**
 
 The DOI Plugin must be active and properly configured in the journal.
@@ -41,15 +53,8 @@ The DOI Plugin must be active and properly configured in the journal.
 
 It's recommended that at least one author of the article has a **ROR ID** associated with their affiliation (requires the ROR plugin), in order for the message to be sent to the associated affiliation.
 
-## Plugin Installation
-
-1. To download the plugin, go to the [Releases page](https://github.com/lepidus/OASwitchboard/releases) and download the tar.gz package of the latest release compatible with your website.
-
-2. Enter the administration area of ​​your OJS website through the *Dashboard*.
-
-    Navigate to `Settings` > `Website` > `Plugins` > `Upload a new plugin` and select the file **`OASwitchboard.tar.gz`**.
-
-Click Save and the plugin will be installed on your website.
+**Funding information**: In order to include funding information in the message, the journal must be using the [Funding plugin](https://github.com/ajnyga/funding/tree/master)
+to provide that information for the article.
 
 ## Usage
 
@@ -59,8 +64,49 @@ Click Save and the plugin will be installed on your website.
   * You may need different credentials for the *sandbox* API.
 
 * In the moment of the publication of an article, a P1-PIO Message will be sent to OASwitchboard via API, if all publication requirements are met.
-  * In success, you should see a green notification on screen reload.
+  * In success, you should see a green notification.
   * If any problems block the message from being sent, such as publication requirements, you should see a red notification detailing the problem, and the information is persisted in the '*Activity Log*' of the publication.
+
+## What metadata fields are included in the message?
+
+The metadata retrieved from OJS and sent to OA Switchboard is listed below in the collapsible element.
+
+<details>
+<summary>Click here to see the list </summary>
+
+- About the **Publication**:
+  - Title
+  - Type
+  - DOI
+  - Submission ID
+  - Submission date
+  - Acceptance date
+  - Publication date
+  - Manuscript ID
+  - VoR (Version of Record)
+    - Type of journal publication
+    - License
+- About each **Author**:
+  - Given name
+  - Family name
+  - ORCID
+  - Email
+  - Position in listing order
+  - Is corresponding author
+  - Affiliated institution
+    - Name
+    - ROR ID
+- About each **Funder**: (if available with Funding plugin)
+  - Name
+  - Identifier
+- About the **Journal**:
+  - Title
+  - ID (can be ISSN or eISSN)
+  - ISSN
+  - eISSN
+- Timing in the workflow that the message is sent.
+
+</details>
 
 ## Credits
 
