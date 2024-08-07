@@ -7,6 +7,7 @@ use APP\plugins\generic\OASwitchboard\OASwitchboardPlugin;
 use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardSettingsForm;
 use PKP\core\JSONMessage;
 use APP\notification\NotificationManager;
+use PKP\notification\PKPNotification;
 
 class Manage
 {
@@ -31,13 +32,16 @@ class Manage
                     $form->readInputData();
                     if ($form->validate() && $form->validateAPICredentials()) {
                         $form->execute();
-                        $notificationManager->createTrivialNotification($user->getId(), NOTIFICATION_TYPE_SUCCESS);
+                        $notificationManager->createTrivialNotification(
+                            $user->getId(),
+                            PKPNotification::NOTIFICATION_TYPE_SUCCESS
+                        );
                         return new JSONMessage(true);
                     }
                 }
                 return new JSONMessage(true, $form->fetch($request));
             default:
-                return $this->plugin::manage($verb, $args, $message, $messageParams);
+                return $this->plugin->manage($args, $request);
         }
     }
 }

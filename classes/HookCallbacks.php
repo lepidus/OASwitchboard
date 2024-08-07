@@ -3,13 +3,16 @@
 namespace APP\plugins\generic\OASwitchboard\classes;
 
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
-use PKP\log\SubmissionLog;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use APP\notification\NotificationManager;
 use PKP\log\event\PKPSubmissionEventLogEntry;
 use PKP\security\Validation;
 use APP\facades\Repo;
 use PKP\core\Core;
 use APP\core\Application;
+use APP\submission\Submission;
+use APP\template\TemplateManager;
+use PKP\notification\PKPNotification;
 
 class HookCallbacks
 {
@@ -47,7 +50,7 @@ class HookCallbacks
                 $request->getBaseUrl() . '/' . $this->plugin->getPluginPath() . '/js/Workflow.js',
                 [
                     'contexts' => 'backend',
-                    'priority' => STYLE_SEQUENCE_LATE,
+                    'priority' => TemplateManager::STYLE_SEQUENCE_LATE,
                 ]
             );
         }
@@ -65,22 +68,26 @@ class HookCallbacks
         $userId = $request->getUser()->getId();
 
         try {
-            if ($publication->getData('status') === STATUS_PUBLISHED) {
+            if ($publication->getData('status') === Submission::STATUS_PUBLISHED) {
                 $OASwitchboard = new OASwitchboardService($this->plugin, $contextId, $submission);
                 $OASwitchboard->sendP1PioMessage();
                 if (!OASwitchboardService::isRorAssociated($submission)) {
                     $keyMessage = 'plugins.generic.OASwitchboard.postRequirementsError.recipient';
-                    $this->sendNotification($userId, __($keyMessage), NOTIFICATION_TYPE_WARNING);
+                    $this->sendNotification($userId, __($keyMessage), PKPNotification::NOTIFICATION_TYPE_WARNING);
                     $this->registerSubmissionEventLog($request, $submission, $keyMessage);
                 }
-                $this->sendNotification($userId, __('plugins.generic.OASwitchboard.sendMessageWithSuccess'), NOTIFICATION_TYPE_SUCCESS);
+                $this->sendNotification(
+                    $userId,
+                    __('plugins.generic.OASwitchboard.sendMessageWithSuccess'),
+                    PKPNotification::NOTIFICATION_TYPE_SUCCESS
+                );
             }
-        } catch (\Exception $e) {
-            $this->sendNotification($userId, $e->getMessage(), NOTIFICATION_TYPE_WARNING);
+        } catch (P1PioException $e) {
+            $this->sendNotification($userId, $e->getMessage(), PKPNotification::NOTIFICATION_TYPE_WARNING);
 
             if ($e->getP1PioErrors()) {
                 foreach ($e->getP1PioErrors() as $error) {
-                    $this->sendNotification($userId, __($error), NOTIFICATION_TYPE_WARNING);
+                    $this->sendNotification($userId, __($error), PKPNotification::NOTIFICATION_TYPE_WARNING);
                     $this->registerSubmissionEventLog($request, $submission, $error);
                 }
             }
