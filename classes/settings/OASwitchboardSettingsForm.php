@@ -9,6 +9,8 @@ use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
 use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
 use APP\notification\NotificationManager;
 use Exception;
+use PKP\notification\PKPNotification;
+use PKP\form\validation\FormValidator;
 
 class OASwitchboardSettingsForm extends Form
 {
@@ -29,7 +31,7 @@ class OASwitchboardSettingsForm extends Form
     {
         $fields = ['OASUsername', 'OASPassword'];
         foreach ($fields as $field) {
-            $this->addCheck(new \PKP\form\validation\FormValidator($this, $field, FORM_VALIDATOR_REQUIRED_VALUE, null));
+            $this->addCheck(new \PKP\form\validation\FormValidator($this, $field, FormValidator::FORM_VALIDATOR_REQUIRED_VALUE, null));
         }
         $this->addCheck(new \PKP\form\validation\FormValidatorPost($this));
         $this->addCheck(new \PKP\form\validation\FormValidatorCSRF($this));
@@ -42,7 +44,7 @@ class OASwitchboardSettingsForm extends Form
         $notificationManager = new NotificationManager();
         $notificationManager->createTrivialNotification(
             $user->getId(),
-            NOTIFICATION_TYPE_ERROR,
+            PKPNotification::NOTIFICATION_TYPE_ERROR,
             array('contents' => __('plugins.generic.OASwitchboard.settings.apiAuthenticatorFailed'))
         );
     }
