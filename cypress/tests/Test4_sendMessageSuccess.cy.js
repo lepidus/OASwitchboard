@@ -36,9 +36,9 @@ describe('Send P1-PIO message with success', function () {
         cy.waitJQuery();
         cy.get('input.ui-widget-content.ui-autocomplete-input').first().focus().type("Universidade Federal de Santa Catarina [http://dx.doi.org/10.13039/501100007082]", {delay: 0, force: true});
         cy.get('#funderForm > .formButtons > [id^=submitFormButton-]').click();
-        cy.waitJQuery();
-        
+
         cy.get('.pkpPublication__header > .pkpHeader__actions > button.pkpButton').contains("Schedule For Publication").click();
+        cy.waitJQuery();
         cy.get('.pkpFormPage__footer button:contains("Publish")').click();
 
         cy.get('.app__notifications').contains("At least one author of the article must have a ROR associated with their affiliation.");
