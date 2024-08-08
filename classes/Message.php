@@ -10,6 +10,8 @@ use APP\core\Application;
 use APP\submission\Submission;
 use PKP\core\Core;
 use APP\facades\Repo;
+use PKP\log\event\PKPSubmissionEventLogEntry;
+use PKP\security\Validation;
 
 class Message
 {
