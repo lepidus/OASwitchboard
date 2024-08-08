@@ -1,6 +1,7 @@
 <?php
 
 import('plugins.generic.OASwitchboard.classes.OASwitchboardService');
+import('plugins.generic.OASwitchboard.classes.exceptions.P1PioException');
 
 class HookCallbacks
 {
@@ -30,7 +31,7 @@ class HookCallbacks
                 }
                 $this->sendNotification($userId, __('plugins.generic.OASwitchboard.sendMessageWithSuccess'), NOTIFICATION_TYPE_SUCCESS);
             }
-        } catch (Exception $e) {
+        } catch (P1PioException $e) {
             $this->sendNotification($userId, $e->getMessage(), NOTIFICATION_TYPE_WARNING);
 
             if ($e->getP1PioErrors()) {
