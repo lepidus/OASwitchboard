@@ -17,8 +17,8 @@ namespace APP\plugins\generic\OASwitchboard;
 use PKP\plugins\GenericPlugin;
 use PKP\plugins\Hook;
 use APP\core\Application;
-use APP\plugins\generic\OASwitchboard\classes\HookCallbacks;
-use APP\plugins\generic\OASwitchboard\classes\OASwitchboardHandler;
+use APP\plugins\generic\OASwitchboard\classes\Message;
+use APP\plugins\generic\OASwitchboard\classes\Resources;
 use APP\plugins\generic\OASwitchboard\classes\settings\Manage;
 use APP\plugins\generic\OASwitchboard\classes\settings\Actions;
 
@@ -28,9 +28,10 @@ class OASwitchboardPlugin extends GenericPlugin
     {
         $success = parent::register($category, $path);
         if ($success && $this->getEnabled()) {
-            $handler = new OASwitchboardHandler($this);
-            Hook::add('Publication::publish', $handler->sendOASwitchboardMessage(...));
-            Hook::add('TemplateManager::display', $handler->addJavaScripts(...));
+            $message = new Message($this);
+            $resources = new Resources($this);
+            Hook::add('Publication::publish', [$message, 'sendToOASwitchboard']);
+            Hook::add('TemplateManager::display', [$resources, 'addWorkflowNotificationsJavaScript']);
         }
         return $success;
     }
