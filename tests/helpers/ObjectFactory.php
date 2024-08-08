@@ -134,11 +134,9 @@ class ObjectFactory
             ->method('getFundersData')
             ->will($testClass->returnValue(
                 [
-                    [
-                        0 => [
-                            'name' => "Universidade Federal de Santa Catarina",
-                            'fundref' => "http://dx.doi.org/10.13039/501100007082"
-                        ]
+                    0 => [
+                        'name' => "Universidade Federal de Santa Catarina",
+                        'fundref' => "http://dx.doi.org/10.13039/501100007082"
                     ]
                 ]
             ));
