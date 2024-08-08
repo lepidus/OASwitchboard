@@ -6,15 +6,15 @@ use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use APP\notification\NotificationManager;
 use PKP\log\event\PKPSubmissionEventLogEntry;
+use APP\core\Application;
+use PKP\notification\PKPNotification;
 use PKP\security\Validation;
-use APP\facades\Repo;
 use PKP\core\Core;
 use APP\core\Application;
 use APP\submission\Submission;
 use APP\template\TemplateManager;
-use PKP\notification\PKPNotification;
 
-class HookCallbacks
+class OASwitchboardHandler
 {
     private $plugin;
 
@@ -22,42 +22,6 @@ class HookCallbacks
     {
         $this->plugin = $plugin;
     }
-
-    public function addJavaScripts($hookName, $args)
-    {
-        $templateMgr = $args[0];
-        $template = $args[1];
-        $request = Application::get()->getRequest();
-
-        if ($template == 'workflow/workflow.tpl') {
-            $data = [];
-            $data['notificationUrl'] = $request->url(null, 'notification', 'fetchNotification');
-            $classNameWithNamespace = get_class($this->plugin);
-            $className = basename(str_replace('\\', '/', $classNameWithNamespace));
-
-            $templateMgr->addJavaScript(
-                'workflowData',
-                '$.pkp.plugins.generic = $.pkp.plugins.generic || {};' .
-                    '$.pkp.plugins.generic.' . strtolower($className) . ' = ' . json_encode($data) . ';',
-                [
-                    'inline' => true,
-                    'contexts' => 'backend',
-                ]
-            );
-
-            $templateMgr->addJavaScript(
-                'plugin-OASwitchboard-workflow',
-                $request->getBaseUrl() . '/' . $this->plugin->getPluginPath() . '/js/Workflow.js',
-                [
-                    'contexts' => 'backend',
-                    'priority' => TemplateManager::STYLE_SEQUENCE_LATE,
-                ]
-            );
-        }
-
-        return false;
-    }
-
 
     public function sendOASwitchboardMessage($hookName, $args)
     {
@@ -93,6 +57,41 @@ class HookCallbacks
             }
             throw $e;
         }
+    }
+
+    public function addJavaScripts($hookName, $args)
+    {
+        $templateMgr = $args[0];
+        $template = $args[1];
+        $request = Application::get()->getRequest();
+
+        if ($template == 'workflow/workflow.tpl') {
+            $data = [];
+            $data['notificationUrl'] = $request->url(null, 'notification', 'fetchNotification');
+            $classNameWithNamespace = get_class($this->plugin);
+            $className = basename(str_replace('\\', '/', $classNameWithNamespace));
+
+            $templateMgr->addJavaScript(
+                'workflowData',
+                '$.pkp.plugins.generic = $.pkp.plugins.generic || {};' .
+                    '$.pkp.plugins.generic.' . strtolower($className) . ' = ' . json_encode($data) . ';',
+                [
+                    'inline' => true,
+                    'contexts' => 'backend',
+                ]
+            );
+
+            $templateMgr->addJavaScript(
+                'plugin-OASwitchboard-workflow',
+                $request->getBaseUrl() . '/' . $this->plugin->getPluginPath() . '/js/Workflow.js',
+                [
+                    'contexts' => 'backend',
+                    'priority' => TemplateManager::STYLE_SEQUENCE_LATE,
+                ]
+            );
+        }
+
+        return false;
     }
 
     private function registerSubmissionEventLog($request, $submission, $error)

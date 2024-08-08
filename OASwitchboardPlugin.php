@@ -18,6 +18,7 @@ use PKP\plugins\GenericPlugin;
 use PKP\plugins\Hook;
 use APP\core\Application;
 use APP\plugins\generic\OASwitchboard\classes\HookCallbacks;
+use APP\plugins\generic\OASwitchboard\classes\OASwitchboardHandler;
 use APP\plugins\generic\OASwitchboard\classes\settings\Manage;
 use APP\plugins\generic\OASwitchboard\classes\settings\Actions;
 
@@ -27,9 +28,9 @@ class OASwitchboardPlugin extends GenericPlugin
     {
         $success = parent::register($category, $path);
         if ($success && $this->getEnabled()) {
-            $hookCallbacks = new HookCallbacks($this);
-            Hook::add('Publication::publish', [$hookCallbacks, 'sendOASwitchboardMessage']);
-            Hook::add('TemplateManager::display', [$hookCallbacks, 'addJavaScripts']);
+            $handler = new OASwitchboardHandler($this);
+            Hook::add('Publication::publish', $handler->sendOASwitchboardMessage(...));
+            Hook::add('TemplateManager::display', $handler->addJavaScripts(...));
         }
         return $success;
     }
