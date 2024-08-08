@@ -31,28 +31,11 @@ describe('Send P1-PIO message with success', function () {
         cy.get('#publication-button').click();
         cy.get('button:contains("Unpublish")').click();
         cy.get('.pkpButton--isPrimary').contains("Unpublish").click();
-        cy.get('#fundingGridInWorkflow-button').click();
-        cy.get('[id^=component-plugins-generic-funding-controllers-grid-fundergrid-addFunder-button-]').click();
-        cy.waitJQuery();
-        cy.get('input.ui-widget-content.ui-autocomplete-input').first().focus().type("Universidade Federal de Santa Catarina [http://dx.doi.org/10.13039/501100007082]", {delay: 0, force: true});
-        cy.waitJQuery();
-        cy.get('#funderForm > .formButtons > [id^=submitFormButton-]').click();
 
         cy.get('.pkpPublication__header > .pkpHeader__actions > button.pkpButton').contains("Schedule For Publication").click();
         cy.get('.pkpFormPage__footer button:contains("Publish")').click();
 
         cy.get('.app__notifications').contains("At least one author of the article must have a ROR associated with their affiliation.");
         cy.get('.app__notifications').contains("The message was successfully sent to the OA Switchboard");
-    })
-
-    it('Check the message on sandbox and validate funding', function () {
-        cy.visit('https://sandboxhub.oaswitchboard.org/');
-        cy.get('#\\31').type(Cypress.env('OASUsername'));
-        cy.get('#\\32 ').type(Cypress.env('OASPassword'));
-        cy.get('.sc-kGXeez').click();
-        cy.get('tbody > :nth-child(1) > :nth-child(2)').click();
-        cy.get('.modal-content').contains("funders:");
-        cy.get('.modal-content').contains("name: Universidade Federal de Santa Catarina");
-        cy.get('.modal-content').contains("fundref: http://dx.doi.org/10.13039/501100007082");
     })
 })

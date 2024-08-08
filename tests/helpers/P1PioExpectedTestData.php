@@ -22,13 +22,13 @@ trait P1PioExpectedTestData
                     [
                         'name' => 'Lepidus Tecnologia',
                         'ror' => 'https://ror.org/xxxxxxxxrecipient'
-                        ]
-                    ],
+                    ]
+                ],
                 'orcid' => 'https://orcid.org/0000-0000-0000-0000',
                 'email' => 'castanheirasiris@lepidus.com.br',
                 'isCorrespondingAuthor' => true,
                 'listingorder' => 1
-                ],
+            ],
             [
                 'lastName' => 'Amorim',
                 'firstName' => 'Yves',
@@ -63,6 +63,12 @@ trait P1PioExpectedTestData
                         'submission' => '2021-01-01',
                         'acceptance' => '2021-02-01',
                         'publication' => '2021-03-01'
+                    ]
+                ],
+                'funders' => [
+                    [
+                        'name' => "Universidade Federal de Santa Catarina",
+                        'fundref' => 'http://dx.doi.org/10.13039/501100007082'
                     ]
                 ]
             ];
