@@ -9,6 +9,7 @@ use PKP\notification\PKPNotification;
 use APP\core\Application;
 use APP\submission\Submission;
 use PKP\core\Core;
+use APP\facades\Repo;
 
 class Message
 {
