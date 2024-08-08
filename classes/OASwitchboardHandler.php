@@ -6,13 +6,13 @@ use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use APP\notification\NotificationManager;
 use PKP\log\event\PKPSubmissionEventLogEntry;
-use APP\core\Application;
-use PKP\notification\PKPNotification;
 use PKP\security\Validation;
+use APP\facades\Repo;
 use PKP\core\Core;
 use APP\core\Application;
 use APP\submission\Submission;
 use APP\template\TemplateManager;
+use PKP\notification\PKPNotification;
 
 class OASwitchboardHandler
 {
