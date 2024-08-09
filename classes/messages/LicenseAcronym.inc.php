@@ -27,6 +27,6 @@ trait LicenseAcronym
                 return $acronym;
             }
         }
-        return "not specified";
+        return 'not specified';
     }
 }

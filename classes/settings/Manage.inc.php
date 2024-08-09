@@ -31,7 +31,7 @@ class Manage
                 }
                 return new JSONMessage(true, $form->fetch($request));
             default:
-                return $this->plugin::manage($verb, $args, $message, $messageParams);
+                return $this->plugin->manage($args, $request);
         }
     }
 }

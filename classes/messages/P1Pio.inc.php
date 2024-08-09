@@ -71,7 +71,7 @@ class P1Pio
     {
         $articleTitle = $this->submission->getLocalizedFullTitle();
         $publication = $this->submission->getCurrentPublication();
-        $license = $this->submission->getLicenseUrl();
+        $license =  (string) $publication->getData('licenseUrl');
         $licenseAcronym = $this->getLicenseAcronym($license);
         $doi = $publication->getData('pub-id::doi') ?
             self::DOI_BASE_URL . $publication->getData('pub-id::doi') :
@@ -108,23 +108,21 @@ class P1Pio
 
     public function getFundersData(): array
     {
-        $foundFunders = [];
+        $fundersData = [];
         $fundingPlugin = PluginRegistry::getPlugin('generic', 'FundingPlugin');
         if (!is_null($fundingPlugin)) {
             if ($fundingPlugin->getEnabled()) {
                 $funderDao = DAORegistry::getDAO('FunderDAO');
-                $funders = $funderDao->getBySubmissionId($this->submission->getId())->toArray();
-                if (!empty($funders)) {
-                    foreach ($funders as $funder) {
-                        $foundFunders[] = [
-                            'name' => (string) $funder->getFunderName(),
-                            'fundref' => (string) $funder->getFunderIdentification()
-                        ];
-                    }
+                $funders = $funderDao->getBySubmissionId($this->submission->getId());
+                while ($funder = $funders->next()) {
+                    $fundersData[] = [
+                        'name' => (string) $funder->getFunderName(),
+                        'fundref' => (string) $funder->getFunderIdentification()
+                    ];
                 }
             }
         }
-        return $foundFunders;
+        return $fundersData;
     }
 
     private function getAcceptanceDate(): ?string
@@ -197,7 +195,7 @@ class P1Pio
     public function getJournalData(): array
     {
         $journalDao = DAORegistry::getDAO('JournalDAO');
-        $journalId = $this->submission->getContextId();
+        $journalId = $this->submission->getData('contextId');
         $journal = $journalDao->getById($journalId);
 
         $journalData = [
