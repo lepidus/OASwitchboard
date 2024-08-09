@@ -21,10 +21,12 @@ class OASwitchboardPlugin extends GenericPlugin
     {
         $success = parent::register($category, $path, $mainContextId);
         if ($success && $this->getEnabled()) {
-            import('plugins.generic.OASwitchboard.classes.HookCallbacks');
-            $hookCallbacks = new HookCallbacks($this);
-            HookRegistry::register('Publication::publish', array($hookCallbacks, 'sendOASwitchboardMessage'));
-            HookRegistry::register('TemplateManager::display', [$hookCallbacks, 'addJavaScripts']);
+            import('plugins.generic.OASwitchboard.classes.Message');
+            import('plugins.generic.OASwitchboard.classes.Resources');
+            $message = new Message($this);
+            $resources = new Resources($this);
+            HookRegistry::register('Publication::publish', [$message, 'sendToOASwitchboard']);
+            HookRegistry::register('TemplateManager::display', [$resources, 'addWorkflowNotificationsJavaScript']);
         }
         return $success;
     }
