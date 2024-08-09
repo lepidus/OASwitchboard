@@ -104,7 +104,7 @@ class ObjectFactory
     {
         $P1PioMock = $testClass->getMockBuilder(P1Pio::class)
             ->setConstructorArgs([$submission])
-            ->setMethods(['getGenreIdOfSubmissionFile', 'getSubmissionDateDecided'])
+            ->setMethods(['getGenreIdOfSubmissionFile', 'getSubmissionDateDecided', 'getFundersData'])
             ->getMock();
 
         $P1PioMock->expects($testClass->any())
@@ -114,6 +114,17 @@ class ObjectFactory
         $P1PioMock->expects($testClass->any())
             ->method('getSubmissionDateDecided')
             ->will($testClass->returnValue("2021-01-20 00:00:00"));
+
+        $P1PioMock->expects($testClass->any())
+            ->method('getFundersData')
+            ->will($testClass->returnValue(
+                [
+                    0 => [
+                        'name' => "Universidade Federal de Santa Catarina",
+                        'fundref' => "http://dx.doi.org/10.13039/501100007082"
+                    ]
+                ]
+            ));
 
         return $P1PioMock;
     }

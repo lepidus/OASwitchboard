@@ -62,6 +62,12 @@ trait P1PioExpectedTestData
                         'acceptance' => '2021-01-20',
                         'publication' => '2021-03-01'
                     ]
+                ],
+                'funders' => [
+                    [
+                        'name' => "Universidade Federal de Santa Catarina",
+                        'fundref' => 'http://dx.doi.org/10.13039/501100007082'
+                    ]
                 ]
             ];
     }
