@@ -206,16 +206,22 @@ class P1Pio
 
         $journalData = [
             'name' => (string) $journal->getLocalizedName(),
-            'id' => (string) $this->chooseIssn($journal),
-            'eissn' => (string) $journal->getData('onlineIssn'),
-            'issn' => (string) $journal->getData('printIssn')
+            'id' => (string) $this->chooseIssn($journal)
         ];
+
+        if (!empty($journal->getData('onlineIssn'))) {
+            $journalData['eissn'] = (string) $journal->getData('onlineIssn');
+        }
+        if (!empty($journal->getData('printIssn'))) {
+            $journalData['issn'] = (string) $journal->getData('printIssn');
+        }
+
         return $journalData;
     }
 
-    private function chooseIssn($journal)
+    private function chooseIssn($journal): string
     {
-        return $journal->getData('onlineIssn') ?: $journal->getData('printIssn') ?: null;
+        return $journal->getData('onlineIssn') ?: $journal->getData('printIssn') ?: "";
     }
 
     public function getContent(): array
