@@ -71,7 +71,7 @@ to provide that information for the article.
 
 ## Usage
 
-* First of all, make sure you have met all [requirements for properly sending the P1-PIO messages](#requirements).
+* First of all, make sure you have met all [requirements for properly sending the P1-PIO messages](#requirements-for-usage).
 
 * After installing the plugin, go to the plugin Settings, and enter your credentials for accessing the OASwitchboard API.
   * You may need different credentials for the *sandbox* API.
