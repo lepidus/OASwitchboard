@@ -57,7 +57,7 @@ This is required to use the API credentials provided, that are stored encrypted 
 
 The Journal must have at least one ISSN configured, either digital or print.
 
-4. **DOI Plugin enabled and configured**
+3. **DOI Plugin enabled and configured**
 
 The DOI Plugin must be active and properly configured in the journal.
 
