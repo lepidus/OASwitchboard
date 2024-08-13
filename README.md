@@ -85,7 +85,8 @@ to provide that information for the article.
 
 This is a demonstration video to guide you through the installation and basic usage of the plugin.
 
-<iframe src="https://player.vimeo.com/video/997938301?h=c62617794b" width="640" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+[![Demonstration video](https://i.vimeocdn.com/video/1914085124-08674b7ca915b515c8e9f69197e05891697b59eac1ed257a2326f272df396cd9-d?mw=2000&mh=659)](https://vimeo.com/997938301/c62617794b)
+[![Vimeo](https://img.shields.io/badge/Watch%20on-Vimeo-1ab7ea?style=&logo=vimeo)](https://vimeo.com/997938301/c62617794b)
 
 ## What metadata fields are included in the message?
 
