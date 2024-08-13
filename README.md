@@ -17,6 +17,7 @@ The list of metadata fields included in the message can be found [here](#what-me
     - [Journal Requirements](#journal-requirements)
     - [Publication Requirements](#publication-requirements)
 5. [Usage](#usage)
+    - [Demonstration video](#demonstration-video)
 6. [What metadata fields are included in the message?](#what-metadata-fields-are-included-in-the-message)
 7. [Credits](#credits)
 8. [License](#license)
@@ -79,6 +80,12 @@ to provide that information for the article.
 * In the moment of the publication of an article, a P1-PIO type Message will be sent to OASwitchboard via API, if all publication requirements are met.
   * Upon success, you should see a green notification on the top-right corner of the screen.
   * If any problems block the message from being sent, such as publication requirements, you should see a red notification detailing the problem, and the information is persisted in the '*Activity Log*' of the publication.
+
+### Demonstration video
+
+This is a demonstration video to guide you through the installation and basic usage of the plugin.
+
+[![Video Demo](https://img.shields.io/badge/Video%20Demo-Click%20Here-blue?logo=video)](https://vimeo.com/997938301/c62617794b)
 
 ## What metadata fields are included in the message?
 
