@@ -8,7 +8,6 @@ describe('Error when submission is published', function () {
         cy.get('.modal__content button:contains("Unpublish")').click();
         cy.get('.pkpPublication > .pkpHeader button:contains("Publish")').click();
         cy.get('.pkpFormPage__footer button:contains("Publish")').click();
-        cy.reload();
 
         cy.get('.app__notifications').contains("We don't have the mandatory data for sending the message to the OA Switchboard, please check the submission activity log to understand the pending requirements.");
         cy.get('.app__notifications').contains("The article must have a DOI associated.");
