@@ -54,7 +54,7 @@ class Message
                     $this->registerSubmissionEventLog($request, $submission, $error);
                 }
             }
-            throw $e;
+            error_log($e->getMessage());
         }
     }
 
