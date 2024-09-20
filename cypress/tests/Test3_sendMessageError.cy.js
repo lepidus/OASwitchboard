@@ -8,7 +8,6 @@ describe('Send P1-PIO message with error', function () {
         cy.get('.pkpButton--isPrimary').contains("Unpublish").click();
         cy.get('.pkpPublication__header > .pkpHeader__actions > button.pkpButton').contains("Schedule For Publication").click();
         cy.get('.pkpFormPage__footer button:contains("Publish")').click();
-        cy.reload();
 
         cy.get('.app__notifications').contains("We don't have the mandatory data for sending the message to the OA Switchboard, please check the submission activity log to understand the pending requirements.");
         cy.get('.app__notifications').contains("The article must have a DOI associated.");
