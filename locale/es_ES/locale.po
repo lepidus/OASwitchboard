@@ -44,8 +44,8 @@ msgstr "Error del servidor al enviar el mensaje. El servidor de la API de OA Swi
 msgid "plugins.generic.OASwitchboard.postRequirementsError"
 msgstr "No tenemos los datos obligatorios para enviar el mensaje al OA Switchboard, por favor revise el Registro de actividad de lo envío para entender los requisitos pendientes."
 
-msgid "plugins.generic.OASwitchboard.postRequirementsError.recipient"
-msgstr "Al menos uno de los autores del artículo debe tener un ROR asociado con su afiliación."
+msgid "plugins.generic.OASwitchboard.rorRecommendation"
+msgstr "Al menos un autor debe tener un ID ROR vinculado a su afiliación (requiere el plugin ROR) para que el mensaje sea enviado a la afiliación."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.familyName"
 msgstr "El apellido de un autor debe estar presente."

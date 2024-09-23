@@ -44,8 +44,8 @@ msgstr "Server error when sending message. The OA Switchboard API server encount
 msgid "plugins.generic.OASwitchboard.postRequirementsError"
 msgstr "We don't have the mandatory data for sending the message to the OA Switchboard, please check the submission activity log to understand the pending requirements."
 
-msgid "plugins.generic.OASwitchboard.postRequirementsError.recipient"
-msgstr "At least one author of the article must have a ROR associated with their affiliation."
+msgid "plugins.generic.OASwitchboard.rorRecommendation"
+msgstr "At least one author should have a ROR ID linked to their affiliation (requires the ROR plugin) for the message to be sent to the affiliation."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.familyName"
 msgstr "The family name of an author must be present."
