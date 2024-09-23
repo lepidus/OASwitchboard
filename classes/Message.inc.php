@@ -24,12 +24,14 @@ class Message
             if ($publication->getData('status') === STATUS_PUBLISHED) {
                 $OASwitchboard = new OASwitchboardService($this->plugin, $contextId, $submission);
                 $OASwitchboard->sendP1PioMessage();
+                $keyMessage = 'plugins.generic.OASwitchboard.sendMessageWithSuccess';
+                $this->sendNotification($userId, __($keyMessage), NOTIFICATION_TYPE_SUCCESS);
+                $this->registerSubmissionEventLog($request, $submission, $keyMessage);
                 if (!OASwitchboardService::isRorAssociated($submission)) {
-                    $keyMessage = 'plugins.generic.OASwitchboard.postRequirementsError.recipient';
-                    $this->sendNotification($userId, __($keyMessage), NOTIFICATION_TYPE_WARNING);
+                    $keyMessage = 'plugins.generic.OASwitchboard.rorRecommendation';
+                    $this->sendNotification($userId, __($keyMessage), NOTIFICATION_TYPE_INFORMATION);
                     $this->registerSubmissionEventLog($request, $submission, $keyMessage);
                 }
-                $this->sendNotification($userId, __('plugins.generic.OASwitchboard.sendMessageWithSuccess'), NOTIFICATION_TYPE_SUCCESS);
             }
         } catch (P1PioException $e) {
             $this->sendNotification($userId, $e->getMessage(), NOTIFICATION_TYPE_WARNING);
