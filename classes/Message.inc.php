@@ -48,11 +48,12 @@ class Message
 
     private function registerSubmissionEventLog($request, $submission, $error)
     {
+        $activityLogLocale = $error . '.activityLog';
         SubmissionLog::logEvent(
             $request,
             $submission,
             SUBMISSION_LOG_TYPE_DEFAULT,
-            $error,
+            $activityLogLocale,
             []
         );
     }
