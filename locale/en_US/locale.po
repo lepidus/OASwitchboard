@@ -60,14 +60,14 @@ msgid "plugins.generic.OASwitchboard.postRequirementsError.issn"
 msgstr "The journal must have a ISSN or eISSN assigned."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.familyName.activityLog"
-msgstr "Tried to deposit with OA Switchboard, which returns: The family name of an author must be present."
+msgstr "Tried to deposit with OA Switchboard, which returned: The family name of an author must be present."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.affiliation.activityLog"
-msgstr "Tried to deposit with OA Switchboard, which returns: Affiliation of an author must be set."
+msgstr "Tried to deposit with OA Switchboard, which returned: Affiliation of an author must be set."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.doi.activityLog"
-msgstr "Tried to deposit with OA Switchboard, which returns: The article must have a DOI associated."
+msgstr "Tried to deposit with OA Switchboard, which returned: The article must have a DOI associated."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.issn.activityLog"
-msgstr "Tried to deposit with OA Switchboard, which returns: The journal must have an ISSN or eISSN assigned."
+msgstr "Tried to deposit with OA Switchboard, which returned: The journal must have an ISSN or eISSN assigned."
 
