@@ -59,6 +59,12 @@ msgstr "O artigo deve ter um DOI associado."
 msgid "plugins.generic.OASwitchboard.postRequirementsError.issn"
 msgstr "A revista deve ter um ISSN ou eISSN atribuído."
 
+msgid "plugins.generic.OASwitchboard.sendMessageWithSuccess.activityLog"
+msgstr "Enviou mensagem com sucesso para o OA Switchboard"
+
+msgid "plugins.generic.OASwitchboard.rorRecommendation.activityLog"
+msgstr "Recebeu um informe do OA Switchboard: Pelo menos um autor deve ter um ID ROR vinculado à sua afiliação (requer o plugin ROR) para que a mensagem seja enviada à afiliação."
+
 msgid "plugins.generic.OASwitchboard.postRequirementsError.familyName.activityLog"
 msgstr "Tentou depositar na OA Switchboard, o que retornou: O sobrenome de um autor deve estar presente."
 
