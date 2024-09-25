@@ -59,6 +59,13 @@ msgstr "The article must have a DOI associated."
 msgid "plugins.generic.OASwitchboard.postRequirementsError.issn"
 msgstr "The journal must have a ISSN or eISSN assigned."
 
+
+msgid "plugins.generic.OASwitchboard.sendMessageWithSuccess.activityLog"
+msgstr "Successfully sent a message to the OA Switchboard."
+
+msgid "plugins.generic.OASwitchboard.rorRecommendation.activityLog"
+msgstr "Received a notification from the OA Switchboard: At least one author must have a ROR ID linked to their affiliation (requires ROR plugin) for the message to be sent to the affiliation."
+
 msgid "plugins.generic.OASwitchboard.postRequirementsError.familyName.activityLog"
 msgstr "Tried to deposit with OA Switchboard, which returned: The family name of an author must be present."
 
