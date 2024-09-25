@@ -62,12 +62,13 @@ class Message
 
     private function registerSubmissionEventLog($request, $submission, $error)
     {
+        $activityLogLocale = $error . '.activityLog';
         $eventLog = Repo::eventLog()->newDataObject([
             'assocType' => Application::ASSOC_TYPE_SUBMISSION,
             'assocId' => $submission->getId(),
             'eventType' => PKPSubmissionEventLogEntry::SUBMISSION_LOG_CREATE_VERSION,
             'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
-            'message' => $error,
+            'message' => $activityLogLocale,
             'isTranslated' => false,
             'dateLogged' => Core::getCurrentDate(),
         ]);
