@@ -58,3 +58,21 @@ msgstr "El artículo debe tener un DOI asociado."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.issn"
 msgstr "La revista debe tener un ISSN o eISSN asignado."
+
+msgid "plugins.generic.OASwitchboard.sendMessageWithSuccess.activityLog"
+msgstr "Mensaje enviado con éxito al OA Switchboard."
+
+msgid "plugins.generic.OASwitchboard.rorRecommendation.activityLog"
+msgstr "Recibió una notificación del OA Switchboard: Al menos un autor debe tener un ID ROR vinculado a su afiliación (requiere el plugin ROR) para que el mensaje sea enviado a la afiliación."
+
+msgid "plugins.generic.OASwitchboard.postRequirementsError.familyName.activityLog"
+msgstr "Intentó depositar en la OA Switchboard, lo que devolvió: El apellido de un autor debe estar presente."
+
+msgid "plugins.generic.OASwitchboard.postRequirementsError.affiliation.activityLog"
+msgstr "Intentó depositar en la OA Switchboard, lo que devolvió: La afiliación de un autor debe establecerse."
+
+msgid "plugins.generic.OASwitchboard.postRequirementsError.doi.activityLog"
+msgstr "Intentó depositar en la OA Switchboard, lo que devolvió: El artículo debe tener un DOI asociado."
+
+msgid "plugins.generic.OASwitchboard.postRequirementsError.issn.activityLog"
+msgstr "Intentó depositar en la OA Switchboard, lo que devolvió: La revista debe tener un ISSN o eISSN asignado."
