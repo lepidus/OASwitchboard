@@ -12,6 +12,7 @@ use PKP\core\Core;
 use APP\facades\Repo;
 use PKP\log\event\PKPSubmissionEventLogEntry;
 use PKP\security\Validation;
+use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 
 class Message
 {
@@ -58,6 +59,36 @@ class Message
             }
             error_log($e->getMessage());
         }
+    }
+
+    public function validateRegister($hookName, $form)
+    {
+        if ($form->id !== 'publish' || !empty($form->errors)) {
+            return;
+        }
+
+        $submission = Repo::submission()->get($form->publication->getData('submissionId'));
+
+        try {
+            $message = new P1Pio($submission);
+        } catch (P1PioException $e) {
+            if ($e->getP1PioErrors()) {
+                foreach ($e->getP1PioErrors() as $error) {
+                    $warningIconHtml = '<span class="fa fa-exclamation-triangle pkpIcon--inline"></span>';
+                    $noticeMsg = __($error);
+                    $msg = '<div class="pkpNotification pkpNotification--warning">' . $warningIconHtml . $noticeMsg . '</div>';
+
+                    $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
+                        'description' => $msg,
+                        'groupId' => 'default',
+                    ]));
+
+                    error_log($e->getMessage());
+                }
+            }
+        }
+
+        return false;
     }
 
     private function registerSubmissionEventLog($request, $submission, $error)
