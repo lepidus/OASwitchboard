@@ -59,8 +59,8 @@ msgstr "O artigo precisa ter um DOI associado."
 msgid "plugins.generic.OASwitchboard.postRequirementsError.issn"
 msgstr "A revista precisa ter um ISSN atribuído."
 
-msgid "plugins.generic.OASwitchboard.postRequirementsSuccess"
-msgstr "OA Switchboard: a submissão possui todos os dados obrigatórios para enviar a mensagem P1."
-
 msgid "plugins.generic.OASwitchboard.postRequirementsError.conclusionText"
 msgstr "Você pode rever estes metadados, ou continuar com a publicação sem o envio da mensagem para o OA Switchboard."
+
+msgid "plugins.generic.OASwitchboard.postRequirementsSuccess"
+msgstr "OA Switchboard: os requisitos foram atendidos e a mensagem P1 será enviada ao OA Switchboard ao publicar a submissão."

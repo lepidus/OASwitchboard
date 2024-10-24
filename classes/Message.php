@@ -70,19 +70,18 @@ class Message
         $submission = Repo::submission()->get($form->publication->getData('submissionId'));
 
         try {
-            $message = new P1Pio($submission);
-            $noticeMsg = __('plugins.generic.OASwitchboard.postRequirementsSuccess');
-            $msg = '<div class="pkpNotification pkpNotification--success">' . $noticeMsg . '</div>';
+            $p1Pio = new P1Pio($submission);
+            $successMessage = $this->getSubmissionAlreadyToSendMessage($submission);
 
             $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
-                'description' => $msg,
+                'description' => $successMessage,
                 'groupId' => 'default',
             ]));
         } catch (P1PioException $e) {
             if ($e->getP1PioErrors()) {
-                $message = $this->getMandatoryDataErrorMessage($e->getP1PioErrors(), $submission);
+                $errorMessage = $this->getMandatoryDataErrorMessage($e->getP1PioErrors(), $submission);
                 $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
-                    'description' => $message,
+                    'description' => $errorMessage,
                     'groupId' => 'default',
                 ]));
             }
@@ -134,5 +133,15 @@ class Message
         $message .= '<br>' . __('plugins.generic.OASwitchboard.postRequirementsError.conclusionText');
 
         return $message;
+    }
+
+    private function getSubmissionAlreadyToSendMessage($submission): string
+    {
+        $hasRorAssociated = OASwitchboardService::isRorAssociated($submission);
+        $messageType = $hasRorAssociated ? 'success' : 'information';
+        $successMessage = __('plugins.generic.OASwitchboard.postRequirementsSuccess');
+        $rorRecommendationMessage = $hasRorAssociated ? '' : '<br>' . __('plugins.generic.OASwitchboard.rorRecommendation');
+
+        return '<div class="pkpNotification pkpNotification--' . $messageType . '">' . $successMessage . $rorRecommendationMessage . '</div>';
     }
 }
