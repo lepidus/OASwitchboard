@@ -252,6 +252,8 @@ class P1Pio
             $missingDataMessages[] = 'plugins.generic.OASwitchboard.postRequirementsError.issn';
         }
 
+        $missingDataMessages = array_unique($missingDataMessages);
+
         return $missingDataMessages;
     }
 }

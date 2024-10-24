@@ -71,20 +71,20 @@ class Message
 
         try {
             $message = new P1Pio($submission);
+            $noticeMsg = __('plugins.generic.OASwitchboard.postRequirementsSuccess');
+            $msg = '<div class="pkpNotification pkpNotification--success">' . $noticeMsg . '</div>';
+
+            $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
+                'description' => $msg,
+                'groupId' => 'default',
+            ]));
         } catch (P1PioException $e) {
             if ($e->getP1PioErrors()) {
-                foreach ($e->getP1PioErrors() as $error) {
-                    $warningIconHtml = '<span class="fa fa-exclamation-triangle pkpIcon--inline"></span>';
-                    $noticeMsg = __($error);
-                    $msg = '<div class="pkpNotification pkpNotification--warning">' . $warningIconHtml . $noticeMsg . '</div>';
-
-                    $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
-                        'description' => $msg,
-                        'groupId' => 'default',
-                    ]));
-
-                    error_log($e->getMessage());
-                }
+                $message = $this->getMandatoryDataErrorMessage($e->getP1PioErrors(), $submission);
+                $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
+                    'description' => $message,
+                    'groupId' => 'default',
+                ]));
             }
         }
 
@@ -114,5 +114,25 @@ class Message
             $notificationType,
             array('contents' => $message)
         );
+    }
+
+    private function getMandatoryDataErrorMessage($p1PioErrors, $submission): string
+    {
+        $introductionMessage = __('plugins.generic.OASwitchboard.postRequirementsError.introductionText');
+        $warningIconHtml = '<span class="fa fa-exclamation-triangle pkpIcon--inline"></span>';
+        $message = '<div class="pkpNotification pkpNotification--warning">' .
+                    $warningIconHtml .
+                    $introductionMessage
+                . '<br><br>';
+        foreach ($p1PioErrors as $error) {
+            $noticeMessage = __($error);
+            $message .= '- ' . $noticeMessage . '<br>';
+        }
+        if (!OASwitchboardService::isRorAssociated($submission)) {
+            $message .= '<br>' . __('plugins.generic.OASwitchboard.rorRecommendation') . '<br>';
+        }
+        $message .= '<br>' . __('plugins.generic.OASwitchboard.postRequirementsError.conclusionText');
+
+        return $message;
     }
 }
