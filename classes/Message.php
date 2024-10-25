@@ -118,11 +118,10 @@ class Message
     private function getMandatoryDataErrorMessage($p1PioErrors, $submission): string
     {
         $introductionMessage = __('plugins.generic.OASwitchboard.postRequirementsError.introductionText');
-        $warningIconHtml = '<span class="fa fa-exclamation-triangle pkpIcon--inline"></span>';
-        $message = '<div class="pkpNotification pkpNotification--warning">' .
-                    $warningIconHtml .
-                    $introductionMessage
-                . '<br><br>';
+        $message = '<div class="pkpNotification pkpNotification--information">' .
+            '<details>
+            <summary>' . $introductionMessage . '</summary>
+            <p>';
         foreach ($p1PioErrors as $error) {
             $noticeMessage = __($error);
             $message .= '- ' . $noticeMessage . '<br>';
@@ -132,6 +131,8 @@ class Message
         }
         $message .= '<br>' . __('plugins.generic.OASwitchboard.postRequirementsError.conclusionText');
 
+        $message .= '</p></details>';
+
         return $message;
     }
 
@@ -140,7 +141,7 @@ class Message
         $hasRorAssociated = OASwitchboardService::isRorAssociated($submission);
         $messageType = $hasRorAssociated ? 'success' : 'information';
         $successMessage = __('plugins.generic.OASwitchboard.postRequirementsSuccess');
-        $rorRecommendationMessage = $hasRorAssociated ? '' : '<br>' . __('plugins.generic.OASwitchboard.rorRecommendation');
+        $rorRecommendationMessage = $hasRorAssociated ? '' : '<br><br>' . __('plugins.generic.OASwitchboard.rorRecommendation');
 
         return '<div class="pkpNotification pkpNotification--' . $messageType . '">' . $successMessage . $rorRecommendationMessage . '</div>';
     }
