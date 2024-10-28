@@ -42,18 +42,10 @@ class Message
                     PKPNotification::NOTIFICATION_TYPE_SUCCESS
                 );
                 $this->registerSubmissionEventLog($request, $submission, $keyMessage);
-                if (!OASwitchboardService::isRorAssociated($submission)) {
-                    $keyMessage = 'plugins.generic.OASwitchboard.rorRecommendation';
-                    $this->sendNotification($userId, __($keyMessage), PKPNotification::NOTIFICATION_TYPE_INFORMATION);
-                    $this->registerSubmissionEventLog($request, $submission, $keyMessage);
-                }
             }
         } catch (P1PioException $e) {
-            $this->sendNotification($userId, $e->getMessage(), PKPNotification::NOTIFICATION_TYPE_WARNING);
-
             if ($e->getP1PioErrors()) {
                 foreach ($e->getP1PioErrors() as $error) {
-                    $this->sendNotification($userId, __($error), PKPNotification::NOTIFICATION_TYPE_WARNING);
                     $this->registerSubmissionEventLog($request, $submission, $error);
                 }
             }
@@ -92,13 +84,12 @@ class Message
 
     private function registerSubmissionEventLog($request, $submission, $error)
     {
-        $activityLogLocale = $error . '.activityLog';
         $eventLog = Repo::eventLog()->newDataObject([
             'assocType' => Application::ASSOC_TYPE_SUBMISSION,
             'assocId' => $submission->getId(),
             'eventType' => PKPSubmissionEventLogEntry::SUBMISSION_LOG_CREATE_VERSION,
             'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
-            'message' => $activityLogLocale,
+            'message' => $error,
             'isTranslated' => false,
             'dateLogged' => Core::getCurrentDate(),
         ]);
