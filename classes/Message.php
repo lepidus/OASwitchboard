@@ -118,10 +118,7 @@ class Message
     private function getMandatoryDataErrorMessage($p1PioErrors, $submission): string
     {
         $introductionMessage = __('plugins.generic.OASwitchboard.postRequirementsError.introductionText');
-        $message = '<div class="pkpNotification pkpNotification--information">' .
-            '<details>
-            <summary>' . $introductionMessage . '</summary>
-            <p>';
+        $message = '<div class="pkpNotification pkpNotification--information">' . $introductionMessage;
         foreach ($p1PioErrors as $error) {
             $noticeMessage = __($error);
             $message .= '- ' . $noticeMessage . '<br>';
@@ -130,8 +127,6 @@ class Message
             $message .= '<br>' . __('plugins.generic.OASwitchboard.rorRecommendation') . '<br>';
         }
         $message .= '<br>' . __('plugins.generic.OASwitchboard.postRequirementsError.conclusionText');
-
-        $message .= '</p></details>';
 
         return $message;
     }
