@@ -43,12 +43,7 @@ class Message
                 );
                 $this->registerSubmissionEventLog($request, $submission, $keyMessage);
             }
-        } catch (P1PioException $e) {
-            if ($e->getP1PioErrors()) {
-                foreach ($e->getP1PioErrors() as $error) {
-                    $this->registerSubmissionEventLog($request, $submission, $error);
-                }
-            }
+        } catch (\Exception $e) {
             error_log($e->getMessage());
         }
     }
