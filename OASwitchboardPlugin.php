@@ -32,6 +32,7 @@ class OASwitchboardPlugin extends GenericPlugin
             $resources = new Resources($this);
             Hook::add('Publication::publish', [$message, 'sendToOASwitchboard']);
             Hook::add('TemplateManager::display', [$resources, 'addWorkflowNotificationsJavaScript']);
+            Hook::add('Form::config::before', [$message, 'validateRegister']);
             Hook::add('NotificationManager::getNotificationMessage', [$resources, 'addMessageToInformationNotification']);
         }
         return $success;

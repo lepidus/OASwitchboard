@@ -25,6 +25,6 @@ describe('Setup OASwitchboard invalid credentials', function () {
         cy.get('input[name=OASUsername]').type('username');
         cy.get('input[name=OASPassword]').type('password');
         cy.get('form#OASwitchboardSettingsForm button:contains("Save")').click();
-        cy.get('form#OASwitchboardSettingsForm').should('contain', 'Failed to authenticate, please check the OA Switchboard API credentials again');
+        cy.get('form#OASwitchboardSettingsForm').should('contain', 'Authentication failed, please check the OA Switchboard API credentials.');
     })
 })
