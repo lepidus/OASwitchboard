@@ -32,7 +32,7 @@ class OASwitchboardService
         $this->plugin = $plugin;
         $this->contextId = $contextId;
         $this->submission = $submission;
-        $this->validatePluginIsConfigured($this->plugin);
+        self::validatePluginIsConfigured($this->plugin, $this->contextId);
 
         $httpClient = Application::get()->getHttpClient();
         $useSandboxApi = $this->plugin->getSetting($this->contextId, 'isSandBoxAPI');
@@ -65,11 +65,11 @@ class OASwitchboardService
         );
     }
 
-    private function validatePluginIsConfigured($plugin)
+    public static function validatePluginIsConfigured($plugin, $contextId)
     {
-        $username = $this->plugin->getSetting($this->contextId, 'username');
-        $password = $this->plugin->getSetting($this->contextId, 'password');
-        $useSandboxApi = $this->plugin->getSetting($this->contextId, 'isSandBoxAPI');
+        $username = $plugin->getSetting($contextId, 'username');
+        $password = $plugin->getSetting($contextId, 'password');
+        $useSandboxApi = $plugin->getSetting($contextId, 'isSandBoxAPI');
         if (is_null($username) || is_null($password) || is_null($useSandboxApi)) {
             throw new Exception(__("plugins.generic.OASwitchboard.pluginIsNotConfigured"));
         }

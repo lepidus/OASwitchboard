@@ -54,7 +54,19 @@ class Message
             return;
         }
 
+        $contextId = Application::get()->getRequest()->getContext()->getId();
         $submission = Repo::submission()->get($form->publication->getData('submissionId'));
+
+        try {
+            OASwitchboardService::validatePluginIsConfigured($this->plugin, $contextId);
+        } catch (\Exception $e) {
+            $message = '<div class="pkpNotification pkpNotification--information">' . $e->getMessage() . '</div>';
+            $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
+                'description' => $message,
+                'groupId' => 'default',
+            ]));
+            return false;
+        }
 
         try {
             $p1Pio = new P1Pio($submission);
@@ -114,6 +126,7 @@ class Message
         }
         $message .= '<br>' . __('plugins.generic.OASwitchboard.postRequirementsError.conclusionText');
 
+        $message .= '</div>';
         return $message;
     }
 
