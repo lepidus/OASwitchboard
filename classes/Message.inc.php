@@ -2,6 +2,7 @@
 
 import('plugins.generic.OASwitchboard.classes.OASwitchboardService');
 import('plugins.generic.OASwitchboard.classes.exceptions.P1PioException');
+import('plugins.generic.OASwitchboard.classes.messages.P1Pio');
 
 class Message
 {
@@ -27,33 +28,61 @@ class Message
                 $keyMessage = 'plugins.generic.OASwitchboard.sendMessageWithSuccess';
                 $this->sendNotification($userId, __($keyMessage), NOTIFICATION_TYPE_SUCCESS);
                 $this->registerSubmissionEventLog($request, $submission, $keyMessage);
-                if (!OASwitchboardService::isRorAssociated($submission)) {
-                    $keyMessage = 'plugins.generic.OASwitchboard.rorRecommendation';
-                    $this->sendNotification($userId, __($keyMessage), NOTIFICATION_TYPE_INFORMATION);
-                    $this->registerSubmissionEventLog($request, $submission, $keyMessage);
-                }
             }
-        } catch (P1PioException $e) {
-            $this->sendNotification($userId, $e->getMessage(), NOTIFICATION_TYPE_WARNING);
-
-            if ($e->getP1PioErrors()) {
-                foreach ($e->getP1PioErrors() as $error) {
-                    $this->sendNotification($userId, __($error), NOTIFICATION_TYPE_WARNING);
-                    $this->registerSubmissionEventLog($request, $submission, $error);
-                }
-            }
+        } catch (\Exception $e) {
             error_log($e->getMessage());
         }
     }
 
+    public function validateRegister($hookName, $form)
+    {
+        if ($form->id !== 'publish' || !empty($form->errors)) {
+            return;
+        }
+
+        $contextId = Application::get()->getRequest()->getContext()->getId();
+        $submission = Services::get('submission')->get($form->publication->getData('submissionId'));
+
+        try {
+            OASwitchboardService::validatePluginIsConfigured($this->plugin, $contextId);
+        } catch (\Exception $e) {
+            $message = '<div class="pkpNotification pkpNotification--information">' . $e->getMessage() . '</div>';
+            $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
+                'description' => $message,
+                'groupId' => 'default',
+            ]));
+            return false;
+        }
+
+
+        try {
+            $p1Pio = new P1Pio($submission);
+            $successMessage = $this->getSubmissionAlreadyToSendMessage($submission);
+
+            $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
+                'description' => $successMessage,
+                'groupId' => 'default',
+            ]));
+        } catch (P1PioException $e) {
+            if ($e->getP1PioErrors()) {
+                $errorMessage = $this->getMandatoryDataErrorMessage($e->getP1PioErrors(), $submission);
+                $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
+                    'description' => $errorMessage,
+                    'groupId' => 'default',
+                ]));
+            }
+        }
+
+        return false;
+    }
+
     private function registerSubmissionEventLog($request, $submission, $error)
     {
-        $activityLogLocale = $error . '.activityLog';
         SubmissionLog::logEvent(
             $request,
             $submission,
             SUBMISSION_LOG_TYPE_DEFAULT,
-            $activityLogLocale,
+            $error,
             []
         );
     }
@@ -66,5 +95,32 @@ class Message
             $notificationType,
             array('contents' => $message)
         );
+    }
+
+    private function getMandatoryDataErrorMessage($p1PioErrors, $submission): string
+    {
+        $introductionMessage = __('plugins.generic.OASwitchboard.postRequirementsError.introductionText');
+        $message = '<div class="pkpNotification pkpNotification--information">' . $introductionMessage . '<br><br>';
+        foreach ($p1PioErrors as $error) {
+            $noticeMessage = __($error);
+            $message .= '- ' . $noticeMessage . '<br>';
+        }
+        if (!OASwitchboardService::isRorAssociated($submission)) {
+            $message .= '<br>' . __('plugins.generic.OASwitchboard.rorRecommendation') . '<br>';
+        }
+        $message .= '<br>' . __('plugins.generic.OASwitchboard.postRequirementsError.conclusionText');
+        $message .= '</div>';
+
+        return $message;
+    }
+
+    private function getSubmissionAlreadyToSendMessage($submission): string
+    {
+        $hasRorAssociated = OASwitchboardService::isRorAssociated($submission);
+        $messageType = $hasRorAssociated ? 'success' : 'information';
+        $successMessage = __('plugins.generic.OASwitchboard.postRequirementsSuccess');
+        $rorRecommendationMessage = $hasRorAssociated ? '' : '<br><br>' . __('plugins.generic.OASwitchboard.rorRecommendation');
+
+        return '<div class="pkpNotification pkpNotification--' . $messageType . '">' . $successMessage . $rorRecommendationMessage . '</div>';
     }
 }

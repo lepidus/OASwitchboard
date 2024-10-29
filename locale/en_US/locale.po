@@ -27,54 +27,40 @@ msgid "plugins.generic.OASwitchboard.settings.password"
 msgstr "Password:"
 
 msgid "plugins.generic.OASwitchboard.settings.apiAuthenticatorFailed"
-msgstr "Failed to authenticate, please check the OA Switchboard API credentials again"
+msgstr "Authentication failed, please check the OA Switchboard API credentials."
 
 msgid "plugins.generic.OASwitchboard.pluginIsNotConfigured"
-msgstr "The OA Switchboard plugin needs to be configured to successfully send the message."
+msgstr "The OA Switchboard plugin is not configured."
 
 msgid "plugins.generic.OASwitchboard.sendMessageWithSuccess"
-msgstr "The message was successfully sent to the OA Switchboard"
+msgstr "The P1 message was successfully sent to the OA Switchboard."
 
 msgid "plugins.generic.OASwitchboard.postRequirements"
-msgstr "Client error when sending message to OA Switchboard API server, more information in the system log."
+msgstr "Error while attempting to send message via OA Switchboard API. More information can be found in the server logs."
 
 msgid "plugins.generic.OASwitchboard.serverError"
-msgstr "Server error when sending message. The OA Switchboard API server encountered an internal error."
-
-msgid "plugins.generic.OASwitchboard.postRequirementsError"
-msgstr "We don't have the mandatory data for sending the message to the OA Switchboard, please check the submission activity log to understand the pending requirements."
+msgstr "Error sending the message. The OA Switchboard API returned an internal server error."
 
 msgid "plugins.generic.OASwitchboard.rorRecommendation"
-msgstr "At least one author should have a ROR ID linked to their affiliation (requires the ROR plugin) for the message to be sent to the affiliation."
+msgstr "It is recommended that at least one author has a ROR ID linked to their affiliation (requires the ROR plugin) to send the message to the author's institution."
+
+msgid "plugins.generic.OASwitchboard.postRequirementsError.introductionText"
+msgstr "OA Switchboard: it will not be possible to send the P1 message as the submission does not meet the following requirements."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.familyName"
-msgstr "The family name of an author must be present."
+msgstr "The family name of all authors must be present."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.affiliation"
-msgstr "Affiliation of an author must be set."
+msgstr "All authors must have their affiliation filled in."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.doi"
-msgstr "The article must have a DOI associated."
+msgstr "The article must have an associated DOI."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.issn"
-msgstr "The journal must have a ISSN or eISSN assigned."
+msgstr "The journal must have an assigned ISSN."
 
+msgid "plugins.generic.OASwitchboard.postRequirementsError.conclusionText"
+msgstr "You may review these metadata, or proceed with the publication without sending the message to the OA Switchboard."
 
-msgid "plugins.generic.OASwitchboard.sendMessageWithSuccess.activityLog"
-msgstr "Successfully sent a message to the OA Switchboard."
-
-msgid "plugins.generic.OASwitchboard.rorRecommendation.activityLog"
-msgstr "Received a notification from the OA Switchboard: At least one author must have a ROR ID linked to their affiliation (requires ROR plugin) for the message to be sent to the affiliation."
-
-msgid "plugins.generic.OASwitchboard.postRequirementsError.familyName.activityLog"
-msgstr "Tried to deposit with OA Switchboard, which returned: The family name of an author must be present."
-
-msgid "plugins.generic.OASwitchboard.postRequirementsError.affiliation.activityLog"
-msgstr "Tried to deposit with OA Switchboard, which returned: Affiliation of an author must be set."
-
-msgid "plugins.generic.OASwitchboard.postRequirementsError.doi.activityLog"
-msgstr "Tried to deposit with OA Switchboard, which returned: The article must have a DOI associated."
-
-msgid "plugins.generic.OASwitchboard.postRequirementsError.issn.activityLog"
-msgstr "Tried to deposit with OA Switchboard, which returned: The journal must have an ISSN or eISSN assigned."
-
+msgid "plugins.generic.OASwitchboard.postRequirementsSuccess"
+msgstr "OA Switchboard: the requirements have been met and the P1 message will be sent to the OA Switchboard upon publishing the submission."

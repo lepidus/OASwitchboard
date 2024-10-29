@@ -54,7 +54,6 @@ describe('Send P1-PIO message with success', function () {
         cy.get('.pkpPublication > .pkpHeader > .pkpHeader__actions > button.pkpButton').contains("Schedule For Publication").click();
         cy.get('.pkpFormPage__footer button:contains("Publish")').click();
 
-        cy.get('.app__notifications').contains("At least one author should have a ROR ID linked to their affiliation (requires the ROR plugin) for the message to be sent to the affiliation.");
-        cy.get('.app__notifications').contains("The message was successfully sent to the OA Switchboard");
+        cy.get('.app__notifications').contains("The P1 message was successfully sent to the OA Switchboard.");
     })
 })
