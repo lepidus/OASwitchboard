@@ -29,7 +29,9 @@ class P1Pio
     {
         $authors = $this->submission->getAuthors();
         $authorsData = [];
+        $listingOrder = 0;
         foreach ($authors as $author) {
+            $listingOrder++;
             $lastNameRetrieved = $author->getLocalizedFamilyName();
             $lastName = is_array($lastNameRetrieved) ? reset($lastNameRetrieved) : $lastNameRetrieved;
             $firstName = $author->getLocalizedGivenName();
@@ -61,8 +63,7 @@ class P1Pio
             $primaryContactId = $this->submission->getCurrentPublication()->getData('primaryContactId');
             $authorsData[$lastAuthorIndex]['isCorrespondingAuthor'] = $primaryContactId === $author->getId();
 
-            $contributorSequence = $author->getData('seq') + 1;
-            $authorsData[$lastAuthorIndex]['listingorder'] = $contributorSequence;
+            $authorsData[$lastAuthorIndex]['listingorder'] = $listingOrder;
         }
         return $authorsData;
     }
@@ -245,6 +246,8 @@ class P1Pio
         if (empty($data['journal']['id'])) {
             $missingDataMessages[] = 'plugins.generic.OASwitchboard.postRequirementsError.issn';
         }
+
+        $missingDataMessages = array_unique($missingDataMessages);
 
         return $missingDataMessages;
     }
