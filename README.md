@@ -76,10 +76,9 @@ to provide that information for the article.
 
 * After installing the plugin, go to the plugin Settings, and enter your credentials for accessing the OASwitchboard API.
   * You may need different credentials for the *sandbox* API.
-
+* Before publishing the article, the status of the submission is displayed so that the message is sent successfully or not, you can ignore them or edit the article to meet the requirements of the plugin.
 * In the moment of the publication of an article, a P1-PIO type Message will be sent to OASwitchboard via API, if all publication requirements are met.
   * Upon success, you should see a green notification on the top-right corner of the screen.
-  * If any problems block the message from being sent, such as publication requirements, you should see a red notification detailing the problem, and the information is persisted in the '*Activity Log*' of the publication.
 
 ### Demonstration video
 
