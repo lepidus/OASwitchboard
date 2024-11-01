@@ -4,6 +4,9 @@ msgstr "OA Switchboard Plugin"
 msgid "plugins.generic.OASwitchboard.settings.apiKeyIsEmpty"
 msgstr "Your site administrator must set a secret in the config file ('api_key_secret')."
 
+msgid "plugins.generic.OASwitchboard.settings.issnMissing"
+msgstr "Until an ISSN or eISSN is assigned to the journal, the OA Switchboard plugin will not be able to send messages."
+
 msgid "plugins.generic.OASwitchboard.description"
 msgstr "Allows sending messages to OA Switchboard, automatically, at the publication of an article."
 
@@ -64,4 +67,3 @@ msgstr "You may review these metadata, or proceed with the publication without s
 
 msgid "plugins.generic.OASwitchboard.postRequirementsSuccess"
 msgstr "OA Switchboard: the requirements have been met and the P1 message will be sent to the OA Switchboard upon publishing the submission."
-

@@ -4,6 +4,9 @@ msgstr "Módulo de OA Switchboard"
 msgid "plugins.generic.OASwitchboard.settings.apiKeyIsEmpty"
 msgstr "El administrador de su sitio debe establecer un secreto en el archivo de configuración ('api_key_secret')."
 
+msgid "plugins.generic.OASwitchboard.settings.issnMissing"
+msgstr "Hasta que se asigne un ISSN o eISSN a la revista, el módulo de OA Switchboard no podrá enviar mensajes."
+
 msgid "plugins.generic.OASwitchboard.description"
 msgstr "Permite enviar mensajes a OA Switchboard, de forma automática, al momento de la publicación de un artículo."
 
