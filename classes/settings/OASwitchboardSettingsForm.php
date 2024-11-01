@@ -11,6 +11,7 @@ use APP\notification\NotificationManager;
 use Exception;
 use PKP\notification\PKPNotification;
 use PKP\form\validation\FormValidator;
+use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 
 class OASwitchboardSettingsForm extends Form
 {
@@ -56,6 +57,10 @@ class OASwitchboardSettingsForm extends Form
         $templateMgr->assign(
             'hasCredentials',
             $this->plugin->getSetting($this->contextId, 'username')
+        );
+        $templateMgr->assign(
+            'hasJournalIssn',
+            OASwitchboardService::validateJournalIssn($this->contextId)
         );
         return parent::fetch($request);
     }

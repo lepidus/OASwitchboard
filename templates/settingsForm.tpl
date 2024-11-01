@@ -16,7 +16,11 @@
     <form class="pkp_form" id="OASwitchboardSettingsForm" method="post"
         action="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="settings" save=true}">
         {csrf}
-
+        {if !$hasJournalIssn}
+            <div class="pkpNotification pkpNotification--warning">
+                <p>{translate key="plugins.generic.OASwitchboard.settings.issnMissing"}</p>
+            </div>
+        {/if}
         <div id="description">
         {if $hasCredentials}
             <p>{translate key="plugins.generic.OASwitchboard.settings.description.hasCredentials" username=$username|escape}</p>

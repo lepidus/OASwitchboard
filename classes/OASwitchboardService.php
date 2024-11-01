@@ -19,6 +19,7 @@ use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
 use Exception;
 use APP\core\Application;
 use APP\facades\Repo;
+use PKP\db\DAORegistry;
 
 class OASwitchboardService
 {
@@ -84,5 +85,15 @@ class OASwitchboardService
             }
         }
         return false;
+    }
+
+    public static function validateJournalIssn($contextId)
+    {
+        $contextDao = DAORegistry::getDAO('JournalDAO');
+        $context = $contextDao->getById($contextId);
+        if (empty($context->getData('onlineIssn')) || empty($context->getData('printIssn'))) {
+            return false;
+        }
+        return true;
     }
 }
