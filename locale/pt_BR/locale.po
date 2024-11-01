@@ -1,8 +1,11 @@
 msgid "plugins.generic.OASwitchboard.displayName"
 msgstr "Plugin OA Switchboard"
 
-msgid "plugins.generic.OASwitchboard.settings.apiKeyIsEmpty"
-msgstr "O administrador do seu site deve definir um segredo no arquivo de configuração ('api_key_secret')."
+msgid "plugins.generic.OASwitchboard.settings.apiKeySecretMissing"
+msgstr "Seu OJS está sem uma configuração de segurança ('api_key_secret'). Você pode contactar o administrador do sistema para defini-la no arquivo de configuração."
+
+msgid "plugins.generic.OASwitchboard.settings.apiKeySecretInfomration"
+msgstr "A configuração api_key_secret é usada para armazenar suas credenciais do OA Switchboard com segurança. Mais informações sobre como configurá-la podem ser encontradas <a href=\"https://forum.pkp.sfu.ca/t/how-to-generate-a-api-key-secret-code-in-ojs-3/72008/\" target=\"_blank\">neste tópico do Fórum da Comunidade PKP</a>."
 
 msgid "plugins.generic.OASwitchboard.settings.issnMissing"
 msgstr "Até que um ISSN ou eISSN seja atribuído à revista, o plugin OA Switchboard não poderá enviar mensagens."

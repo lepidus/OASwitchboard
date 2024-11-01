@@ -24,7 +24,7 @@ class OASwitchboardSettingsForm extends Form
         $this->contextId = $contextId;
         $this->addFormValidators();
 
-        $template = APIKeyEncryption::secretConfigExists() ? 'settingsForm.tpl' : 'tokenError.tpl';
+        $template = APIKeyEncryption::secretConfigExists() ? 'settingsForm.tpl' : 'missingSecretConfigWarning.tpl';
         parent::__construct($plugin->getTemplateResource($template));
     }
 
