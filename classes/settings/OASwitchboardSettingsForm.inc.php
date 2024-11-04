@@ -3,6 +3,7 @@
 import('lib.pkp.classes.form.Form');
 import('plugins.generic.OASwitchboard.lib.APIKeyEncryption.APIKeyEncryption');
 import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIClient');
+import('plugins.generic.OASwitchboard.classes.OASwitchboardService');
 
 class OASwitchboardSettingsForm extends Form
 {
@@ -49,6 +50,11 @@ class OASwitchboardSettingsForm extends Form
         $templateMgr->assign(
             'hasCredentials',
             $this->plugin->getSetting($this->contextId, 'username')
+        );
+        error_log(print_r(OASwitchboardService::validateJournalIssn($this->contextId), true));
+        $templateMgr->assign(
+            'hasJournalIssn',
+            OASwitchboardService::validateJournalIssn($this->contextId)
         );
         return parent::fetch($request);
     }
