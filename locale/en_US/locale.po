@@ -1,8 +1,13 @@
 msgid "plugins.generic.OASwitchboard.displayName"
 msgstr "OA Switchboard Plugin"
 
-msgid "plugins.generic.OASwitchboard.settings.apiKeyIsEmpty"
-msgstr "Your site administrator must set a secret in the config file ('api_key_secret')."
+msgid "plugins.generic.OASwitchboard.settings.apiKeySecretMissing"
+msgstr "Your OJS is missing a security setting ('api_key_secret'). You may contact your system administrator to set it up in the config file."
+
+msgid "plugins.generic.OASwitchboard.settings.apiKeySecretInfomration"
+msgstr ""
+"The 'api_key_secret' is use to safely store your OA Switchboard credentials.<br>More information on how to set it up can be found in <a href=\"https://forum.pkp.sfu.ca/t/how-to-generate-a-api-key-secret-code-in-ojs-3/72008/\" target=\"_blank\">this PKP Community Forum thread</a>."
+"<br><br>Once it's set up, come back here to enter your credentials."
 
 msgid "plugins.generic.OASwitchboard.settings.issnMissing"
 msgstr "Until an ISSN or eISSN is assigned to the journal, the OA Switchboard plugin will not be able to send messages."
