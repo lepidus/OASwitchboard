@@ -91,7 +91,7 @@ class OASwitchboardService
     {
         $contextDao = DAORegistry::getDAO('JournalDAO');
         $context = $contextDao->getById($contextId);
-        if (empty($context->getData('onlineIssn')) || empty($context->getData('printIssn'))) {
+        if (empty($context->getData('onlineIssn')) && empty($context->getData('printIssn'))) {
             return false;
         }
         return true;

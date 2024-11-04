@@ -48,7 +48,7 @@ class Message
         }
     }
 
-    public function validateRegister($hookName, $form)
+    public function validateBeforePublicationEvent($hookName, $form)
     {
         if ($form->id !== 'publish' || !empty($form->errors)) {
             return;
