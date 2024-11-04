@@ -80,4 +80,14 @@ class OASwitchboardService
         }
         return false;
     }
+
+    public static function validateJournalIssn($contextId)
+    {
+        $contextDao = Application::getContextDAO();
+        $context = $contextDao->getById($contextId);
+        if (empty($context->getData('onlineIssn')) && empty($context->getData('printIssn'))) {
+            return false;
+        }
+        return true;
+    }
 }
