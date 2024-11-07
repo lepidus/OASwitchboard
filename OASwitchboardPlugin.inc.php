@@ -28,7 +28,6 @@ class OASwitchboardPlugin extends GenericPlugin
             HookRegistry::register('Publication::publish', [$message, 'sendToOASwitchboard']);
             HookRegistry::register('Form::config::before', [$message, 'validateBeforePublicationEvent']);
             HookRegistry::register('TemplateManager::display', [$resources, 'addWorkflowNotificationsJavaScript']);
-            HookRegistry::register('NotificationManager::getNotificationMessage', [$resources, 'addMessageToInformationNotification']);
         }
         return $success;
     }
