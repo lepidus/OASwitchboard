@@ -50,13 +50,4 @@ class Resources
 
         return false;
     }
-
-    public function addMessageToInformationNotification($hookName, $args)
-    {
-        $notification = & $args[0];
-        $message = & $args[1];
-        $notificationSettingsDao = DAORegistry::getDAO('NotificationSettingsDAO');
-        $notificationSettings = $notificationSettingsDao->getNotificationSettings($notification->getId());
-        $message = $notificationSettings['contents'];
-    }
 }
