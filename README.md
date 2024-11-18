@@ -63,7 +63,7 @@ The DOI Plugin must be active and properly configured in the journal.
 * The publication must have a **DOI associated** to it.
 * The authors need to have **family name** besides the given name.
 
-It's recommended that at least one author of the article has a **ROR ID** associated with their affiliation (requires the ROR plugin), in order for the message to be sent to the associated affiliation. The ROR usage instructions for OJS are described in the [plugin's README](https://github.com/withanage/ror?tab=readme-ov-file#user-documentation).
+It's recommended that at least one author of the article has a **ROR ID** associated with their affiliation (requires the ROR plugin), in order for the message to be sent to the associated affiliation. The ROR usage instructions for OJS are described in the [ROR plugin's README](https://github.com/withanage/ror?tab=readme-ov-file#user-documentation).
 
 **Funding information**: In order to include funding information in the message, the journal must be using the [Funding plugin](https://github.com/ajnyga/funding/tree/master)
 to provide that information for the article.
