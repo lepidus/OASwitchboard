@@ -27,19 +27,15 @@ This branch is compatible with OJS 3.3.0.x.
 A version compatible with OJS 3.4.0.x is available in the [`main`](https://github.com/lepidus/OASwitchboard/tree/main) branch.
 
 - Plugin version `v1.x.x.x` is compatible with OJS 3.3.0.x
-- Plugin version `v2.x.x.x` is compatible with OJS 3.4.0.x 
+- Plugin version `v2.x.x.x` is compatible with OJS 3.4.0.x
 
 You can find the latest version of the plugin compatible with your OJS version in the [Releases page](https://github.com/lepidus/OASwitchboard/releases).
 
 ## Plugin Installation
 
-1. To download the plugin, go to the [Releases page](https://github.com/lepidus/OASwitchboard/releases) and download the tar.gz package of the latest release compatible with your website.
+1. Go to *Settings -> Website -> Plugins -> Plugin Gallery*. Click on **OA Switchboard Plugin** and then click on *Install*.
 
-2. Enter the administration area of ​​your OJS website through the *Dashboard*.
-
-    Navigate to `Settings` > `Website` > `Plugins` > `Upload a new plugin` and select the file **`OASwitchboard.tar.gz`**.
-
-Click Save and the plugin will be installed on your website.
+2. After installing the plugin, go to the plugin Settings, and follow the [Usage instructions](#usage).
 
 ## Requirements for usage
 
