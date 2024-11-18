@@ -11,7 +11,7 @@ describe('Send P1-PIO message with success', function () {
         cy.contains('a', 'Website').click();
         cy.get('#plugins-button').click();
         cy.get('#pluginGallery-button').click();
-        cy.get('span').contains('Funding').click();
+        cy.get('a').contains('Funding').click();
         cy.get('[id^=pluginGallery-installPlugin-button-]').click();
         cy.get('.ok').click();
     }) 
