@@ -132,7 +132,7 @@ Developed by [Lepidus Tecnologia](https://github.com/lepidus).
 
 ## License
 
-This plugin is licensed under the GNU General Public License v3.0 - [See the License file.](/LICENSE)
+This plugin is licensed under the [GNU General Public License v3.0](/LICENSE).
 
-Copyright (c) 2024 Lepidus Tecnologia.
+Copyright (c) 2024 Lepidus Tecnologia.  
 Copyright (c) 2024 Stichting OA Switchboard
