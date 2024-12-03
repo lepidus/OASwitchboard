@@ -5,7 +5,7 @@
 
 This plugin enables **[OJS](https://pkp.sfu.ca/software/ojs/)** journals to automatically send **P1-PIO** type messages to the **[Open Access Switchboard](https://www.oaswitchboard.org/)** API at the moment of article publication.
 
-The list of metadata fields included in the message can be found [here](#what-metadata-fields-are-included-in-the-message).
+**Announcement:** [OA Switchboard OJS plug-in: Supporting diamond journals to increase the visibility of their OA output among research funders, libraries, and consortia](https://www.oaswitchboard.org/ojs-plugin).
 
 # Table of Contents
 1. [Open Access Switchboard Plugin](#open-access-switchboard-plugin)
@@ -123,12 +123,13 @@ The metadata retrieved from OJS and sent to OA Switchboard is listed below in th
 
 ## Credits
 
-This plugin was conceived and sponsored by [OA Switchboard](https://www.oaswitchboard.org/).
+This plugin was developed open source to [OA Switchboard](https://www.oaswitchboard.org/) by [Lepidus Tecnologia](https://lepidus.com.br/) with [Openjournals.nl](http://openjournals.nl/) as testing partner. The development has been made possible by funding from the [Max Planck Digital Library (MPDL)](https://www.mpdl.mpg.de/en/).
 
 Developed by [Lepidus Tecnologia](https://github.com/lepidus).
 
 ## License
 
-This plugin is licensed under the GNU General Public License v3.0 - [See the License file.](/LICENSE)
+This plugin is licensed under the [GNU General Public License v3.0](/LICENSE).
 
-Copyright (c) 2024 Lepidus Tecnologia.
+Copyright (c) 2024 Lepidus Tecnologia.  
+Copyright (c) 2024 Stichting OA Switchboard
