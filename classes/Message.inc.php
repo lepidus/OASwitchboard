@@ -54,7 +54,6 @@ class Message
             return false;
         }
 
-
         try {
             $p1Pio = new P1Pio($submission);
             $successMessage = $this->getSubmissionAlreadyToSendMessage($submission);
@@ -74,6 +73,47 @@ class Message
         }
 
         return false;
+    }
+
+    public function addSubmissionStatusToWorkflow($hookName, $params)
+    {
+        $smarty = &$params[1];
+        $output = &$params[2];
+        $request = Application::get()->getRequest();
+        $templateMgr = TemplateManager::getManager($request);
+
+        $submission = $smarty->get_template_vars('submission');
+        $contextId = $request->getContext()->getId();
+
+        try {
+            OASwitchboardService::validatePluginIsConfigured($this->plugin, $contextId);
+        } catch (\Exception $e) {
+            $message = '<div class="pkpNotification pkpNotification--information">' . $e->getMessage() . '</div>';
+            $smarty->assign([
+                'pluginIsNotConfiguredInfo' => $message,
+            ]);
+        }
+
+        try {
+            $p1Pio = new P1Pio($submission);
+            $successMessage = $this->getSubmissionAlreadyToSendMessage($submission);
+            $smarty->assign([
+                'submissionIsAlreadySendMessage' => $successMessage,
+            ]);
+        } catch (P1PioException $e) {
+            if ($e->getP1PioErrors()) {
+                $errorMessage = $this->getMandatoryDataErrorMessage($e->getP1PioErrors(), $submission);
+                $smarty->assign([
+                    'submissionRequirementsIsPending' => $errorMessage,
+                ]);
+            }
+        }
+
+        $output .= sprintf(
+            '<tab id="OASwitchboard" label="%s">%s</tab>',
+            __('plugins.generic.OASwitchboard.workflowTab.label'),
+            $smarty->fetch($this->plugin->getTemplateResource('submissionStatus.tpl'))
+        );
     }
 
     private function registerSubmissionEventLog($request, $submission, $error)
