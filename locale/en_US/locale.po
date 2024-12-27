@@ -75,3 +75,6 @@ msgstr "OA Switchboard: the requirements have been met and the P1 message will b
 
 msgid "plugins.generic.OASwitchboard.workflowTab.label"
 msgstr "OA Switchboard"
+
+msgid "plugins.generic.OASwitchboard.workflowTab.title"
+msgstr "Status of message sent to OA Switchboard"
