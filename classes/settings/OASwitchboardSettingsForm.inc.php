@@ -51,7 +51,6 @@ class OASwitchboardSettingsForm extends Form
             'hasCredentials',
             $this->plugin->getSetting($this->contextId, 'username')
         );
-        error_log(print_r(OASwitchboardService::validateJournalIssn($this->contextId), true));
         $templateMgr->assign(
             'hasJournalIssn',
             OASwitchboardService::validateJournalIssn($this->contextId)

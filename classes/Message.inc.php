@@ -76,6 +76,22 @@ class Message
         return false;
     }
 
+    public function addSubmissionStatusToWorkflow($hookName, $params)
+    {
+        $smarty = &$params[1];
+        $output = &$params[2];
+
+        $submission = $smarty->get_template_vars('submission');
+        $publication = $submission->getCurrentPublication();
+        $request = Application::get()->getRequest();
+
+        $output .= sprintf(
+            '<tab id="OASwitchboard" label="%s">%s</tab>',
+            __('plugins.generic.OASwitchboard.workflowTab.label'),
+            $smarty->fetch($this->plugin->getTemplateResource('submissionStatuses.tpl'))
+        );
+    }
+
     private function registerSubmissionEventLog($request, $submission, $error)
     {
         SubmissionLog::logEvent(

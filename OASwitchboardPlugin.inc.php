@@ -26,6 +26,7 @@ class OASwitchboardPlugin extends GenericPlugin
             import('plugins.generic.OASwitchboard.classes.Resources');
             $message = new Message($this);
             $resources = new Resources($this);
+            HookRegistry::register('Template::Workflow::Publication', [$message, 'addSubmissionStatusToWorkflow']);
             HookRegistry::register('Publication::publish', [$message, 'sendToOASwitchboard']);
             HookRegistry::register('Form::config::before', [$message, 'validateBeforePublicationEvent']);
             HookRegistry::register('TemplateManager::display', [$resources, 'addWorkflowNotificationsJavaScript']);

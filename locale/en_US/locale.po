@@ -72,3 +72,6 @@ msgstr "You may review these metadata, or proceed with the publication without s
 
 msgid "plugins.generic.OASwitchboard.postRequirementsSuccess"
 msgstr "OA Switchboard: the requirements have been met and the P1 message will be sent to the OA Switchboard upon publishing the submission."
+
+msgid "plugins.generic.OASwitchboard.workflowTab.label"
+msgstr "OA Switchboard"
