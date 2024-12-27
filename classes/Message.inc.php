@@ -80,7 +80,6 @@ class Message
         $smarty = &$params[1];
         $output = &$params[2];
         $request = Application::get()->getRequest();
-        $templateMgr = TemplateManager::getManager($request);
 
         $submission = $smarty->get_template_vars('submission');
         $contextId = $request->getContext()->getId();
