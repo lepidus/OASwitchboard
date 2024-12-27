@@ -30,6 +30,7 @@ class OASwitchboardPlugin extends GenericPlugin
         if ($success && $this->getEnabled()) {
             $message = new Message($this);
             $resources = new Resources($this);
+            Hook::add('Template::Workflow::Publication', [$message, 'addSubmissionStatusToWorkflow']);
             Hook::add('Publication::publish', [$message, 'sendToOASwitchboard']);
             Hook::add('TemplateManager::display', [$resources, 'addWorkflowNotificationsJavaScript']);
             Hook::add('Form::config::before', [$message, 'validateBeforePublicationEvent']);
