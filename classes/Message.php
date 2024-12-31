@@ -109,13 +109,13 @@ class Message
 
         try {
             $p1Pio = new P1Pio($submission);
-            $successMessage = $this->getSubmissionAlreadyToSendMessage($submission);
+            $successMessage = $this->getSubmissionAlreadyToSendMessage($submission, false);
             $smarty->assign([
                 'submissionIsAlreadySendMessage' => $successMessage,
             ]);
         } catch (P1PioException $e) {
             if ($e->getP1PioErrors()) {
-                $errorMessage = $this->getMandatoryDataErrorMessage($e->getP1PioErrors(), $submission);
+                $errorMessage = $this->getMandatoryDataErrorMessage($e->getP1PioErrors(), $submission, false);
                 $smarty->assign([
                     'submissionRequirementsIsPending' => $errorMessage,
                 ]);
@@ -153,9 +153,11 @@ class Message
         );
     }
 
-    private function getMandatoryDataErrorMessage($p1PioErrors, $submission): string
+    private function getMandatoryDataErrorMessage($p1PioErrors, $submission, $includePrefix = true): string
     {
-        $introductionMessage = __('plugins.generic.OASwitchboard.postRequirementsError.introductionText');
+        $introductionMessage = $includePrefix ?
+            __('plugins.generic.OASwitchboard.includePrefix') . __('plugins.generic.OASwitchboard.postRequirementsError.introductionText') :
+            ucfirst(__('plugins.generic.OASwitchboard.postRequirementsError.introductionText'));
         $message = '<div class="pkpNotification pkpNotification--information">' . $introductionMessage . '<br><br>';
         foreach ($p1PioErrors as $error) {
             $noticeMessage = __($error);
@@ -170,11 +172,13 @@ class Message
         return $message;
     }
 
-    private function getSubmissionAlreadyToSendMessage($submission): string
+    private function getSubmissionAlreadyToSendMessage($submission, $includePrefix = true): string
     {
         $hasRorAssociated = OASwitchboardService::isRorAssociated($submission);
         $messageType = $hasRorAssociated ? 'success' : 'information';
-        $successMessage = __('plugins.generic.OASwitchboard.postRequirementsSuccess');
+        $successMessage = $includePrefix ?
+            __('plugins.generic.OASwitchboard.includePrefix') . __('plugins.generic.OASwitchboard.postRequirementsSuccess') :
+            ucfirst(__('plugins.generic.OASwitchboard.postRequirementsSuccess'));
         $rorRecommendationMessage = $hasRorAssociated ? '' : '<br><br>' . __('plugins.generic.OASwitchboard.rorRecommendation');
 
         return '<div class="pkpNotification pkpNotification--' . $messageType . '">' . $successMessage . $rorRecommendationMessage . '</div>';
