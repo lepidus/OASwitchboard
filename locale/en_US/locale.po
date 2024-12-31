@@ -53,7 +53,7 @@ msgid "plugins.generic.OASwitchboard.rorRecommendation"
 msgstr "It is recommended that at least one author has a ROR ID linked to their affiliation (requires the ROR plugin) to send the message to the author's institution."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.introductionText"
-msgstr "OA Switchboard: it will not be possible to send the P1 message as the submission does not meet the following requirements."
+msgstr "it will not be possible to send the P1 message as the submission does not meet the following requirements."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.familyName"
 msgstr "The family name of all authors must be present."
@@ -71,7 +71,10 @@ msgid "plugins.generic.OASwitchboard.postRequirementsError.conclusionText"
 msgstr "You may review these metadata, or proceed with the publication without sending the message to the OA Switchboard."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsSuccess"
-msgstr "OA Switchboard: the requirements have been met and the P1 message will be sent to the OA Switchboard upon publishing the submission."
+msgstr "the requirements have been met and the P1 message will be sent to the OA Switchboard upon publishing the submission."
+
+msgid "plugins.generic.OASwitchboard.includePrefix"
+msgstr "OA Switchboard: "
 
 msgid "plugins.generic.OASwitchboard.workflowTab.label"
 msgstr "OA Switchboard"

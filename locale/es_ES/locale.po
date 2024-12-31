@@ -53,7 +53,7 @@ msgid "plugins.generic.OASwitchboard.rorRecommendation"
 msgstr "Se recomienda que al menos un autor tenga un ID ROR vinculado a su afiliación (requiere el plugin ROR) para enviar el mensaje a la institución del autor."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.introductionText"
-msgstr "OA Switchboard: no será posible enviar el mensaje P1, ya que la presentación no cumple con los requisitos a continuación."
+msgstr "no será posible enviar el mensaje P1, ya que la presentación no cumple con los requisitos a continuación."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.familyName"
 msgstr "El apellido de todos los autores debe estar presente."
@@ -71,7 +71,10 @@ msgid "plugins.generic.OASwitchboard.postRequirementsError.conclusionText"
 msgstr "Puede revisar estos metadatos o continuar con la publicación sin enviar el mensaje al OA Switchboard."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsSuccess"
-msgstr "OA Switchboard: se han cumplido los requisitos y el mensaje P1 será enviado al OA Switchboard al publicar la publicacíon."
+msgstr "se han cumplido los requisitos y el mensaje P1 será enviado al OA Switchboard al publicar la publicacíon."
+
+msgid "plugins.generic.OASwitchboard.includePrefix"
+msgstr "OA Switchboard: "
 
 msgid "plugins.generic.OASwitchboard.workflowTab.label"
 msgstr "OA Switchboard"
