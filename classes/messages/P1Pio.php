@@ -53,12 +53,12 @@ class P1Pio
                 ]
             ];
 
-            if ($author->getData('rorId')) {
-                $authorsData[$lastAuthorIndex]['institutions']['ror'] = (string)$author->getData('rorId');
-            }
-
             $orcid = $author->getOrcid();
             $lastAuthorIndex = count($authorsData) - 1;
+            if ($author->getData('rorId')) {
+                $authorsData[$lastAuthorIndex]['institutions'][0]['ror'] = (string)$author->getData('rorId');
+            }
+
             if (!empty($orcid)) {
                 $authorsData[$lastAuthorIndex]['orcid'] = $orcid;
             }
