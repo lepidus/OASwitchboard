@@ -48,11 +48,14 @@ class P1Pio
                 'affiliation' => (string)$affiliationName,
                 'institutions' => [
                     [
-                        'name' => (string)$affiliationName,
-                        'ror' => (string)$author->getData('rorId')
+                        'name' => (string)$affiliationName
                     ]
                 ]
             ];
+
+            if ($author->getData('rorId')) {
+                $authorsData[$lastAuthorIndex]['institutions']['ror'] = (string)$author->getData('rorId');
+            }
 
             $orcid = $author->getOrcid();
             $lastAuthorIndex = count($authorsData) - 1;
