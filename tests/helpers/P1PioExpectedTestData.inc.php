@@ -33,8 +33,7 @@ trait P1PioExpectedTestData
                 'affiliation' => 'Lepidus Tecnologia',
                 'institutions' => [
                     [
-                        'name' => 'Lepidus Tecnologia',
-                        'ror' => ''
+                        'name' => 'Lepidus Tecnologia'
                     ]
                 ],
                 'isCorrespondingAuthor' => true,
