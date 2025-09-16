@@ -183,7 +183,7 @@ class P1Pio
         $articleTextGalleys = [];
         foreach ($this->submission->getGalleys() as $galley) {
             $submissionFileId = $galley->getData('submissionFileId');
-            $genreId = $this->getGenreIdOfSubmissionFile($submissionFileId);
+            $genreId = $submissionFileId ? $this->getGenreIdOfSubmissionFile($submissionFileId) : null;
             if ($genreId === $this->getArticleTextGenreId()) {
                 $articleTextGalleys[] = $galley;
             }
