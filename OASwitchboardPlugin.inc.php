@@ -13,8 +13,8 @@
  */
 
 import('lib.pkp.classes.plugins.GenericPlugin');
-import('plugins.generic.OASwitchboard.classes.settings.Manage');
-import('plugins.generic.OASwitchboard.classes.settings.Actions');
+import('plugins.generic.OASwitchboard.classes.settings.OASwitchboardManage');
+import('plugins.generic.OASwitchboard.classes.settings.OASwitchboardActions');
 
 class OASwitchboardPlugin extends GenericPlugin
 {
@@ -46,13 +46,13 @@ class OASwitchboardPlugin extends GenericPlugin
 
     public function getActions($request, $actionArgs)
     {
-        $actions = new Actions($this);
+        $actions = new OASwitchboardActions($this);
         return $actions->execute($request, $actionArgs, parent::getActions($request, $actionArgs));
     }
 
     public function manage($args, $request)
     {
-        $manage = new Manage($this);
+        $manage = new OASwitchboardManage($this);
         return $manage->execute($args, $request);
     }
 
