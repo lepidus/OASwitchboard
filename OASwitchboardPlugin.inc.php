@@ -67,4 +67,10 @@ class OASwitchboardPlugin extends GenericPlugin
         $request = Application::get()->getRequest();
         return $request->getContext() !== null;
     }
+
+    public function getInstallMigration()
+    {
+        $this->import('classes.migrations.EncryptApiCredentialsMigration');
+        return new EncryptApiCredentialsMigration();
+    }
 }
