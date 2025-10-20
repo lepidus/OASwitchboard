@@ -1,6 +1,6 @@
 <?php
 
-class Manage
+class OASwitchboardManage
 {
     public $plugin;
 

@@ -1,6 +1,6 @@
 <?php
 
-class Actions
+class OASwitchboardActions
 {
     public $plugin;
 

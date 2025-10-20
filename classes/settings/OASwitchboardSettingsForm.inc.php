@@ -9,14 +9,16 @@ class OASwitchboardSettingsForm extends Form
 {
     private $plugin;
     private $contextId;
+    private $apiKeyEncryption;
 
     public function __construct($plugin, $contextId)
     {
         $this->plugin = $plugin;
         $this->contextId = $contextId;
+        $this->apiKeyEncryption = new APIKeyEncryption();
         $this->addFormValidators();
 
-        $template = APIKeyEncryption::secretConfigExists() ? 'settingsForm.tpl' : 'missingSecretConfigWarning.tpl';
+        $template = $this->apiKeyEncryption->secretConfigExists() ? 'settingsForm.tpl' : 'missingSecretConfigWarning.tpl';
         parent::__construct($plugin->getTemplateResource($template));
     }
 
@@ -66,7 +68,7 @@ class OASwitchboardSettingsForm extends Form
 
     public function execute(...$functionArgs)
     {
-        $encryptedPassword = APIKeyEncryption::encryptString($this->getData('OASPassword'));
+        $encryptedPassword = $this->apiKeyEncryption->encryptString($this->getData('OASPassword'));
         $this->plugin->updateSetting($this->contextId, 'isSandBoxAPI', $this->getData('isSandBoxAPI'), 'bool');
         $this->plugin->updateSetting($this->contextId, 'password', $encryptedPassword, 'string');
         $this->plugin->updateSetting($this->contextId, 'username', $this->getData('OASUsername'), 'string');
