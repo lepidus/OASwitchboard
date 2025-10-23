@@ -49,8 +49,9 @@ class OASwitchboardService
 
     private function retrieveCredentials()
     {
+        $apiKeyEncryption = new APIKeyEncryption();
         $email = $this->plugin->getSetting($this->contextId, 'username');
-        $password = APIKeyEncryption::decryptString(
+        $password = $apiKeyEncryption->decryptString(
             $this->plugin->getSetting($this->contextId, 'password')
         );
 
