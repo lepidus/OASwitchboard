@@ -21,6 +21,7 @@ use APP\plugins\generic\OASwitchboard\classes\Message;
 use APP\plugins\generic\OASwitchboard\classes\Resources;
 use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardManage;
 use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardActions;
+use APP\plugins\generic\OASwitchboard\classes\migrations\EncryptApiCredentialsMigration;
 
 class OASwitchboardPlugin extends GenericPlugin
 {
@@ -70,5 +71,9 @@ class OASwitchboardPlugin extends GenericPlugin
     {
         $request = Application::get()->getRequest();
         return $request->getContext() !== null;
+    }
+    public function getInstallMigration()
+    {
+        return new EncryptApiCredentialsMigration();
     }
 }
