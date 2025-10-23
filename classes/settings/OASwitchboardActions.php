@@ -7,7 +7,7 @@ use APP\plugins\generic\OASwitchboard\OASwitchboardPlugin;
 use PKP\linkAction\LinkAction;
 use PKP\linkAction\request\AjaxModal;
 
-class Actions
+class OASwitchboardActions
 {
     public OASwitchboardPlugin $plugin;
 

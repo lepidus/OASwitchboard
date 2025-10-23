@@ -2,47 +2,82 @@
 
 namespace APP\plugins\generic\OASwitchboard\classes\api;
 
-use Firebase\JWT\JWT;
 use PKP\config\Config;
+use Illuminate\Encryption\Encrypter;
 use Exception;
 
 class APIKeyEncryption
 {
-    public static function secretConfigExists(): bool
+    private const ENCRYPTION_CIPHER = 'aes-256-cbc';
+    private const BASE64_PREFIX = 'base64:';
+
+    public function secretConfigExists(): bool
     {
         try {
-            self::getSecretFromConfig();
+            $this->getSecretFromConfig();
         } catch (Exception $e) {
             return false;
         }
         return true;
     }
 
-    private static function getSecretFromConfig(): string
+    private function getSecretFromConfig(): string
     {
         $secret = Config::getVar('security', 'api_key_secret');
         if ($secret === "") {
-            throw new Exception("A secret must be set in the config file ('api_key_secret') so that keys can be encrypted and decrypted");
+            throw new Exception("OASwitchboard Plugin - A secret must be set in the config file ('api_key_secret') so that keys can be encrypted and decrypted");
         }
-        return $secret;
+
+        return $this->normalizeSecret($secret);
     }
 
-    public static function encryptString(string $plainText): string
+    private function normalizeSecret(string $secret): string
     {
-        $secret = self::getSecretFromConfig();
-        return JWT::encode($plainText, $secret, 'HS256');
+        return hash('sha256', $secret, true);
     }
 
-    public static function decryptString(string $encryptedText): string
+    public function textIsEncrypted(string $text): bool
     {
-        $secret = self::getSecretFromConfig();
+        if (!str_starts_with($text, self::BASE64_PREFIX)) {
+            return false;
+        }
+
         try {
-            return JWT::decode($encryptedText, $secret, ['HS256']);
-        } catch (Firebase\JWT\SignatureInvalidException $e) {
-            throw new Exception(
-                'The `api_key_secret` configuration is not the same as the one used to encrypt the key.',
-                1
-            );
+            $this->decryptString($text);
+            return true;
+        } catch (Exception $e) {
+            return false;
         }
+    }
+
+    public function encryptString(string $plainText): string
+    {
+        $secret = $this->getSecretFromConfig();
+        $encrypter = new Encrypter($secret, self::ENCRYPTION_CIPHER);
+
+        try {
+            $encryptedString = $encrypter->encrypt($plainText);
+        } catch (Exception $e) {
+            throw new Exception("OASwitchboard Plugin - Failed to encrypt string");
+        }
+
+        return self::BASE64_PREFIX . base64_encode($encryptedString);
+    }
+
+    public function decryptString(string $encryptedText): string
+    {
+        $secret = $this->getSecretFromConfig();
+        $encrypter = new Encrypter($secret, self::ENCRYPTION_CIPHER);
+
+        $encryptedText = str_replace(self::BASE64_PREFIX, '', $encryptedText);
+        $payload = base64_decode($encryptedText);
+
+        try {
+            $decryptedString = $encrypter->decrypt($payload);
+        } catch (Exception $e) {
+            throw new Exception("OASwitchboard Plugin - Failed to decrypt string");
+        }
+
+        return $decryptedString;
     }
 }

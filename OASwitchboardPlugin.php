@@ -19,8 +19,9 @@ use PKP\plugins\Hook;
 use APP\core\Application;
 use APP\plugins\generic\OASwitchboard\classes\Message;
 use APP\plugins\generic\OASwitchboard\classes\Resources;
-use APP\plugins\generic\OASwitchboard\classes\settings\Manage;
-use APP\plugins\generic\OASwitchboard\classes\settings\Actions;
+use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardManage;
+use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardActions;
+use APP\plugins\generic\OASwitchboard\classes\migrations\EncryptApiCredentialsMigration;
 
 class OASwitchboardPlugin extends GenericPlugin
 {
@@ -50,13 +51,13 @@ class OASwitchboardPlugin extends GenericPlugin
 
     public function getActions($request, $actionArgs)
     {
-        $actions = new Actions($this);
+        $actions = new OASwitchboardActions($this);
         return $actions->execute($request, $actionArgs, parent::getActions($request, $actionArgs));
     }
 
     public function manage($args, $request)
     {
-        $manage = new Manage($this);
+        $manage = new OASwitchboardManage($this);
         return $manage->execute($args, $request);
     }
 
@@ -70,5 +71,9 @@ class OASwitchboardPlugin extends GenericPlugin
     {
         $request = Application::get()->getRequest();
         return $request->getContext() !== null;
+    }
+    public function getInstallMigration()
+    {
+        return new EncryptApiCredentialsMigration();
     }
 }

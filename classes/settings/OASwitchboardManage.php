@@ -9,7 +9,7 @@ use PKP\core\JSONMessage;
 use APP\notification\NotificationManager;
 use PKP\notification\PKPNotification;
 
-class Manage
+class OASwitchboardManage
 {
     public OASwitchboardPlugin $plugin;
 
