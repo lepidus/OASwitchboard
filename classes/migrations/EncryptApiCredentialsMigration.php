@@ -57,6 +57,7 @@ class EncryptApiCredentialsMigration extends Migration
             }
 
             try {
+                $settingValue = $this->extractSettingValue($settingValue);
                 $encryptedValue = $encrypter->encryptString($settingValue);
 
                 DB::table('plugin_settings')
@@ -84,5 +85,21 @@ class EncryptApiCredentialsMigration extends Migration
             "OASwitchboard Migration: Completed - Encrypted: " .
             "{$encryptedCount}, Skipped: {$skippedCount}"
         );
+    }
+
+    private function extractSettingValue($settingValue)
+    {
+        $jwtParts = explode('.', $settingValue);
+        if (count($jwtParts) == 3) {
+            $header = json_decode(base64_decode($jwtParts[0]), true);
+            if (!isset($header['alg']) || !isset($header['typ'])) {
+                return $settingValue;
+            }
+
+            $payload = base64_decode($jwtParts[1]);
+            return trim($payload, '"');
+        }
+
+        return $settingValue;
     }
 }
