@@ -1,3 +1,5 @@
+**English** | [Português Brasileiro](/docs/README-pt_BR.md) | [Español](/docs/README-es.md)
+
 # Open Access Switchboard Plugin
 
 [![OJS compatibility](https://img.shields.io/badge/ojs-3.4.0.x-brightgreen)](https://github.com/pkp/ojs/tree/stable-3_4_0)
