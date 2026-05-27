@@ -1,12 +1,13 @@
 {
   "name": "oaswitchboardplugin",
-  "version": "1.0.0",
-  "description": "OA Switchboard plugin Vue components for OJS 3.5",
-  "private": true,
+  "version": "3.0.0.0",
+  "description": "OA Switchboard plugin for OJS 3.5",
+  "main": "resources/js/main.js",
   "scripts": {
-    "dev": "vite build --watch --mode development --minify=false",
+    "dev": "vite build --watch --minify=false",
     "build": "vite build"
   },
+  "author": "Lepidus Tecnologia",
   "license": "GPL-3.0",
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.6",

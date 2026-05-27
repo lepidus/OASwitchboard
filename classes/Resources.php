@@ -18,15 +18,22 @@ class Resources
     {
         $request = Application::get()->getRequest();
         $templateMgr = TemplateManager::getManager($request);
+        $buildUrl = $request->getBaseUrl() . '/' . $this->plugin->getPluginPath() . '/public/build';
 
         $templateMgr->addJavaScript(
             'OASwitchboardPlugin',
-            $request->getBaseUrl() . '/' . $this->plugin->getPluginPath() . '/public/build/build.iife.js',
+            $buildUrl . '/build.iife.js',
             [
                 'inline' => false,
                 'contexts' => ['backend'],
                 'priority' => TemplateManager::STYLE_SEQUENCE_LAST,
             ]
+        );
+
+        $templateMgr->addStyleSheet(
+            'OASwitchboardPlugin',
+            $buildUrl . '/build.css',
+            ['contexts' => ['backend']]
         );
     }
 }
