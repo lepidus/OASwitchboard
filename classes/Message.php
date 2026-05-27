@@ -39,7 +39,7 @@ class Message
                 $this->sendNotification(
                     $userId,
                     __($keyMessage),
-                    PKPNotification::NOTIFICATION_TYPE_SUCCESS
+                    Notification::NOTIFICATION_TYPE_SUCCESS
                 );
                 $this->registerSubmissionEventLog($request, $submission, $keyMessage);
             }
@@ -87,46 +87,6 @@ class Message
         }
 
         return false;
-    }
-
-    public function addSubmissionStatusToWorkflow($hookName, $params)
-    {
-        $smarty = &$params[1];
-        $output = &$params[2];
-        $request = Application::get()->getRequest();
-
-        $submission = $smarty->getTemplateVars('submission');
-        $contextId = $request->getContext()->getId();
-
-        try {
-            OASwitchboardService::validatePluginIsConfigured($this->plugin, $contextId);
-        } catch (\Exception $e) {
-            $message = '<div class="pkpNotification pkpNotification--information">' . $e->getMessage() . '</div>';
-            $smarty->assign([
-                'pluginIsNotConfiguredInfo' => $message,
-            ]);
-        }
-
-        try {
-            $p1Pio = new P1Pio($submission);
-            $successMessage = $this->getSubmissionAlreadyToSendMessage($submission, false);
-            $smarty->assign([
-                'submissionIsAlreadySendMessage' => $successMessage,
-            ]);
-        } catch (P1PioException $e) {
-            if ($e->getP1PioErrors()) {
-                $errorMessage = $this->getMandatoryDataErrorMessage($e->getP1PioErrors(), $submission, false);
-                $smarty->assign([
-                    'submissionRequirementsIsPending' => $errorMessage,
-                ]);
-            }
-        }
-
-        $output .= sprintf(
-            '<tab id="OASwitchboard" label="%s">%s</tab>',
-            __('plugins.generic.OASwitchboard.workflowTab.label'),
-            $smarty->fetch($this->plugin->getTemplateResource('submissionStatus.tpl'))
-        );
     }
 
     private function registerSubmissionEventLog($request, $submission, $error)

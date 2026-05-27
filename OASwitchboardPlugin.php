@@ -22,6 +22,7 @@ use APP\plugins\generic\OASwitchboard\classes\Resources;
 use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardManage;
 use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardActions;
 use APP\plugins\generic\OASwitchboard\classes\migrations\EncryptApiCredentialsMigration;
+use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardStatusController;
 
 class OASwitchboardPlugin extends GenericPlugin
 {
@@ -31,10 +32,13 @@ class OASwitchboardPlugin extends GenericPlugin
         if ($success && $this->getEnabled()) {
             $message = new Message($this);
             $resources = new Resources($this);
-            Hook::add('Template::Workflow::Publication', [$message, 'addSubmissionStatusToWorkflow']);
+            $statusController = new OASwitchboardStatusController($this);
+
             Hook::add('Publication::publish', [$message, 'sendToOASwitchboard']);
-            Hook::add('TemplateManager::display', [$resources, 'addWorkflowNotificationsJavaScript']);
             Hook::add('Form::config::before', [$message, 'validateBeforePublicationEvent']);
+
+            $statusController->register();
+            $resources->loadBackendBuild();
         }
         return $success;
     }
