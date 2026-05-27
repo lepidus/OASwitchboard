@@ -5,7 +5,7 @@ namespace APP\plugins\generic\OASwitchboard\classes;
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use APP\notification\NotificationManager;
-use PKP\notification\PKPNotification;
+use PKP\notification\Notification;
 use APP\core\Application;
 use APP\submission\Submission;
 use PKP\core\Core;
