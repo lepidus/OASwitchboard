@@ -31,7 +31,9 @@ class P1Pio
 
     public function getAuthorsData(): array
     {
-        $authors = $this->submission->getCurrentPublication()->getData('authors');
+        $publication = $this->submission->getCurrentPublication();
+        $authors = $publication->getData('authors');
+        $primaryContactId = $publication->getData('primaryContactId');
 
         $authorsData = [];
         $listingOrder = 0;
@@ -40,46 +42,50 @@ class P1Pio
             $lastNameRetrieved = $author->getLocalizedFamilyName();
             $lastName = is_array($lastNameRetrieved) ? reset($lastNameRetrieved) : $lastNameRetrieved;
             $firstName = $author->getLocalizedGivenName();
-            $affiliationName = $author->getLocalizedAffiliation();
 
-            $authorsData[] = [
+            $institutions = [];
+            foreach ($author->getAffiliations() as $affiliation) {
+                $name = (string) $affiliation->getLocalizedName();
+                if ($name === '') {
+                    continue;
+                }
+                $institution = ['name' => $name];
+                $ror = $affiliation->getRor();
+                if (!empty($ror)) {
+                    $institution['ror'] = (string) $ror;
+                }
+                $institutions[] = $institution;
+            }
+
+            $authorEntry = [
                 'lastName' => $lastName,
                 'firstName' => $firstName,
-                'affiliation' => (string)$affiliationName,
-                'institutions' => [
-                    [
-                        'name' => (string)$affiliationName
-                    ]
-                ]
+                'affiliation' => $institutions[0]['name'] ?? '',
+                'institutions' => $institutions,
             ];
 
             $orcid = $author->getOrcid();
-            $lastAuthorIndex = count($authorsData) - 1;
-            if ($author->getData('rorId')) {
-                $authorsData[$lastAuthorIndex]['institutions'][0]['ror'] = (string)$author->getData('rorId');
-            }
-
             if (!empty($orcid)) {
-                $authorsData[$lastAuthorIndex]['orcid'] = $orcid;
+                $authorEntry['orcid'] = $orcid;
             }
 
             $email = $author->getEmail();
             if (!empty($email)) {
-                $authorsData[$lastAuthorIndex]['email'] = $email;
+                $authorEntry['email'] = $email;
             }
 
-            $primaryContactId = $this->submission->getCurrentPublication()->getData('primaryContactId');
-            $authorsData[$lastAuthorIndex]['isCorrespondingAuthor'] = $primaryContactId === $author->getId();
+            $authorEntry['isCorrespondingAuthor'] = $primaryContactId === $author->getId();
+            $authorEntry['listingorder'] = $listingOrder;
 
-            $authorsData[$lastAuthorIndex]['listingorder'] = $listingOrder;
+            $authorsData[] = $authorEntry;
         }
         return $authorsData;
     }
 
     public function getArticleData(): array
     {
-        $articleTitle = $this->submission->getLocalizedFullTitle();
         $publication = $this->submission->getCurrentPublication();
+        $articleTitle = $publication->getLocalizedFullTitle();
         $license = $publication->getData('licenseUrl');
         $licenseAcronym = $this->getLicenseAcronym($license);
         $doi = $publication->getDoi() ?
@@ -97,9 +103,9 @@ class P1Pio
             'submissionId' => (string) $this->submission->getId(),
             'manuscript' => [
                 'dates' => [
-                    'submission' => (string) date('Y-m-d', strtotime($this->submission->getDateSubmitted())),
+                    'submission' => (string) date('Y-m-d', strtotime($this->submission->getData('dateSubmitted'))),
                     'acceptance' => (string) $this->getAcceptanceDate(),
-                    'publication' => (string) date('Y-m-d', strtotime($this->submission->getDatePublished()))
+                    'publication' => (string) date('Y-m-d', strtotime($this->submission->getData('datePublished')))
                 ]
             ]
         ];
