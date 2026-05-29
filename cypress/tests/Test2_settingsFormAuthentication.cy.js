@@ -1,17 +1,18 @@
 describe('Setup OASwitchboard credentials', function () {
+    const pluginRowId = 'component-grid-settings-plugins-settingsplugingrid-category-generic-row-oaswitchboardplugin';
+
     it('Configure the OAS API credentials in the plugin settings form', function () {
         cy.login('dbarnes', null, 'publicknowledge');
-        cy.contains('a', 'Website').click();
+        cy.get('nav').contains('Settings').click();
+        cy.get('nav').contains('Website').click({force: true});
         cy.waitJQuery();
         cy.get('#plugins-button').click();
-
-        const pluginRowId = 'component-grid-settings-plugins-settingsplugingrid-category-generic-row-oaswitchboardplugin';
 
         cy.get('tr#' + pluginRowId + ' a.show_extras').click();
         cy.get('a[id^=' + pluginRowId + '-settings-button]').click();
 
         cy.contains('OA Switchboard Plugin');
-        
+
         cy.contains('Please, enter your Open Access Switchboard credentials below, to allow the plugin to access the API.');
         cy.get('input[name=OASUsername]').should('be.visible');
         cy.get('input[name=OASPassword]').should('be.visible');
@@ -30,5 +31,5 @@ describe('Setup OASwitchboard credentials', function () {
         cy.contains('OA Switchboard Plugin');
         cy.get('form#OASwitchboardSettingsForm').contains('The API credentials are ready to use! Currently using credentials for: ' + Cypress.env('OASUsername') + '.');
         cy.get('form#OASwitchboardSettingsForm').contains('You can edit the credentials below, or click the Cancel button.');
-    })
-})
+    });
+});
