@@ -28,7 +28,7 @@ class OASwitchboardStatusController
         Hook::add('APIHandler::endpoints::_submissions', [$this, 'addRoute']);
     }
 
-    public function addRoute(string $hookName, &$apiController, APIHandler $apiHandler): bool
+    public function addRoute(string $hookName, $apiController, APIHandler $apiHandler): bool
     {
         $apiHandler->addRoute(
             'GET',
