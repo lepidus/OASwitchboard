@@ -1,6 +1,6 @@
 describe('Send P1-PIO message with error', function () {
     it('Access submission and try to send Message to OA Switchboard', function () {
-        cy.findSubmissionAsEditor('dbarnes', null, 'Karbasizaed', 'publicknowledge', 'Archived');
+        cy.findSubmissionAsEditor('dbarnes', null, 'Karbasizaed', 'publicknowledge', 'Published');
 
         cy.openWorkflowMenu('Title & Abstract');
         cy.get('button').contains('Unpublish').click();
