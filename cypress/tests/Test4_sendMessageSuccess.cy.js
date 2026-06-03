@@ -20,7 +20,7 @@ describe('Send P1-PIO message with success', function () {
         cy.openWorkflowMenu('Title & Abstract');
         cy.get('button:contains("Schedule For Publication")').click();
         cy.get('div[id^="publish-"] button:contains("Publish")').click();
-
+        cy.wait(1000);
         cy.contains('The P1 message was successfully sent to the OA Switchboard.');
     });
 });
