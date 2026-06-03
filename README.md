@@ -2,7 +2,7 @@
 
 # Open Access Switchboard Plugin
 
-[![OJS compatibility](https://img.shields.io/badge/ojs-3.4.0.x-brightgreen)](https://github.com/pkp/ojs/tree/stable-3_4_0)
+[![OJS compatibility](https://img.shields.io/badge/ojs-3.5.0.x-brightgreen)](https://github.com/pkp/ojs/tree/stable-3_5_0)
 [![GitHub release](https://img.shields.io/github/v/release/lepidus/OASwitchboard)](https://github.com/lepidus/OASwitchboard/releases)
 [![License type](https://img.shields.io/github/license/lepidus/OASwitchboard)](https://github.com/lepidus/OASwitchboard/blob/main/LICENSE)
 [![Number of downloads](https://img.shields.io/github/downloads/lepidus/OASwitchboard/total)](https://github.com/lepidus/OASwitchboard/releases)
@@ -27,12 +27,13 @@ This plugin enables **[OJS](https://pkp.sfu.ca/software/ojs/)** journals to auto
 
 ## Version support
 
-The `main` branch of this repository is compatible with OJS 3.4.0.x.
+The `main` branch of this repository is compatible with OJS 3.5.0.x.
 
-A version compatible with OJS 3.3.0.x is available in the [`stable-3_3_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_3_0) branch.
+Versions compatible with older OJS releases are available in the [`stable-3_4_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_4_0) and [`stable-3_3_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_3_0) branches.
 
 - Plugin version `v1.x.x.x` is compatible with OJS 3.3.0.x
 - Plugin version `v2.x.x.x` is compatible with OJS 3.4.0.x
+- Plugin version `v3.x.x.x` is compatible with OJS 3.5.0.x
 
 You can find the latest version of the plugin compatible with your OJS version in the [Releases page](https://github.com/lepidus/OASwitchboard/releases).
 
@@ -66,8 +67,8 @@ The Journal must have at least one ISSN configured, either digital or print.
 
 It's recommended that at least one author of the article has a **ROR ID** associated with their affiliation (requires the ROR plugin), in order for the message to be sent to the associated affiliation. The ROR usage instructions for OJS are described in the [ROR plugin's README](https://github.com/withanage/ror?tab=readme-ov-file#user-documentation).
 
-**Funding information**: In order to include funding information in the message, the journal must be using the [Funding plugin](https://github.com/ajnyga/funding/tree/master)
-to provide that information for the article.
+**Funding information**: In order to include funding information in the message, the journal must be using the [Funding plugin](https://github.com/ajnyga/funding/tree/stable-3_5_0)
+to provide that information for the article. On OJS 3.5 the Plugin Gallery may not yet list a compatible release of the Funding plugin; in that case install it manually from the [`stable-3_5_0`](https://github.com/ajnyga/funding/tree/stable-3_5_0) branch. When the Funding plugin is installed and enabled, any funders registered for the article are automatically added to the P1-PIO message; its absence does not block the message.
 
 ## Usage
 
