@@ -1,6 +1,9 @@
 import OASStatusTab from './Components/OASStatusTab.vue';
+import {registerPublishNotifications} from './publishNotifications.js';
 
 pkp.registry.registerComponent('OASStatusTab', OASStatusTab);
+
+registerPublishNotifications();
 
 const OAS_MENU_KEY = 'publication_oaswitchboard';
 
