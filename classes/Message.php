@@ -39,7 +39,8 @@ class Message
                 $this->sendNotification(
                     $userId,
                     __($keyMessage),
-                    Notification::NOTIFICATION_TYPE_SUCCESS
+                    Notification::NOTIFICATION_TYPE_SUCCESS,
+                    $contextId
                 );
                 $this->registerSubmissionEventLog($request, $submission, $keyMessage);
             }
@@ -103,14 +104,20 @@ class Message
         Repo::eventLog()->add($eventLog);
     }
 
-    private function sendNotification($userId, $message, $notificationType)
+    private function sendNotification($userId, $message, $notificationType, $contextId)
     {
-        $notificationManager = new NotificationManager();
-        $notificationManager->createTrivialNotification(
-            $userId,
-            $notificationType,
-            array('contents' => $message)
-        );
+        $notification = Notification::create([
+            'userId' => $userId,
+            'contextId' => $contextId,
+            'type' => $notificationType,
+            'level' => Notification::NOTIFICATION_LEVEL_TRIVIAL,
+            'dateCreated' => Carbon::now(),
+            'assocType' => 0,
+            'assocId' => 0,
+        ]);
+
+        $notificationSettingsDao = DAORegistry::getDAO('NotificationSettingsDAO'); /** @var NotificationSettingsDAO $notificationSettingsDao */
+        $notificationSettingsDao->updateNotificationSetting($notification->id, 'contents', $message);
     }
 
     private function getMandatoryDataErrorMessage($p1PioErrors, $submission, $includePrefix = true): string
