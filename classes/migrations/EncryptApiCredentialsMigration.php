@@ -2,9 +2,9 @@
 
 namespace APP\plugins\generic\OASwitchboard\classes\migrations;
 
+use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
-use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
 
 class EncryptApiCredentialsMigration extends Migration
 {
@@ -50,7 +50,7 @@ class EncryptApiCredentialsMigration extends Migration
             if ($encrypter->textIsEncrypted($settingValue)) {
                 $skippedCount++;
                 error_log(
-                    "OASwitchboard Migration: Password for context_id " .
+                    'OASwitchboard Migration: Password for context_id ' .
                     "{$row['context_id']} is already encrypted - skipping"
                 );
                 continue;
@@ -70,19 +70,19 @@ class EncryptApiCredentialsMigration extends Migration
 
                 $encryptedCount++;
                 error_log(
-                    "OASwitchboard Migration: Encrypted password for " .
+                    'OASwitchboard Migration: Encrypted password for ' .
                     "context_id {$row['context_id']}"
                 );
             } catch (\Exception $e) {
                 error_log(
-                    "OASwitchboard Migration: Failed to encrypt password " .
+                    'OASwitchboard Migration: Failed to encrypt password ' .
                     "for context_id {$row['context_id']}: " . $e->getMessage()
                 );
             }
         }
 
         error_log(
-            "OASwitchboard Migration: Completed - Encrypted: " .
+            'OASwitchboard Migration: Completed - Encrypted: ' .
             "{$encryptedCount}, Skipped: {$skippedCount}"
         );
     }

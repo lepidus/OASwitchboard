@@ -2,9 +2,9 @@
 
 namespace APP\plugins\generic\OASwitchboard\tests;
 
-use PKP\tests\PKPTestCase;
-use APP\plugins\generic\OASwitchboard\tests\helpers\ObjectFactory;
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
+use APP\plugins\generic\OASwitchboard\tests\helpers\ObjectFactory;
+use PKP\tests\PKPTestCase;
 
 class OASwitchboardServiceTest extends PKPTestCase
 {

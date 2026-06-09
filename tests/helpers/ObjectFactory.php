@@ -2,19 +2,19 @@
 
 namespace APP\plugins\generic\OASwitchboard\tests\helpers;
 
-use APP\journal\Journal;
-use PKP\db\DAORegistry;
-use PKP\core\Registry;
-use APP\submission\Submission;
-use APP\publication\Publication;
 use APP\author\Author;
-use PKP\galley\Galley;
-use PKP\submissionFile\SubmissionFile;
+use APP\journal\Journal;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
+use APP\publication\Publication;
+use APP\submission\Submission;
 use PKP\affiliation\Affiliation;
+use PKP\core\Registry;
+use PKP\db\DAORegistry;
 use PKP\decision\Decision;
 use PKP\doi\Doi;
+use PKP\galley\Galley;
 use PKP\site\Site;
+use PKP\submissionFile\SubmissionFile;
 
 class ObjectFactory
 {

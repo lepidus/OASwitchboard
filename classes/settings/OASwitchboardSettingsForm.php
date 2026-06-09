@@ -2,16 +2,16 @@
 
 namespace APP\plugins\generic\OASwitchboard\classes\settings;
 
-use PKP\form\Form;
-use APP\template\TemplateManager;
 use APP\core\Application;
+use APP\notification\NotificationManager;
 use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
 use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
-use APP\notification\NotificationManager;
-use Exception;
-use PKP\notification\Notification;
-use PKP\form\validation\FormValidator;
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
+use APP\template\TemplateManager;
+use Exception;
+use PKP\form\Form;
+use PKP\form\validation\FormValidator;
+use PKP\notification\Notification;
 
 class OASwitchboardSettingsForm extends Form
 {
@@ -49,7 +49,7 @@ class OASwitchboardSettingsForm extends Form
         $notificationManager->createTrivialNotification(
             $user->getId(),
             Notification::NOTIFICATION_TYPE_ERROR,
-            array('contents' => __('plugins.generic.OASwitchboard.settings.apiAuthenticatorFailed'))
+            ['contents' => __('plugins.generic.OASwitchboard.settings.apiAuthenticatorFailed')]
         );
     }
 

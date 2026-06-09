@@ -2,9 +2,9 @@
 
 namespace APP\plugins\generic\OASwitchboard\tests;
 
-use PKP\tests\PKPTestCase;
-use APP\plugins\generic\OASwitchboard\tests\helpers\P1PioExpectedTestData;
 use APP\plugins\generic\OASwitchboard\tests\helpers\ObjectFactory;
+use APP\plugins\generic\OASwitchboard\tests\helpers\P1PioExpectedTestData;
+use PKP\tests\PKPTestCase;
 
 class P1PioTest extends PKPTestCase
 {

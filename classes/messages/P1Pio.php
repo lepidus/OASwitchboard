@@ -2,10 +2,10 @@
 
 namespace APP\plugins\generic\OASwitchboard\classes\messages;
 
-use APP\submission\Submission;
-use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
-use PKP\db\DAORegistry;
 use APP\facades\Repo;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
+use APP\submission\Submission;
+use PKP\db\DAORegistry;
 use PKP\decision\Decision;
 use PKP\plugins\PluginRegistry;
 
@@ -90,7 +90,7 @@ class P1Pio
         $licenseAcronym = $this->getLicenseAcronym($license);
         $doi = $publication->getDoi() ?
             self::DOI_BASE_URL . $publication->getDoi() :
-            "";
+            '';
 
         $articleData = [
             'title' => $articleTitle,
@@ -232,7 +232,7 @@ class P1Pio
 
     private function chooseIssn($journal): string
     {
-        return $journal->getData('onlineIssn') ?: $journal->getData('printIssn') ?: "";
+        return $journal->getData('onlineIssn') ?: $journal->getData('printIssn') ?: '';
     }
 
     public function getContent(): array

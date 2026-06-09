@@ -4,9 +4,9 @@ namespace APP\plugins\generic\OASwitchboard\classes\api;
 
 use APP\core\Application;
 use APP\facades\Repo;
-use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
+use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request as IlluminateRequest;
 use Illuminate\Http\Response;
