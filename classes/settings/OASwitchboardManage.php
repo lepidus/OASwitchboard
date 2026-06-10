@@ -3,11 +3,10 @@
 namespace APP\plugins\generic\OASwitchboard\classes\settings;
 
 use APP\core\Request;
-use APP\plugins\generic\OASwitchboard\OASwitchboardPlugin;
-use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardSettingsForm;
-use PKP\core\JSONMessage;
 use APP\notification\NotificationManager;
-use PKP\notification\PKPNotification;
+use APP\plugins\generic\OASwitchboard\OASwitchboardPlugin;
+use PKP\core\JSONMessage;
+use PKP\notification\Notification;
 
 class OASwitchboardManage
 {
@@ -34,7 +33,7 @@ class OASwitchboardManage
                         $form->execute();
                         $notificationManager->createTrivialNotification(
                             $user->getId(),
-                            PKPNotification::NOTIFICATION_TYPE_SUCCESS
+                            Notification::NOTIFICATION_TYPE_SUCCESS
                         );
                         return new JSONMessage(true);
                     }

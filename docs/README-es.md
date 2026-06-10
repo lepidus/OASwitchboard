@@ -2,7 +2,7 @@
 
 # Módulo Open Access Switchboard
 
-[![OJS compatibility](https://img.shields.io/badge/ojs-3.4.0.x-brightgreen)](https://github.com/pkp/ojs/tree/stable-3_4_0)
+[![OJS compatibility](https://img.shields.io/badge/ojs-3.5.0.x-brightgreen)](https://github.com/pkp/ojs/tree/stable-3_5_0)
 [![GitHub release](https://img.shields.io/github/v/release/lepidus/OASwitchboard)](https://github.com/lepidus/OASwitchboard/releases)
 [![License type](https://img.shields.io/github/license/lepidus/OASwitchboard)](https://github.com/lepidus/OASwitchboard/blob/main/LICENSE)
 [![Number of downloads](https://img.shields.io/github/downloads/lepidus/OASwitchboard/total)](https://github.com/lepidus/OASwitchboard/releases)
@@ -27,12 +27,13 @@ Este módulo permite que las revistas de **[OJS](https://pkp.sfu.ca/software/ojs
 
 ## Soporte de versiones
 
-La rama `main` de este repositorio es compatible con OJS 3.4.0.x.
+La rama `main` de este repositorio es compatible con OJS 3.5.0.x.
 
-Una versión compatible con OJS 3.3.0.x está disponible en la rama [`stable-3_3_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_3_0).
+Versiones compatibles con versiones anteriores de OJS están disponibles en las ramas [`stable-3_4_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_4_0) y [`stable-3_3_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_3_0).
 
 - La versión `v1.x.x.x` del módulo es compatible con OJS 3.3.0.x
 - La versión `v2.x.x.x` del módulo es compatible con OJS 3.4.0.x
+- La versión `v3.x.x.x` del módulo es compatible con OJS 3.5.0.x
 
 Puede encontrar la versión más reciente del módulo compatible con su versión de OJS en la [página de Releases](https://github.com/lepidus/OASwitchboard/releases).
 
@@ -66,7 +67,7 @@ La revista debe tener al menos un ISSN configurado, ya sea digital o impreso.
 
 Se recomienda que al menos un autor del artículo tenga un **ROR ID** asociado a su afiliación (requiere el módulo ROR), para que el mensaje sea enviado a la afiliación asociada. Las instrucciones de uso de ROR para OJS están descritas en el [README del módulo ROR](https://github.com/withanage/ror?tab=readme-ov-file#user-documentation).
 
-**Información de financiación**: Para incluir información de financiación en el mensaje, la revista debe estar utilizando el [módulo Funding](https://github.com/ajnyga/funding/tree/master) para proporcionar esa información sobre el artículo.
+**Información de financiación**: Para incluir información de financiación en el mensaje, la revista debe estar utilizando el [módulo Funding](https://github.com/ajnyga/funding/tree/stable-3_5_0) para proporcionar esa información sobre el artículo. En OJS 3.5, la Galería de módulos puede aún no listar una versión compatible del módulo Funding; en ese caso, instálelo manualmente descargando un paquete compatible desde la [página de releases](https://github.com/ajnyga/funding/releases). Cuando el módulo Funding está instalado y habilitado, los financiadores registrados para el artículo se agregan automáticamente al mensaje P1-PIO; su ausencia no bloquea el envío del mensaje.
 
 ## Uso
 

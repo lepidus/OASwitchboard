@@ -2,10 +2,10 @@
 
 namespace APP\plugins\generic\OASwitchboard\classes\api;
 
-use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\Exception\ClientException;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use Exception;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
 
 class OASwitchboardAPIClient
 {
@@ -34,7 +34,7 @@ class OASwitchboardAPIClient
 
     public function getAuthorization(string $email, string $password): string
     {
-        $options  = [
+        $options = [
             'json' => [
                 'email' => $email,
                 'password' => $password

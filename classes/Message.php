@@ -2,17 +2,17 @@
 
 namespace APP\plugins\generic\OASwitchboard\classes;
 
-use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
-use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
-use APP\notification\NotificationManager;
-use PKP\notification\PKPNotification;
 use APP\core\Application;
-use APP\submission\Submission;
-use PKP\core\Core;
 use APP\facades\Repo;
-use PKP\log\event\PKPSubmissionEventLogEntry;
-use PKP\security\Validation;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
+use APP\submission\Submission;
+use Carbon\Carbon;
+use PKP\core\Core;
+use PKP\db\DAORegistry;
+use PKP\log\event\PKPSubmissionEventLogEntry;
+use PKP\notification\Notification;
+use PKP\security\Validation;
 
 class Message
 {
@@ -39,7 +39,8 @@ class Message
                 $this->sendNotification(
                     $userId,
                     __($keyMessage),
-                    PKPNotification::NOTIFICATION_TYPE_SUCCESS
+                    Notification::NOTIFICATION_TYPE_SUCCESS,
+                    $contextId
                 );
                 $this->registerSubmissionEventLog($request, $submission, $keyMessage);
             }
@@ -89,46 +90,6 @@ class Message
         return false;
     }
 
-    public function addSubmissionStatusToWorkflow($hookName, $params)
-    {
-        $smarty = &$params[1];
-        $output = &$params[2];
-        $request = Application::get()->getRequest();
-
-        $submission = $smarty->getTemplateVars('submission');
-        $contextId = $request->getContext()->getId();
-
-        try {
-            OASwitchboardService::validatePluginIsConfigured($this->plugin, $contextId);
-        } catch (\Exception $e) {
-            $message = '<div class="pkpNotification pkpNotification--information">' . $e->getMessage() . '</div>';
-            $smarty->assign([
-                'pluginIsNotConfiguredInfo' => $message,
-            ]);
-        }
-
-        try {
-            $p1Pio = new P1Pio($submission);
-            $successMessage = $this->getSubmissionAlreadyToSendMessage($submission, false);
-            $smarty->assign([
-                'submissionIsAlreadySendMessage' => $successMessage,
-            ]);
-        } catch (P1PioException $e) {
-            if ($e->getP1PioErrors()) {
-                $errorMessage = $this->getMandatoryDataErrorMessage($e->getP1PioErrors(), $submission, false);
-                $smarty->assign([
-                    'submissionRequirementsIsPending' => $errorMessage,
-                ]);
-            }
-        }
-
-        $output .= sprintf(
-            '<tab id="OASwitchboard" label="%s">%s</tab>',
-            __('plugins.generic.OASwitchboard.workflowTab.label'),
-            $smarty->fetch($this->plugin->getTemplateResource('submissionStatus.tpl'))
-        );
-    }
-
     private function registerSubmissionEventLog($request, $submission, $error)
     {
         $eventLog = Repo::eventLog()->newDataObject([
@@ -143,14 +104,20 @@ class Message
         Repo::eventLog()->add($eventLog);
     }
 
-    private function sendNotification($userId, $message, $notificationType)
+    private function sendNotification($userId, $message, $notificationType, $contextId)
     {
-        $notificationManager = new NotificationManager();
-        $notificationManager->createTrivialNotification(
-            $userId,
-            $notificationType,
-            array('contents' => $message)
-        );
+        $notification = Notification::create([
+            'userId' => $userId,
+            'contextId' => $contextId,
+            'type' => $notificationType,
+            'level' => Notification::NOTIFICATION_LEVEL_TRIVIAL,
+            'dateCreated' => Carbon::now(),
+            'assocType' => 0,
+            'assocId' => 0,
+        ]);
+
+        $notificationSettingsDao = DAORegistry::getDAO('NotificationSettingsDAO'); /** @var NotificationSettingsDAO $notificationSettingsDao */
+        $notificationSettingsDao->updateNotificationSetting($notification->id, 'contents', $message);
     }
 
     private function getMandatoryDataErrorMessage($p1PioErrors, $submission, $includePrefix = true): string

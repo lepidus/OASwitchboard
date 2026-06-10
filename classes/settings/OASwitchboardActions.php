@@ -21,7 +21,7 @@ class OASwitchboardActions
         $router = $request->getRouter();
 
         return array_merge(
-            $this->plugin->getEnabled() ? array(
+            $this->plugin->getEnabled() ? [
                 new LinkAction(
                     'settings',
                     new AjaxModal(
@@ -31,14 +31,14 @@ class OASwitchboardActions
                             null,
                             'manage',
                             null,
-                            array('verb' => 'settings', 'plugin' => $this->plugin->getName(), 'category' => 'generic')
+                            ['verb' => 'settings', 'plugin' => $this->plugin->getName(), 'category' => 'generic']
                         ),
                         $this->plugin->getDisplayName()
                     ),
                     __('manager.plugins.settings'),
                     null
                 ),
-            ) : array(),
+            ] : [],
             $parentActions
         );
     }

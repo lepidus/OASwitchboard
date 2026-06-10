@@ -7,6 +7,7 @@
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * @class OASwitchboardPlugin
+ *
  * @ingroup plugins_generic_OASwitchboard
  *
  * @brief OASwitchboard plugin class
@@ -14,14 +15,15 @@
 
 namespace APP\plugins\generic\OASwitchboard;
 
+use APP\core\Application;
+use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardStatusController;
+use APP\plugins\generic\OASwitchboard\classes\Message;
+use APP\plugins\generic\OASwitchboard\classes\migrations\EncryptApiCredentialsMigration;
+use APP\plugins\generic\OASwitchboard\classes\Resources;
+use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardActions;
+use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardManage;
 use PKP\plugins\GenericPlugin;
 use PKP\plugins\Hook;
-use APP\core\Application;
-use APP\plugins\generic\OASwitchboard\classes\Message;
-use APP\plugins\generic\OASwitchboard\classes\Resources;
-use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardManage;
-use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardActions;
-use APP\plugins\generic\OASwitchboard\classes\migrations\EncryptApiCredentialsMigration;
 
 class OASwitchboardPlugin extends GenericPlugin
 {
@@ -31,10 +33,13 @@ class OASwitchboardPlugin extends GenericPlugin
         if ($success && $this->getEnabled()) {
             $message = new Message($this);
             $resources = new Resources($this);
-            Hook::add('Template::Workflow::Publication', [$message, 'addSubmissionStatusToWorkflow']);
+            $statusController = new OASwitchboardStatusController($this);
+
             Hook::add('Publication::publish', [$message, 'sendToOASwitchboard']);
-            Hook::add('TemplateManager::display', [$resources, 'addWorkflowNotificationsJavaScript']);
             Hook::add('Form::config::before', [$message, 'validateBeforePublicationEvent']);
+
+            $statusController->register();
+            $resources->loadBackendBuild();
         }
         return $success;
     }

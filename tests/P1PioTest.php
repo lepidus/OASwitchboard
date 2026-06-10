@@ -2,10 +2,9 @@
 
 namespace APP\plugins\generic\OASwitchboard\tests;
 
-use PKP\tests\PKPTestCase;
-use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
-use APP\plugins\generic\OASwitchboard\tests\helpers\P1PioExpectedTestData;
 use APP\plugins\generic\OASwitchboard\tests\helpers\ObjectFactory;
+use APP\plugins\generic\OASwitchboard\tests\helpers\P1PioExpectedTestData;
+use PKP\tests\PKPTestCase;
 
 class P1PioTest extends PKPTestCase
 {
@@ -17,14 +16,20 @@ class P1PioTest extends PKPTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $journal = ObjectFactory::createMockedJournal($this, $onlineIssn = "0000-0001", $printIssn = "0000-0002");
+        $this->mockRequest();
+        $journal = ObjectFactory::createMockedJournal($onlineIssn = '0000-0001', $printIssn = '0000-0002');
         $this->submission = ObjectFactory::createTestSubmission($journal);
-        $this->P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
+        $this->P1Pio = ObjectFactory::createP1PioMock($this->submission);
     }
 
     protected function getMockedDAOs(): array
     {
         return [...parent::getMockedDAOs(), 'JournalDAO'];
+    }
+
+    protected function getMockedRegistryKeys(): array
+    {
+        return [...parent::getMockedRegistryKeys(), 'site'];
     }
 
     public function testGetAuthorGivenName()
@@ -131,21 +136,21 @@ class P1PioTest extends PKPTestCase
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage(
-            "##plugins.generic.OASwitchboard.postRequirementsError##"
+            '##plugins.generic.OASwitchboard.postRequirementsError##'
         );
-        $P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
+        $P1Pio = ObjectFactory::createP1PioMock($this->submission);
     }
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfAuthorDoesNotHaveAffiliation()
     {
         $firstAuthor = $this->submission->getCurrentPublication()->getData('authors')[0];
-        $firstAuthor->setData('affiliation', null);
+        $firstAuthor->setAffiliations([]);
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage(
-            "##plugins.generic.OASwitchboard.postRequirementsError##"
+            '##plugins.generic.OASwitchboard.postRequirementsError##'
         );
-        $P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
+        $P1Pio = ObjectFactory::createP1PioMock($this->submission);
     }
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfArticleDoesNotHaveDOIAssociated()
@@ -155,20 +160,20 @@ class P1PioTest extends PKPTestCase
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage(
-            "##plugins.generic.OASwitchboard.postRequirementsError##"
+            '##plugins.generic.OASwitchboard.postRequirementsError##'
         );
-        $P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
+        $P1Pio = ObjectFactory::createP1PioMock($this->submission);
     }
 
     public function testValidateHasMinimumSubmissionDataShouldReturnMessagesIfArticleDoesNotHaveISSNAssociated()
     {
-        $journal = ObjectFactory::createMockedJournal($this);
+        $journal = ObjectFactory::createMockedJournal();
         $submission = ObjectFactory::createTestSubmission($journal);
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage(
-            "##plugins.generic.OASwitchboard.postRequirementsError##"
+            '##plugins.generic.OASwitchboard.postRequirementsError##'
         );
-        $P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
+        $P1Pio = ObjectFactory::createP1PioMock($this->submission);
     }
 }

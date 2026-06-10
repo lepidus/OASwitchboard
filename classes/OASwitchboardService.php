@@ -13,12 +13,11 @@
 
 namespace APP\plugins\generic\OASwitchboard\classes;
 
-use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
+use APP\core\Application;
 use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
 use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
+use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use Exception;
-use APP\core\Application;
-use APP\facades\Repo;
 use PKP\db\DAORegistry;
 
 class OASwitchboardService
@@ -73,7 +72,7 @@ class OASwitchboardService
         $password = $plugin->getSetting($contextId, 'password');
         $useSandboxApi = $plugin->getSetting($contextId, 'isSandBoxAPI');
         if (is_null($username) || is_null($password) || is_null($useSandboxApi)) {
-            throw new Exception(__("plugins.generic.OASwitchboard.pluginIsNotConfigured"));
+            throw new Exception(__('plugins.generic.OASwitchboard.pluginIsNotConfigured'));
         }
     }
 
@@ -81,8 +80,10 @@ class OASwitchboardService
     {
         $authors = $submission->getCurrentPublication()->getData('authors');
         foreach ($authors as $author) {
-            if ($author->getData('rorId')) {
-                return true;
+            foreach ($author->getAffiliations() as $affiliation) {
+                if (!empty($affiliation->getRor())) {
+                    return true;
+                }
             }
         }
         return false;
