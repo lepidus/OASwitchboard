@@ -67,7 +67,7 @@ A Revista deve ter pelo menos um ISSN configurado, seja digital ou impresso.
 
 Recomenda-se que pelo menos um autor do artigo tenha um **ROR ID** associado à sua afiliação (requer o plugin ROR), para que a mensagem seja enviada à afiliação associada. As instruções de uso do ROR para o OJS estão descritas no [README do plugin ROR](https://github.com/withanage/ror?tab=readme-ov-file#user-documentation).
 
-**Informações de financiamento**: Para incluir informações de financiamento na mensagem, a revista deve estar utilizando o [plugin Funding](https://github.com/ajnyga/funding/tree/stable-3_5_0) para fornecer essa informação sobre o artigo. No OJS 3.5, a Galeria de Plugins pode ainda não listar uma versão compatível do plugin Funding; nesse caso, instale-o manualmente a partir da branch [`stable-3_5_0`](https://github.com/ajnyga/funding/tree/stable-3_5_0). Quando o plugin Funding está instalado e habilitado, os financiadores cadastrados para o artigo são automaticamente adicionados à mensagem P1-PIO; sua ausência não bloqueia o envio da mensagem.
+**Informações de financiamento**: Para incluir informações de financiamento na mensagem, a revista deve estar utilizando o [plugin Funding](https://github.com/ajnyga/funding/tree/stable-3_5_0) para fornecer essa informação sobre o artigo. No OJS 3.5, a Galeria de Plugins pode ainda não listar uma versão compatível do plugin Funding; nesse caso, instale-o manualmente baixando um pacote compatível na [página de releases](https://github.com/ajnyga/funding/releases). Quando o plugin Funding está instalado e habilitado, os financiadores cadastrados para o artigo são automaticamente adicionados à mensagem P1-PIO; sua ausência não bloqueia o envio da mensagem.
 
 ## Uso
 

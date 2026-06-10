@@ -67,8 +67,9 @@ The Journal must have at least one ISSN configured, either digital or print.
 
 It's recommended that at least one author of the article has a **ROR ID** associated with their affiliation (requires the ROR plugin), in order for the message to be sent to the associated affiliation. The ROR usage instructions for OJS are described in the [ROR plugin's README](https://github.com/withanage/ror?tab=readme-ov-file#user-documentation).
 
-**Funding information**: In order to include funding information in the message, the journal must be using the [Funding plugin](https://github.com/ajnyga/funding/tree/stable-3_5_0)
-to provide that information for the article. On OJS 3.5 the Plugin Gallery may not yet list a compatible release of the Funding plugin; in that case install it manually from the [`stable-3_5_0`](https://github.com/ajnyga/funding/tree/stable-3_5_0) branch. When the Funding plugin is installed and enabled, any funders registered for the article are automatically added to the P1-PIO message; its absence does not block the message.
+* **Funding information**: In order to include funding information in the message, the journal must be using the [Funding plugin](https://github.com/ajnyga/funding/tree/stable-3_5_0) to provide that information for the article.
+OJS 3.5 Plugin Gallery may not yet list a compatible Funding release; in that case install it using a compatible package from the [releases page](https://github.com/ajnyga/funding/releases).
+When the Funding plugin is installed and enabled, any funders registered for the article are automatically added to the P1-PIO message; its absence does not block the message.
 
 ## Usage
 
@@ -137,5 +138,5 @@ Developed by [Lepidus Tecnologia](https://github.com/lepidus).
 
 This plugin is licensed under the [GNU General Public License v3.0](/LICENSE).
 
-Copyright (c) 2024 Lepidus Tecnologia.  
+Copyright (c) 2024 Lepidus Tecnologia.
 Copyright (c) 2024 Stichting OA Switchboard
