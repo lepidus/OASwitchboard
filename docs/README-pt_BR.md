@@ -27,7 +27,7 @@ Este plugin permite que revistas do **[OJS](https://pkp.sfu.ca/software/ojs/)** 
 
 ## Suporte de versões
 
-A branch `main` deste repositório é compatível com o OJS 3.5.0.x.
+Este ramo do repositório é compatível com o OJS 3.5.0.x.
 
 Versões compatíveis com versões anteriores do OJS estão disponíveis nas branches [`stable-3_4_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_4_0) e [`stable-3_3_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_3_0).
 
@@ -65,7 +65,7 @@ A Revista deve ter pelo menos um ISSN configurado, seja digital ou impresso.
 * A publicação deve ter um **DOI associado** a ela.
 * Os autores precisam ter **sobrenome** (family name) além do nome.
 
-Recomenda-se que pelo menos um autor do artigo tenha um **ROR ID** associado à sua afiliação (requer o plugin ROR), para que a mensagem seja enviada à afiliação associada. As instruções de uso do ROR para o OJS estão descritas no [README do plugin ROR](https://github.com/withanage/ror?tab=readme-ov-file#user-documentation).
+Recomenda-se que pelo menos um autor do artigo tenha um **ROR ID** associado à sua afiliação, para que a mensagem seja enviada à afiliação associada.
 
 **Informações de financiamento**: Para incluir informações de financiamento na mensagem, a revista deve estar utilizando o [plugin Funding](https://github.com/ajnyga/funding/tree/stable-3_5_0) para fornecer essa informação sobre o artigo. No OJS 3.5, a Galeria de Plugins pode ainda não listar uma versão compatível do plugin Funding; nesse caso, instale-o manualmente baixando um pacote compatível na [página de releases](https://github.com/ajnyga/funding/releases). Quando o plugin Funding está instalado e habilitado, os financiadores cadastrados para o artigo são automaticamente adicionados à mensagem P1-PIO; sua ausência não bloqueia o envio da mensagem.
 

@@ -27,7 +27,7 @@ Este módulo permite que las revistas de **[OJS](https://pkp.sfu.ca/software/ojs
 
 ## Soporte de versiones
 
-La rama `main` de este repositorio es compatible con OJS 3.5.0.x.
+Esta rama del repositorio es compatible con OJS 3.5.0.x.
 
 Versiones compatibles con versiones anteriores de OJS están disponibles en las ramas [`stable-3_4_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_4_0) y [`stable-3_3_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_3_0).
 
@@ -65,7 +65,7 @@ La revista debe tener al menos un ISSN configurado, ya sea digital o impreso.
 * La publicación debe tener un **DOI asociado**.
 * Los autores deben tener un **apellido** (family name) además del nombre.
 
-Se recomienda que al menos un autor del artículo tenga un **ROR ID** asociado a su afiliación (requiere el módulo ROR), para que el mensaje sea enviado a la afiliación asociada. Las instrucciones de uso de ROR para OJS están descritas en el [README del módulo ROR](https://github.com/withanage/ror?tab=readme-ov-file#user-documentation).
+Se recomienda que al menos un autor del artículo tenga un **ROR ID** asociado a su afiliación, para que el mensaje sea enviado a la afiliación asociada.
 
 **Información de financiación**: Para incluir información de financiación en el mensaje, la revista debe estar utilizando el [módulo Funding](https://github.com/ajnyga/funding/tree/stable-3_5_0) para proporcionar esa información sobre el artículo. En OJS 3.5, la Galería de módulos puede aún no listar una versión compatible del módulo Funding; en ese caso, instálelo manualmente descargando un paquete compatible desde la [página de releases](https://github.com/ajnyga/funding/releases). Cuando el módulo Funding está instalado y habilitado, los financiadores registrados para el artículo se agregan automáticamente al mensaje P1-PIO; su ausencia no bloquea el envío del mensaje.
 

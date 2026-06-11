@@ -27,7 +27,7 @@ This plugin enables **[OJS](https://pkp.sfu.ca/software/ojs/)** journals to auto
 
 ## Version support
 
-The `main` branch of this repository is compatible with OJS 3.5.0.x.
+This branch of the repository is compatible with OJS 3.5.0.x.
 
 Versions compatible with older OJS releases are available in the [`stable-3_4_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_4_0) and [`stable-3_3_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_3_0) branches.
 
@@ -65,7 +65,7 @@ The Journal must have at least one ISSN configured, either digital or print.
 * The publication must have a **DOI associated** to it.
 * The authors need to have **family name** besides the given name.
 
-It's recommended that at least one author of the article has a **ROR ID** associated with their affiliation (requires the ROR plugin), in order for the message to be sent to the associated affiliation. The ROR usage instructions for OJS are described in the [ROR plugin's README](https://github.com/withanage/ror?tab=readme-ov-file#user-documentation).
+It's recommended that at least one author of the article has a **ROR ID** associated with their affiliation, in order for the message to be sent to the associated affiliation.
 
 * **Funding information**: In order to include funding information in the message, the journal must be using the [Funding plugin](https://github.com/ajnyga/funding/tree/stable-3_5_0) to provide that information for the article.
 OJS 3.5 Plugin Gallery may not yet list a compatible Funding release; in that case install it using a compatible package from the [releases page](https://github.com/ajnyga/funding/releases).
