@@ -27,12 +27,13 @@ Este módulo permite que las revistas de **[OJS](https://pkp.sfu.ca/software/ojs
 
 ## Soporte de versiones
 
-La rama `main` de este repositorio es compatible con OJS 3.4.0.x.
+Esta rama del repositorio es compatible con OJS 3.4.0.x.
 
-Una versión compatible con OJS 3.3.0.x está disponible en la rama [`stable-3_3_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_3_0).
+Versiones compatibles con otras versiones estables de OJS están disponibles en otras ramas.
 
 - La versión `v1.x.x.x` del módulo es compatible con OJS 3.3.0.x
 - La versión `v2.x.x.x` del módulo es compatible con OJS 3.4.0.x
+- La versión `v3.x.x.x` del módulo es compatible con OJS 3.5.0.x
 
 Puede encontrar la versión más reciente del módulo compatible con su versión de OJS en la [página de Releases](https://github.com/lepidus/OASwitchboard/releases).
 
