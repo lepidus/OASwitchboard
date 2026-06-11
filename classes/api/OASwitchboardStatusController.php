@@ -33,7 +33,7 @@ class OASwitchboardStatusController
         $apiHandler->addRoute(
             'GET',
             '{submissionId}/oaSwitchboardStatus',
-            fn (IlluminateRequest $request, int $submissionId) => $this->getStatus($submissionId),
+            fn (IlluminateRequest $request) => $this->getStatus((int) $request->route('submissionId')),
             'oaSwitchboard.status',
             [
                 Role::ROLE_ID_SITE_ADMIN,
