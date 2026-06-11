@@ -1,8 +1,12 @@
 [
   "common.loading",
   "plugins.generic.OASwitchboard.pluginIsNotConfigured",
+  "plugins.generic.OASwitchboard.postRequirementsError.affiliation",
   "plugins.generic.OASwitchboard.postRequirementsError.conclusionText",
+  "plugins.generic.OASwitchboard.postRequirementsError.doi",
+  "plugins.generic.OASwitchboard.postRequirementsError.familyName",
   "plugins.generic.OASwitchboard.postRequirementsError.introductionText",
+  "plugins.generic.OASwitchboard.postRequirementsError.issn",
   "plugins.generic.OASwitchboard.postRequirementsSuccess",
   "plugins.generic.OASwitchboard.rorRecommendation",
   "plugins.generic.OASwitchboard.workflowTab.label",

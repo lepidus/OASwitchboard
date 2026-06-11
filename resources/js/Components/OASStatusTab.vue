@@ -52,7 +52,14 @@ const {useFetch} = pkp.modules.useFetch;
 const {useUrl} = pkp.modules.useUrl;
 const {useLocalize} = pkp.modules.useLocalize;
 
-const {t} = useLocalize();
+const {t, tk} = useLocalize();
+
+// Keys arrive dynamically from the status API (missingFields); tk() makes
+// them visible to the i18nExtractKeys build step without translating here.
+tk('plugins.generic.OASwitchboard.postRequirementsError.affiliation');
+tk('plugins.generic.OASwitchboard.postRequirementsError.doi');
+tk('plugins.generic.OASwitchboard.postRequirementsError.familyName');
+tk('plugins.generic.OASwitchboard.postRequirementsError.issn');
 
 const props = defineProps({
     submission: {type: Object, required: true},
