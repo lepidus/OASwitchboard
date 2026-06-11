@@ -26,10 +26,11 @@ This plugin enables **[OJS](https://pkp.sfu.ca/software/ojs/)** journals to auto
 
 This branch is compatible with OJS 3.3.0.x.
 
-A version compatible with OJS 3.4.0.x is available in the [`main`](https://github.com/lepidus/OASwitchboard/tree/main) branch.
+Versions compatible with other OJS stable releases are available in other branches.
 
 - Plugin version `v1.x.x.x` is compatible with OJS 3.3.0.x
 - Plugin version `v2.x.x.x` is compatible with OJS 3.4.0.x
+- Plugin version `v3.x.x.x` is compatible with OJS 3.5.0.x
 
 You can find the latest version of the plugin compatible with your OJS version in the [Releases page](https://github.com/lepidus/OASwitchboard/releases).
 
