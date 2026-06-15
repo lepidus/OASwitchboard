@@ -102,6 +102,21 @@ class SendP1PioMessageJobTest extends PKPTestCase
         $this->assertNull($this->editedParams[SendStatus::SETTING_ERROR]);
     }
 
+    public function testShouldSkipSendingWhenSubmissionWasAlreadySent()
+    {
+        $this->submission->setData(SendStatus::SETTING_STATUS, SendStatus::STATUS_SENT);
+
+        $service = $this->createMock(OASwitchboardService::class);
+        $service->expects($this->never())
+            ->method('sendP1PioMessage');
+
+        $job = $this->createJobWithService($service);
+        $job->handle();
+
+        $this->assertNull($this->editedParams);
+        $this->assertNull($this->registeredEventLogEntry);
+    }
+
     public function testShouldRegisterSubmissionEventLogOnSuccess()
     {
         $service = $this->createMock(OASwitchboardService::class);

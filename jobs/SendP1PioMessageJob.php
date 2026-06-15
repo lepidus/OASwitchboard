@@ -42,6 +42,10 @@ class SendP1PioMessageJob extends BaseJob
             return;
         }
 
+        if ($this->wasAlreadySent($submission)) {
+            return;
+        }
+
         $service = $this->createOASwitchboardService($submission);
         $service->sendP1PioMessage();
         SendStatus::recordSent($submission);
@@ -58,6 +62,19 @@ class SendP1PioMessageJob extends BaseJob
         $this->ensurePluginIsLoaded();
         SendStatus::recordFailure($submission, $exception ? $exception->getMessage() : '');
         $this->registerSubmissionEventLog($submission, 'plugins.generic.OASwitchboard.sendMessageWithError');
+    }
+
+    /**
+     * Guards against duplicate deliveries: requeuing failed jobs (e.g. the admin
+     * "Requeue All Failed Jobs" action) re-runs handle() for every piled-up job,
+     * which would re-send the P1 message to the OA Switchboard for the same
+     * submission. A fresh publish resets the status to pending before dispatch,
+     * so this only short-circuits already-delivered sends.
+     */
+    private function wasAlreadySent($submission): bool
+    {
+        $sendStatus = SendStatus::readFromSubmission($submission);
+        return ($sendStatus['status'] ?? null) === SendStatus::STATUS_SENT;
     }
 
     private function registerSubmissionEventLog($submission, string $message): void
