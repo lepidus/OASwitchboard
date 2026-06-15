@@ -20,6 +20,7 @@ use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardStatusController;
 use APP\plugins\generic\OASwitchboard\classes\Message;
 use APP\plugins\generic\OASwitchboard\classes\migrations\EncryptApiCredentialsMigration;
 use APP\plugins\generic\OASwitchboard\classes\Resources;
+use APP\plugins\generic\OASwitchboard\classes\SendStatus;
 use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardActions;
 use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardManage;
 use PKP\plugins\GenericPlugin;
@@ -37,6 +38,7 @@ class OASwitchboardPlugin extends GenericPlugin
 
             Hook::add('Publication::publish', [$message, 'sendToOASwitchboard']);
             Hook::add('Form::config::before', [$message, 'validateBeforePublicationEvent']);
+            Hook::add('Schema::get::submission', [SendStatus::class, 'addToSubmissionSchema']);
 
             $statusController->register();
             $resources->loadBackendBuild();
