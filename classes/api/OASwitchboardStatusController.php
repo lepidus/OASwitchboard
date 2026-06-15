@@ -5,8 +5,10 @@ namespace APP\plugins\generic\OASwitchboard\classes\api;
 use APP\core\Application;
 use APP\facades\Repo;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
+use APP\plugins\generic\OASwitchboard\classes\Message;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
+use APP\plugins\generic\OASwitchboard\classes\SendStatus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request as IlluminateRequest;
 use Illuminate\Http\Response;
@@ -44,7 +46,39 @@ class OASwitchboardStatusController
             ],
         );
 
+        $apiHandler->addRoute(
+            'POST',
+            '{submissionId}/oaSwitchboardResend',
+            fn (IlluminateRequest $request) => $this->resend((int) $request->route('submissionId')),
+            'oaSwitchboard.resend',
+            [
+                Role::ROLE_ID_SITE_ADMIN,
+                Role::ROLE_ID_MANAGER,
+                Role::ROLE_ID_SUB_EDITOR,
+            ],
+        );
+
         return false;
+    }
+
+    private function resend(int $submissionId): JsonResponse
+    {
+        $submission = Repo::submission()->get($submissionId);
+        if (!$submission) {
+            return response()->json(['error' => 'submission not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        try {
+            $message = new Message($this->plugin);
+            $message->scheduleSendToOASwitchboard($submission);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+
+        return response()->json(
+            ['sendStatus' => SendStatus::readFromSubmission($submission)],
+            Response::HTTP_OK
+        );
     }
 
     private function getStatus(int $submissionId): JsonResponse
@@ -67,6 +101,7 @@ class OASwitchboardStatusController
             'readyToSend' => false,
             'missingFields' => [],
             'hasRor' => OASwitchboardService::isRorAssociated($submission),
+            'sendStatus' => SendStatus::readFromSubmission($submission),
         ];
 
         if (!$pluginConfigured) {
