@@ -15,6 +15,28 @@
             </pkp-notification>
 
             <template v-else>
+                <template v-if="sendStatus">
+                    <pkp-notification :type="sendStatusNotificationType">
+                        <p>{{ t(sendStatusMessageKey) }}</p>
+                        <p v-if="sendStatus.error">{{ sendStatus.error }}</p>
+                        <p v-if="sendStatus.updatedAt">
+                            {{
+                                t('plugins.generic.OASwitchboard.sendStatus.lastUpdate', {
+                                    date: sendStatus.updatedAt,
+                                })
+                            }}
+                        </p>
+                    </pkp-notification>
+                    <pkp-button
+                        v-if="sendStatus.status === 'failed'"
+                        class="oas-status__retry"
+                        :is-disabled="isResending"
+                        @click="resendMessage"
+                    >
+                        {{ t('plugins.generic.OASwitchboard.sendStatus.retry') }}
+                    </pkp-button>
+                </template>
+
                 <pkp-notification
                     v-if="status.readyToSend"
                     :type="status.hasRor ? 'success' : 'information'"
@@ -46,7 +68,7 @@
 </template>
 
 <script setup>
-import {computed, watch} from 'vue';
+import {computed, onUnmounted, watch} from 'vue';
 
 const {useFetch} = pkp.modules.useFetch;
 const {useUrl} = pkp.modules.useUrl;
@@ -61,6 +83,13 @@ tk('plugins.generic.OASwitchboard.postRequirementsError.doi');
 tk('plugins.generic.OASwitchboard.postRequirementsError.familyName');
 tk('plugins.generic.OASwitchboard.postRequirementsError.issn');
 
+// Keys resolved dynamically from the send status returned by the API.
+tk('plugins.generic.OASwitchboard.sendStatus.pending');
+tk('plugins.generic.OASwitchboard.sendMessageWithSuccess');
+tk('plugins.generic.OASwitchboard.sendMessageWithError');
+
+const SEND_STATUS_POLL_INTERVAL = 5000;
+
 const props = defineProps({
     submission: {type: Object, required: true},
 });
@@ -72,6 +101,39 @@ const {apiUrl} = useUrl(
 );
 
 const {data: status, fetch: fetchStatus, isLoading} = useFetch(apiUrl);
+
+const {apiUrl: resendApiUrl} = useUrl(
+    computed(() => `_submissions/${submissionId.value}/oaSwitchboardResend`),
+);
+
+const {fetch: postResend, isLoading: isResending} = useFetch(resendApiUrl, {
+    method: 'POST',
+});
+
+const sendStatus = computed(() => status.value?.sendStatus);
+
+const sendStatusMessageKey = computed(
+    () =>
+        ({
+            pending: 'plugins.generic.OASwitchboard.sendStatus.pending',
+            sent: 'plugins.generic.OASwitchboard.sendMessageWithSuccess',
+            failed: 'plugins.generic.OASwitchboard.sendMessageWithError',
+        })[sendStatus.value?.status] ?? '',
+);
+
+const sendStatusNotificationType = computed(
+    () =>
+        ({
+            pending: 'information',
+            sent: 'success',
+            failed: 'warning',
+        })[sendStatus.value?.status] ?? 'information',
+);
+
+async function resendMessage() {
+    await postResend();
+    await fetchStatus();
+}
 
 function capitalize(value) {
     if (!value) return '';
@@ -87,6 +149,31 @@ watch(
     },
     {immediate: true},
 );
+
+let sendStatusPollTimer = null;
+
+function stopSendStatusPolling() {
+    if (sendStatusPollTimer) {
+        clearInterval(sendStatusPollTimer);
+        sendStatusPollTimer = null;
+    }
+}
+
+watch(
+    () => sendStatus.value?.status,
+    (currentStatus) => {
+        if (currentStatus === 'pending') {
+            sendStatusPollTimer ??= setInterval(
+                fetchStatus,
+                SEND_STATUS_POLL_INTERVAL,
+            );
+        } else {
+            stopSendStatusPolling();
+        }
+    },
+);
+
+onUnmounted(stopSendStatusPolling);
 </script>
 
 <style scoped>
@@ -102,5 +189,8 @@ watch(
 }
 .oas-status__loading {
     color: var(--text-color-heading);
+}
+.oas-status__retry {
+    margin-bottom: var(--spacing-4);
 }
 </style>

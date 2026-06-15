@@ -43,6 +43,9 @@ msgstr "The OA Switchboard plugin is not configured."
 msgid "plugins.generic.OASwitchboard.sendMessageWithSuccess"
 msgstr "The P1 message was successfully sent to the OA Switchboard."
 
+msgid "plugins.generic.OASwitchboard.sendMessageWithError"
+msgstr "The P1 message could not be sent to the OA Switchboard."
+
 msgid "plugins.generic.OASwitchboard.postRequirements"
 msgstr "Error while attempting to send message via OA Switchboard API. More information can be found in the server logs."
 
@@ -81,3 +84,15 @@ msgstr "OA Switchboard"
 
 msgid "plugins.generic.OASwitchboard.workflowTab.title"
 msgstr "Status of message sent to OA Switchboard"
+
+msgid "plugins.generic.OASwitchboard.sendScheduled"
+msgstr "The P1 message was scheduled to be sent to the OA Switchboard."
+
+msgid "plugins.generic.OASwitchboard.sendStatus.pending"
+msgstr "The P1 message is queued to be sent to the OA Switchboard."
+
+msgid "plugins.generic.OASwitchboard.sendStatus.lastUpdate"
+msgstr "Last update: {$date}"
+
+msgid "plugins.generic.OASwitchboard.sendStatus.retry"
+msgstr "Try again"

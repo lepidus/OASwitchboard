@@ -9,6 +9,12 @@
   "plugins.generic.OASwitchboard.postRequirementsError.issn",
   "plugins.generic.OASwitchboard.postRequirementsSuccess",
   "plugins.generic.OASwitchboard.rorRecommendation",
+  "plugins.generic.OASwitchboard.sendMessageWithError",
+  "plugins.generic.OASwitchboard.sendMessageWithSuccess",
+  "plugins.generic.OASwitchboard.sendScheduled",
+  "plugins.generic.OASwitchboard.sendStatus.lastUpdate",
+  "plugins.generic.OASwitchboard.sendStatus.pending",
+  "plugins.generic.OASwitchboard.sendStatus.retry",
   "plugins.generic.OASwitchboard.workflowTab.label",
   "plugins.generic.OASwitchboard.workflowTab.title"
 ]
