@@ -19,10 +19,11 @@ class Resources
         $request = Application::get()->getRequest();
         $templateMgr = TemplateManager::getManager($request);
         $buildUrl = $request->getBaseUrl() . '/' . $this->plugin->getPluginPath() . '/public/build';
+        $version = $this->plugin->getCurrentVersion()?->getVersionString() ?? '';
 
         $templateMgr->addJavaScript(
             'OASwitchboardPlugin',
-            $buildUrl . '/build.iife.js',
+            $buildUrl . '/build.iife.js?v=' . $version,
             [
                 'inline' => false,
                 'contexts' => ['backend'],
@@ -32,7 +33,7 @@ class Resources
 
         $templateMgr->addStyleSheet(
             'OASwitchboardPlugin',
-            $buildUrl . '/build.css',
+            $buildUrl . '/build.css?v=' . $version,
             ['contexts' => ['backend']]
         );
     }
