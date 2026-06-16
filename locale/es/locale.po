@@ -96,3 +96,6 @@ msgstr "Última actualización: {$date}"
 
 msgid "plugins.generic.OASwitchboard.sendStatus.retry"
 msgstr "Intentar de nuevo"
+
+msgid "plugins.generic.OASwitchboard.resend.notPublished"
+msgstr "El mensaje P1 solo puede enviarse para un envío publicado."

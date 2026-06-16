@@ -9,6 +9,7 @@ use APP\plugins\generic\OASwitchboard\classes\Message;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 use APP\plugins\generic\OASwitchboard\classes\SendStatus;
+use APP\submission\Submission;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request as IlluminateRequest;
 use Illuminate\Http\Response;
@@ -61,11 +62,40 @@ class OASwitchboardStatusController
         return false;
     }
 
+    /**
+     * Loads the submission scoped to the request context. Returning null for a
+     * submission that belongs to another context prevents cross-context access
+     * (the role middleware only checks the user's roles in the current context,
+     * not that the submission itself belongs to it).
+     */
+    protected function getSubmissionInContext(int $submissionId, int $contextId): ?Submission
+    {
+        return Repo::submission()->get($submissionId, $contextId);
+    }
+
+    protected function getRequestContextId(): int
+    {
+        return Application::get()->getRequest()->getContext()->getId();
+    }
+
+    protected function isPublished(Submission $submission): bool
+    {
+        return $submission->getData('status') === Submission::STATUS_PUBLISHED;
+    }
+
     private function resend(int $submissionId): JsonResponse
     {
-        $submission = Repo::submission()->get($submissionId);
+        $contextId = $this->getRequestContextId();
+        $submission = $this->getSubmissionInContext($submissionId, $contextId);
         if (!$submission) {
             return response()->json(['error' => 'submission not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        if (!$this->isPublished($submission)) {
+            return response()->json(
+                ['error' => __('plugins.generic.OASwitchboard.resend.notPublished')],
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         try {
@@ -83,12 +113,12 @@ class OASwitchboardStatusController
 
     private function getStatus(int $submissionId): JsonResponse
     {
-        $submission = Repo::submission()->get($submissionId);
+        $contextId = $this->getRequestContextId();
+        $submission = $this->getSubmissionInContext($submissionId, $contextId);
         if (!$submission) {
             return response()->json(['error' => 'submission not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $contextId = Application::get()->getRequest()->getContext()->getId();
         $pluginConfigured = true;
         try {
             OASwitchboardService::validatePluginIsConfigured($this->plugin, $contextId);
