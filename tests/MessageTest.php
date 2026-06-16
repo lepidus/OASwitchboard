@@ -10,6 +10,7 @@ use APP\publication\Publication;
 use APP\submission\Repository as SubmissionRepository;
 use APP\submission\Submission;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
 use PKP\tests\PKPTestCase;
 
 class MessageTest extends PKPTestCase
@@ -23,6 +24,10 @@ class MessageTest extends PKPTestCase
     {
         parent::setUp();
         Bus::fake();
+        // The job is ShouldBeUnique: dispatching acquires a cache lock that is
+        // only released once the job processes. Under Bus::fake() it never does,
+        // so the lock would leak into the next test and block its dispatch.
+        Cache::clear();
         $this->editedParams = null;
         $this->registerSubmissionRepositoryMock();
     }

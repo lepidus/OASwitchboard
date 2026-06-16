@@ -7,6 +7,8 @@ use APP\plugins\generic\OASwitchboard\classes\SendStatus;
 use APP\plugins\generic\OASwitchboard\jobs\SendP1PioMessageJob;
 use APP\submission\Repository as SubmissionRepository;
 use APP\submission\Submission;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use PKP\log\event\EventLogEntry;
 use PKP\log\event\Repository as EventLogRepository;
 use PKP\tests\PKPTestCase;
@@ -100,6 +102,28 @@ class SendP1PioMessageJobTest extends PKPTestCase
         $this->assertSame(SendStatus::STATUS_SENT, $this->editedParams[SendStatus::SETTING_STATUS]);
         $this->assertNotEmpty($this->editedParams[SendStatus::SETTING_UPDATED_AT]);
         $this->assertNull($this->editedParams[SendStatus::SETTING_ERROR]);
+    }
+
+    public function testShouldBeUniquePerSubmissionToAvoidDuplicateDispatch()
+    {
+        $job = new SendP1PioMessageJob(self::SUBMISSION_ID, self::CONTEXT_ID);
+
+        $this->assertInstanceOf(ShouldBeUnique::class, $job);
+        $this->assertSame((string) self::SUBMISSION_ID, $job->uniqueId());
+    }
+
+    public function testShouldSerializeConcurrentSendsForTheSameSubmission()
+    {
+        $job = new SendP1PioMessageJob(self::SUBMISSION_ID, self::CONTEXT_ID);
+
+        $middleware = $job->middleware();
+
+        $this->assertCount(1, $middleware);
+        $overlapping = $middleware[0];
+        $this->assertInstanceOf(WithoutOverlapping::class, $overlapping);
+        $this->assertSame((string) self::SUBMISSION_ID, $overlapping->key);
+        $this->assertNull($overlapping->releaseAfter);
+        $this->assertSame(90, $overlapping->expiresAfter);
     }
 
     public function testShouldSkipSendingWhenSubmissionWasAlreadySent()

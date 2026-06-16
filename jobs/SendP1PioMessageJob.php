@@ -17,13 +17,22 @@ use APP\core\Application;
 use APP\facades\Repo;
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 use APP\plugins\generic\OASwitchboard\classes\SendStatus;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use PKP\core\Core;
 use PKP\jobs\BaseJob;
 use PKP\log\event\PKPSubmissionEventLogEntry;
 use PKP\plugins\PluginRegistry;
 
-class SendP1PioMessageJob extends BaseJob
+class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
 {
+    /**
+     * Seconds before the overlap lock auto-expires, releasing it if a worker
+     * dies mid-send. Kept above the job timeout (60s) so it never expires while
+     * a send is legitimately in progress.
+     */
+    private const LOCK_EXPIRES_AFTER_SECONDS = 90;
+
     protected int $submissionId;
     protected int $contextId;
 
@@ -32,6 +41,35 @@ class SendP1PioMessageJob extends BaseJob
         parent::__construct();
         $this->submissionId = $submissionId;
         $this->contextId = $contextId;
+    }
+
+    /**
+     * Prevents a duplicate dispatch (e.g. publishing twice in quick succession)
+     * from enqueuing two sends for the same submission. Acquired at dispatch
+     * time only, so it does not cover jobs re-inserted by "Requeue All Failed
+     * Jobs" (which bypass dispatch) -- that case is handled by middleware() and
+     * the already-sent guard in handle().
+     */
+    public function uniqueId(): string
+    {
+        return (string) $this->submissionId;
+    }
+
+    /**
+     * Serializes concurrent runs for the same submission. The non-transactional
+     * external POST cannot be made exactly-once, so the lock is held across the
+     * whole handle() (including the send): a concurrent duplicate cannot acquire
+     * it and is dropped (dontRelease) -- the holder is already sending it. A
+     * duplicate that runs *after* the send completed acquires the lock freely
+     * and is short-circuited by the already-sent guard instead.
+     */
+    public function middleware(): array
+    {
+        return [
+            (new WithoutOverlapping((string) $this->submissionId))
+                ->dontRelease()
+                ->expireAfter(self::LOCK_EXPIRES_AFTER_SECONDS),
+        ];
     }
 
     public function handle(): void
