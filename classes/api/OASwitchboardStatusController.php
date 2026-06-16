@@ -83,12 +83,20 @@ class OASwitchboardStatusController
         return $submission->getData('status') === Submission::STATUS_PUBLISHED;
     }
 
+    private function submissionNotFound(): JsonResponse
+    {
+        return response()->json(
+            ['error' => __('api.404.resourceNotFound')],
+            Response::HTTP_NOT_FOUND
+        );
+    }
+
     private function resend(int $submissionId): JsonResponse
     {
         $contextId = $this->getRequestContextId();
         $submission = $this->getSubmissionInContext($submissionId, $contextId);
         if (!$submission) {
-            return response()->json(['error' => 'submission not found'], Response::HTTP_NOT_FOUND);
+            return $this->submissionNotFound();
         }
 
         if (!$this->isPublished($submission)) {
@@ -99,8 +107,7 @@ class OASwitchboardStatusController
         }
 
         try {
-            $message = new Message($this->plugin);
-            $message->scheduleSendToOASwitchboard($submission);
+            (new Message($this->plugin))->scheduleSendToOASwitchboard($submission);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
@@ -116,7 +123,7 @@ class OASwitchboardStatusController
         $contextId = $this->getRequestContextId();
         $submission = $this->getSubmissionInContext($submissionId, $contextId);
         if (!$submission) {
-            return response()->json(['error' => 'submission not found'], Response::HTTP_NOT_FOUND);
+            return $this->submissionNotFound();
         }
 
         $pluginConfigured = true;
