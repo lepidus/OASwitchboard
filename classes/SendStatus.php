@@ -27,11 +27,7 @@ class SendStatus
     public const SETTING_UPDATED_AT = 'oaSwitchboardSendStatusUpdatedAt';
     public const SETTING_ERROR = 'oaSwitchboardSendError';
 
-    /**
-     * The submission EntityDAO sanitizes settings against the schema before
-     * saving; without these properties declared, the send status would be
-     * silently dropped on edit().
-     */
+    // prevent the settings from being silently dropped on edit() by EntityDAO.
     public static function addToSubmissionSchema($hookName, $args): bool
     {
         $schema = & $args[0];

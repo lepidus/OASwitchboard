@@ -62,12 +62,8 @@ class OASwitchboardStatusController
         return false;
     }
 
-    /**
-     * Loads the submission scoped to the request context. Returning null for a
-     * submission that belongs to another context prevents cross-context access
-     * (the role middleware only checks the user's roles in the current context,
-     * not that the submission itself belongs to it).
-     */
+
+    // Prevents cross-context access to a submission.
     protected function getSubmissionInContext(int $submissionId, int $contextId): ?Submission
     {
         return Repo::submission()->get($submissionId, $contextId);

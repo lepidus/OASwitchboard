@@ -26,11 +26,6 @@ use PKP\plugins\PluginRegistry;
 
 class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
 {
-    /**
-     * Seconds before the overlap lock auto-expires, releasing it if a worker
-     * dies mid-send. Kept above the job timeout (60s) so it never expires while
-     * a send is legitimately in progress.
-     */
     private const LOCK_EXPIRES_AFTER_SECONDS = 90;
 
     protected int $submissionId;
@@ -43,26 +38,14 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
         $this->contextId = $contextId;
     }
 
-    /**
-     * Prevents a duplicate dispatch (e.g. publishing twice in quick succession)
-     * from enqueuing two sends for the same submission. Acquired at dispatch
-     * time only, so it does not cover jobs re-inserted by "Requeue All Failed
-     * Jobs" (which bypass dispatch) -- that case is handled by middleware() and
-     * the already-sent guard in handle().
-     */
+    // Prevents a duplicate dispatch from enqueuing two sends for the same submission.
     public function uniqueId(): string
     {
         return (string) $this->submissionId;
     }
 
-    /**
-     * Serializes concurrent runs for the same submission. The non-transactional
-     * external POST cannot be made exactly-once, so the lock is held across the
-     * whole handle() (including the send): a concurrent duplicate cannot acquire
-     * it and is dropped (dontRelease) -- the holder is already sending it. A
-     * duplicate that runs *after* the send completed acquires the lock freely
-     * and is short-circuited by the already-sent guard instead.
-     */
+
+    // Serializes concurrent runs for the same submission. Locks the whole handle()
     public function middleware(): array
     {
         return [
@@ -102,13 +85,7 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
         $this->registerSubmissionEventLog($submission, 'plugins.generic.OASwitchboard.sendMessageWithError');
     }
 
-    /**
-     * Guards against duplicate deliveries: requeuing failed jobs (e.g. the admin
-     * "Requeue All Failed Jobs" action) re-runs handle() for every piled-up job,
-     * which would re-send the P1 message to the OA Switchboard for the same
-     * submission. A fresh publish resets the status to pending before dispatch,
-     * so this only short-circuits already-delivered sends.
-     */
+    // Guards against duplicate deliveries when requeuing multiple failed jobs.
     private function wasAlreadySent($submission): bool
     {
         $sendStatus = SendStatus::readFromSubmission($submission);

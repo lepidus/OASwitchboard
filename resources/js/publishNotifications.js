@@ -24,9 +24,6 @@ async function fetchSendStatus(submissionId) {
 }
 
 function notifySendResult(sendStatus) {
-    // Falhas de envio são silenciosas para o usuário (alinhado ao 3.3/3.4):
-    // o estado de falha aparece apenas na aba OA Switchboard, não como
-    // notificação, para não alarmar editores com erros de serviço externo.
     if (sendStatus.status === 'sent') {
         notify(
             t('plugins.generic.OASwitchboard.sendMessageWithSuccess'),
