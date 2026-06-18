@@ -6,12 +6,8 @@ use APP\core\Application;
 use APP\facades\Repo;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
+use APP\plugins\generic\OASwitchboard\jobs\SendP1PioMessageJob;
 use APP\submission\Submission;
-use Carbon\Carbon;
-use PKP\core\Core;
-use PKP\db\DAORegistry;
-use PKP\log\event\PKPSubmissionEventLogEntry;
-use PKP\notification\Notification;
 use PKP\security\Validation;
 
 class Message
@@ -27,26 +23,49 @@ class Message
     {
         $publication = & $args[0];
         $submission = & $args[2];
-        $contextId = Application::get()->getRequest()->getContext()->getId();
-        $request = Application::get()->getRequest();
-        $userId = $request->getUser()->getId();
+
+        if ($publication->getData('status') !== Submission::STATUS_PUBLISHED) {
+            return false;
+        }
 
         try {
-            if ($publication->getData('status') === Submission::STATUS_PUBLISHED) {
-                $OASwitchboard = new OASwitchboardService($this->plugin, $contextId, $submission);
-                $OASwitchboard->sendP1PioMessage();
-                $keyMessage = 'plugins.generic.OASwitchboard.sendMessageWithSuccess';
-                $this->sendNotification(
-                    $userId,
-                    __($keyMessage),
-                    Notification::NOTIFICATION_TYPE_SUCCESS,
-                    $contextId
-                );
-                $this->registerSubmissionEventLog($request, $submission, $keyMessage);
-            }
+            $this->scheduleSendToOASwitchboard($submission);
         } catch (\Exception $e) {
             error_log($e->getMessage());
         }
+
+        return false;
+    }
+
+    public function scheduleSendToOASwitchboard($submission): void
+    {
+        $contextId = (int) $submission->getData('contextId');
+        OASwitchboardService::validatePluginIsConfigured($this->plugin, $contextId);
+
+        try {
+            $this->buildMessage($submission);
+        } catch (P1PioException $e) {
+            SendStatus::recordNotSent($submission);
+            return;
+        }
+
+        SendStatus::recordPending($submission);
+        $this->dispatchSendJob($submission->getId(), $contextId, $this->getActingUserId());
+    }
+
+    protected function buildMessage($submission): P1Pio
+    {
+        return new P1Pio($submission);
+    }
+
+    protected function dispatchSendJob(int $submissionId, int $contextId, ?int $userId = null): void
+    {
+        dispatch(new SendP1PioMessageJob($submissionId, $contextId, $userId));
+    }
+
+    protected function getActingUserId(): ?int
+    {
+        return Validation::loggedInAs() ?? Application::get()->getRequest()->getUser()?->getId();
     }
 
     public function validateBeforePublicationEvent($hookName, $form)
@@ -88,36 +107,6 @@ class Message
         }
 
         return false;
-    }
-
-    private function registerSubmissionEventLog($request, $submission, $error)
-    {
-        $eventLog = Repo::eventLog()->newDataObject([
-            'assocType' => Application::ASSOC_TYPE_SUBMISSION,
-            'assocId' => $submission->getId(),
-            'eventType' => PKPSubmissionEventLogEntry::SUBMISSION_LOG_CREATE_VERSION,
-            'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
-            'message' => $error,
-            'isTranslated' => false,
-            'dateLogged' => Core::getCurrentDate(),
-        ]);
-        Repo::eventLog()->add($eventLog);
-    }
-
-    private function sendNotification($userId, $message, $notificationType, $contextId)
-    {
-        $notification = Notification::create([
-            'userId' => $userId,
-            'contextId' => $contextId,
-            'type' => $notificationType,
-            'level' => Notification::NOTIFICATION_LEVEL_TRIVIAL,
-            'dateCreated' => Carbon::now(),
-            'assocType' => 0,
-            'assocId' => 0,
-        ]);
-
-        $notificationSettingsDao = DAORegistry::getDAO('NotificationSettingsDAO'); /** @var NotificationSettingsDAO $notificationSettingsDao */
-        $notificationSettingsDao->updateNotificationSetting($notification->id, 'contents', $message);
     }
 
     private function getMandatoryDataErrorMessage($p1PioErrors, $submission, $includePrefix = true): string
