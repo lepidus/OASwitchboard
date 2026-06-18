@@ -55,6 +55,9 @@ msgstr "Error al enviar el mensaje. La API de OA Switchboard devolvió un error 
 msgid "plugins.generic.OASwitchboard.rorRecommendation"
 msgstr "Se recomienda que al menos un autor tenga un ID ROR vinculado a su afiliación (requiere el plugin ROR) para enviar el mensaje a la institución del autor."
 
+msgid "plugins.generic.OASwitchboard.postRequirementsError"
+msgstr "La presentación no cumple con los requisitos mínimos para enviar el mensaje P1 al OA Switchboard."
+
 msgid "plugins.generic.OASwitchboard.postRequirementsError.introductionText"
 msgstr "no será posible enviar el mensaje P1, ya que la presentación no cumple con los requisitos a continuación."
 
@@ -90,6 +93,9 @@ msgstr "El envío del mensaje P1 al OA Switchboard fue programado."
 
 msgid "plugins.generic.OASwitchboard.sendStatus.pending"
 msgstr "El mensaje P1 está en cola para su envío al OA Switchboard."
+
+msgid "plugins.generic.OASwitchboard.sendStatus.notSent"
+msgstr "El mensaje P1 no fue enviado al OA Switchboard porque la presentación no cumple con los requisitos mínimos."
 
 msgid "plugins.generic.OASwitchboard.sendStatus.lastUpdate"
 msgstr "Última actualización: {$date}"

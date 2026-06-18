@@ -8,6 +8,7 @@ use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\plugins\generic\OASwitchboard\jobs\SendP1PioMessageJob;
 use APP\submission\Submission;
+use PKP\security\Validation;
 
 class Message
 {
@@ -41,8 +42,30 @@ class Message
         $contextId = (int) $submission->getData('contextId');
         OASwitchboardService::validatePluginIsConfigured($this->plugin, $contextId);
 
+        try {
+            $this->buildMessage($submission);
+        } catch (P1PioException $e) {
+            SendStatus::recordNotSent($submission);
+            return;
+        }
+
         SendStatus::recordPending($submission);
-        dispatch(new SendP1PioMessageJob($submission->getId(), $contextId));
+        $this->dispatchSendJob($submission->getId(), $contextId, $this->getActingUserId());
+    }
+
+    protected function buildMessage($submission): P1Pio
+    {
+        return new P1Pio($submission);
+    }
+
+    protected function dispatchSendJob(int $submissionId, int $contextId, ?int $userId = null): void
+    {
+        dispatch(new SendP1PioMessageJob($submissionId, $contextId, $userId));
+    }
+
+    protected function getActingUserId(): ?int
+    {
+        return Validation::loggedInAs() ?? Application::get()->getRequest()->getUser()?->getId();
     }
 
     public function validateBeforePublicationEvent($hookName, $form)

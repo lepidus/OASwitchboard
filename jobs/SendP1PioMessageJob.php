@@ -30,12 +30,19 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
 
     protected int $submissionId;
     protected int $contextId;
+    protected ?int $userId;
 
-    public function __construct(int $submissionId, int $contextId)
+    public function __construct(int $submissionId, int $contextId, ?int $userId = null)
     {
         parent::__construct();
         $this->submissionId = $submissionId;
         $this->contextId = $contextId;
+        $this->userId = $userId;
+    }
+
+    public function getUserId(): ?int
+    {
+        return $this->userId;
     }
 
     // Prevents a duplicate dispatch from enqueuing two sends for the same submission.
@@ -98,7 +105,7 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
             'assocType' => Application::ASSOC_TYPE_SUBMISSION,
             'assocId' => $submission->getId(),
             'eventType' => PKPSubmissionEventLogEntry::SUBMISSION_LOG_CREATE_VERSION,
-            'userId' => null,
+            'userId' => $this->userId,
             'message' => $message,
             'isTranslated' => false,
             'dateLogged' => Core::getCurrentDate(),

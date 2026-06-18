@@ -24,6 +24,12 @@
                             />
                             <div class="oas-status__body">
                                 <p class="oas-status__headline">{{ t(sendStatusMessageKey) }}</p>
+                                <ul
+                                    v-if="sendStatus.status === 'notSent' && status.missingFields.length"
+                                    class="oas-status__errors"
+                                >
+                                    <li v-for="(msg, i) in status.missingFields" :key="i">{{ t(msg) }}</li>
+                                </ul>
                                 <p v-if="sendStatus.error" class="oas-status__detail">
                                     {{ sendStatus.error }}
                                 </p>
@@ -121,6 +127,7 @@ tk('plugins.generic.OASwitchboard.postRequirementsError.issn');
 
 // Keys resolved dynamically from the send status returned by the API.
 tk('plugins.generic.OASwitchboard.sendStatus.pending');
+tk('plugins.generic.OASwitchboard.sendStatus.notSent');
 tk('plugins.generic.OASwitchboard.sendMessageWithSuccess');
 tk('plugins.generic.OASwitchboard.sendMessageWithError');
 
@@ -154,6 +161,7 @@ const sendStatusMessageKey = computed(
             pending: 'plugins.generic.OASwitchboard.sendStatus.pending',
             sent: 'plugins.generic.OASwitchboard.sendMessageWithSuccess',
             failed: 'plugins.generic.OASwitchboard.sendMessageWithError',
+            notSent: 'plugins.generic.OASwitchboard.sendStatus.notSent',
         })[sendStatus.value?.status] ?? '',
 );
 
@@ -163,6 +171,7 @@ const sendStatusNotificationType = computed(
             pending: 'information',
             sent: 'success',
             failed: 'warning',
+            notSent: 'warning',
         })[sendStatus.value?.status] ?? 'information',
 );
 
@@ -172,6 +181,7 @@ const sendStatusIcon = computed(
             pending: 'Clock',
             sent: 'Complete',
             failed: 'Error',
+            notSent: 'Help',
         })[sendStatus.value?.status] ?? 'Clock',
 );
 

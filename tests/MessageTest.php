@@ -2,7 +2,9 @@
 
 namespace APP\plugins\generic\OASwitchboard\tests;
 
+use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use APP\plugins\generic\OASwitchboard\classes\Message;
+use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\plugins\generic\OASwitchboard\classes\SendStatus;
 use APP\plugins\generic\OASwitchboard\jobs\SendP1PioMessageJob;
 use APP\plugins\generic\OASwitchboard\OASwitchboardPlugin;
@@ -17,6 +19,7 @@ class MessageTest extends PKPTestCase
 {
     private const SUBMISSION_ID = 456;
     private const CONTEXT_ID = 1;
+    private const ACTING_USER_ID = 99;
 
     private $editedParams;
 
@@ -60,11 +63,49 @@ class MessageTest extends PKPTestCase
         return $plugin;
     }
 
-    private function buildPublishHookArguments(int $publicationStatus): array
+    /**
+     * Builds a Message with the P1 message construction stubbed, so the
+     * scheduling decision can be exercised without a fully populated submission.
+     * The default builder stands for a submission that meets the requirements.
+     */
+    private function createMessage(bool $configured = true, ?callable $messageBuilder = null): Message
+    {
+        $messageBuilder ??= fn ($submission) => $this->createMock(P1Pio::class);
+
+        return new class ($this->createPluginMock($configured), $messageBuilder, self::ACTING_USER_ID) extends Message {
+            private $messageBuilder;
+            private $actingUserId;
+
+            public function __construct($plugin, callable $messageBuilder, ?int $actingUserId)
+            {
+                parent::__construct($plugin);
+                $this->messageBuilder = $messageBuilder;
+                $this->actingUserId = $actingUserId;
+            }
+
+            protected function buildMessage($submission): P1Pio
+            {
+                return ($this->messageBuilder)($submission);
+            }
+
+            protected function getActingUserId(): ?int
+            {
+                return $this->actingUserId;
+            }
+        };
+    }
+
+    private function buildSubmission(): Submission
     {
         $submission = new Submission();
         $submission->setId(self::SUBMISSION_ID);
         $submission->setData('contextId', self::CONTEXT_ID);
+        return $submission;
+    }
+
+    private function buildPublishHookArguments(int $publicationStatus): array
+    {
+        $submission = $this->buildSubmission();
 
         $publication = new Publication();
         $publication->setData('status', $publicationStatus);
@@ -75,18 +116,21 @@ class MessageTest extends PKPTestCase
 
     public function testShouldRecordPendingStatusAndDispatchSendJobWhenPublished()
     {
-        $message = new Message($this->createPluginMock(true));
+        $message = $this->createMessage();
         $args = $this->buildPublishHookArguments(Submission::STATUS_PUBLISHED);
 
         $message->sendToOASwitchboard('Publication::publish', $args);
 
-        Bus::assertDispatched(SendP1PioMessageJob::class);
+        Bus::assertDispatched(
+            SendP1PioMessageJob::class,
+            fn (SendP1PioMessageJob $job) => $job->getUserId() === self::ACTING_USER_ID,
+        );
         $this->assertSame(SendStatus::STATUS_PENDING, $this->editedParams[SendStatus::SETTING_STATUS]);
     }
 
     public function testShouldNotDispatchSendJobWhenPluginIsNotConfigured()
     {
-        $message = new Message($this->createPluginMock(false));
+        $message = $this->createMessage(configured: false);
         $args = $this->buildPublishHookArguments(Submission::STATUS_PUBLISHED);
 
         $message->sendToOASwitchboard('Publication::publish', $args);
@@ -97,31 +141,41 @@ class MessageTest extends PKPTestCase
 
     public function testShouldRecordPendingStatusAndDispatchSendJobWhenSchedulingDirectly()
     {
-        $message = new Message($this->createPluginMock(true));
-        $submission = new Submission();
-        $submission->setId(self::SUBMISSION_ID);
-        $submission->setData('contextId', self::CONTEXT_ID);
+        $message = $this->createMessage();
 
-        $message->scheduleSendToOASwitchboard($submission);
+        $message->scheduleSendToOASwitchboard($this->buildSubmission());
 
         Bus::assertDispatched(SendP1PioMessageJob::class);
         $this->assertSame(SendStatus::STATUS_PENDING, $this->editedParams[SendStatus::SETTING_STATUS]);
     }
 
+    public function testShouldRecordNotSentAndSkipDispatchWhenRequirementsAreMissing()
+    {
+        $message = $this->createMessage(messageBuilder: function ($submission) {
+            throw new P1PioException(
+                'requirements not met',
+                0,
+                ['plugins.generic.OASwitchboard.postRequirementsError.affiliation']
+            );
+        });
+
+        $message->scheduleSendToOASwitchboard($this->buildSubmission());
+
+        Bus::assertNotDispatched(SendP1PioMessageJob::class);
+        $this->assertSame(SendStatus::STATUS_NOT_SENT, $this->editedParams[SendStatus::SETTING_STATUS]);
+    }
+
     public function testShouldThrowWhenSchedulingWithPluginNotConfigured()
     {
-        $message = new Message($this->createPluginMock(false));
-        $submission = new Submission();
-        $submission->setId(self::SUBMISSION_ID);
-        $submission->setData('contextId', self::CONTEXT_ID);
+        $message = $this->createMessage(configured: false);
 
         $this->expectException(\Exception::class);
-        $message->scheduleSendToOASwitchboard($submission);
+        $message->scheduleSendToOASwitchboard($this->buildSubmission());
     }
 
     public function testShouldNotDispatchSendJobWhenPublicationIsNotPublished()
     {
-        $message = new Message($this->createPluginMock(true));
+        $message = $this->createMessage();
         $args = $this->buildPublishHookArguments(Submission::STATUS_QUEUED);
 
         $message->sendToOASwitchboard('Publication::publish', $args);

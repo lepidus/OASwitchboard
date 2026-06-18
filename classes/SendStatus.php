@@ -22,6 +22,7 @@ class SendStatus
     public const STATUS_PENDING = 'pending';
     public const STATUS_SENT = 'sent';
     public const STATUS_FAILED = 'failed';
+    public const STATUS_NOT_SENT = 'notSent';
 
     public const SETTING_STATUS = 'oaSwitchboardSendStatus';
     public const SETTING_UPDATED_AT = 'oaSwitchboardSendStatusUpdatedAt';
@@ -54,6 +55,11 @@ class SendStatus
     public static function recordFailure(Submission $submission, string $errorMessage): void
     {
         self::record($submission, self::STATUS_FAILED, $errorMessage);
+    }
+
+    public static function recordNotSent(Submission $submission): void
+    {
+        self::record($submission, self::STATUS_NOT_SENT);
     }
 
     public static function readFromSubmission(Submission $submission): ?array

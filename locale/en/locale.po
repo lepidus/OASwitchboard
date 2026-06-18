@@ -55,6 +55,9 @@ msgstr "Error sending the message. The OA Switchboard API returned an internal s
 msgid "plugins.generic.OASwitchboard.rorRecommendation"
 msgstr "It is recommended that at least one author has a ROR ID linked to their affiliation (requires the ROR plugin) to send the message to the author's institution."
 
+msgid "plugins.generic.OASwitchboard.postRequirementsError"
+msgstr "The submission does not meet the minimum requirements to send the P1 message to the OA Switchboard."
+
 msgid "plugins.generic.OASwitchboard.postRequirementsError.introductionText"
 msgstr "it will not be possible to send the P1 message as the submission does not meet the following requirements."
 
@@ -90,6 +93,9 @@ msgstr "The P1 message was scheduled to be sent to the OA Switchboard."
 
 msgid "plugins.generic.OASwitchboard.sendStatus.pending"
 msgstr "The P1 message is queued to be sent to the OA Switchboard."
+
+msgid "plugins.generic.OASwitchboard.sendStatus.notSent"
+msgstr "The P1 message was not sent to the OA Switchboard because the submission does not meet the minimum requirements."
 
 msgid "plugins.generic.OASwitchboard.sendStatus.lastUpdate"
 msgstr "Last update: {$date}"

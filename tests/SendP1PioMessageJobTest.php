@@ -67,14 +67,14 @@ class SendP1PioMessageJobTest extends PKPTestCase
         app()->instance(EventLogRepository::class, $eventLogRepository);
     }
 
-    private function createJobWithService(OASwitchboardService $service): SendP1PioMessageJob
+    private function createJobWithService(OASwitchboardService $service, ?int $userId = null): SendP1PioMessageJob
     {
-        return new class (self::SUBMISSION_ID, self::CONTEXT_ID, $service) extends SendP1PioMessageJob {
+        return new class (self::SUBMISSION_ID, self::CONTEXT_ID, $service, $userId) extends SendP1PioMessageJob {
             private $serviceForTests;
 
-            public function __construct(int $submissionId, int $contextId, OASwitchboardService $serviceForTests)
+            public function __construct(int $submissionId, int $contextId, OASwitchboardService $serviceForTests, ?int $userId)
             {
-                parent::__construct($submissionId, $contextId);
+                parent::__construct($submissionId, $contextId, $userId);
                 $this->serviceForTests = $serviceForTests;
             }
 
@@ -155,6 +155,16 @@ class SendP1PioMessageJobTest extends PKPTestCase
         );
         $this->assertSame(self::SUBMISSION_ID, $this->registeredEventLogEntry->getData('assocId'));
         $this->assertNull($this->registeredEventLogEntry->getData('userId'));
+    }
+
+    public function testShouldAttributeEventLogToTheActingUser()
+    {
+        $service = $this->createMock(OASwitchboardService::class);
+
+        $job = $this->createJobWithService($service, $actingUserId = 42);
+        $job->handle();
+
+        $this->assertSame($actingUserId, $this->registeredEventLogEntry->getData('userId'));
     }
 
     public function testShouldPropagateExceptionAndNotRecordStatusWhenSendingFails()

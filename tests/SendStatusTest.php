@@ -38,6 +38,19 @@ class SendStatusTest extends PKPTestCase
         }
     }
 
+    public function testShouldRecordNotSentStatusWithoutError()
+    {
+        app()->instance(SubmissionRepository::class, $this->createMock(SubmissionRepository::class));
+        $submission = new Submission();
+
+        SendStatus::recordNotSent($submission);
+
+        $sendStatus = SendStatus::readFromSubmission($submission);
+        $this->assertSame(SendStatus::STATUS_NOT_SENT, $sendStatus['status']);
+        $this->assertNotEmpty($sendStatus['updatedAt']);
+        $this->assertNull($sendStatus['error']);
+    }
+
     public function testShouldReadNullWhenNoSendWasRecorded()
     {
         $submission = new Submission();

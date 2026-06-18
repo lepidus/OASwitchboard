@@ -13,6 +13,7 @@
   "plugins.generic.OASwitchboard.sendMessageWithSuccess",
   "plugins.generic.OASwitchboard.sendScheduled",
   "plugins.generic.OASwitchboard.sendStatus.lastUpdate",
+  "plugins.generic.OASwitchboard.sendStatus.notSent",
   "plugins.generic.OASwitchboard.sendStatus.pending",
   "plugins.generic.OASwitchboard.sendStatus.retry",
   "plugins.generic.OASwitchboard.workflowTab.label",
