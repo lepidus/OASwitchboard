@@ -29,7 +29,7 @@ Este plugin permite que revistas do **[OJS](https://pkp.sfu.ca/software/ojs/)** 
 
 Este ramo do repositório é compatível com o OJS 3.5.0.x.
 
-Versões compatíveis com versões anteriores do OJS estão disponíveis nas branches [`stable-3_4_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_4_0) e [`stable-3_3_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_3_0).
+Versões compatíveis com versões anteriores do OJS estão disponíveis nos ramos [`stable-3_4_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_4_0) e [`stable-3_3_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_3_0).
 
 - A versão `v1.x.x.x` do plugin é compatível com o OJS 3.3.0.x
 - A versão `v2.x.x.x` do plugin é compatível com o OJS 3.4.0.x
@@ -136,5 +136,5 @@ Desenvolvido pela [Lepidus Tecnologia](https://github.com/lepidus).
 
 Este plugin está licenciado sob a [GNU General Public License v3.0](/LICENSE).
 
-Copyright (c) 2024 Lepidus Tecnologia.  
+Copyright (c) 2024 Lepidus Tecnologia.
 Copyright (c) 2024 Stichting OA Switchboard
