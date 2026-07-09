@@ -53,7 +53,7 @@ msgid "plugins.generic.OASwitchboard.serverError"
 msgstr "Error al enviar el mensaje. La API de OA Switchboard devolvió un error interno."
 
 msgid "plugins.generic.OASwitchboard.rorRecommendation"
-msgstr "Se recomienda que al menos un autor tenga un ID ROR vinculado a su afiliación (requiere el plugin ROR) para enviar el mensaje a la institución del autor."
+msgstr "Se recomienda que al menos un autor tenga un ID ROR vinculado a su afiliación para enviar el mensaje a la institución del autor."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError"
 msgstr "La presentación no cumple con los requisitos mínimos para enviar el mensaje P1 al OA Switchboard."
