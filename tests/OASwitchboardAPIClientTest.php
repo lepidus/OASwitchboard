@@ -5,7 +5,10 @@ namespace APP\plugins\generic\OASwitchboard\tests;
 use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\plugins\generic\OASwitchboard\tests\helpers\ClientInterfaceForTests;
+use ArrayObject;
+use Exception;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
@@ -204,6 +207,34 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $this->assertStringNotContainsString($tokenMarker, $logMessage);
         $this->assertStringNotContainsString($responseMarker, $logMessage);
         $this->assertStringNotContainsString('untrusted.example.test', $logMessage);
+    }
+
+    public function testConnectionFailureShouldNotExposeRequestUrl()
+    {
+        $secretMarker = 'audit-connection-secret-marker';
+        $logMessages = new ArrayObject();
+        $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
+        $httpClientMock->method('request')
+            ->willThrowException(new ConnectException(
+                'Unable to connect to https://untrusted.example.test/authorize?password=' . $secretMarker,
+                new Request('POST', 'https://untrusted.example.test/authorize?password=' . $secretMarker)
+            ));
+
+        $apiClient = $this->createApiClientWithCapturedLogs($httpClientMock, $logMessages);
+
+        try {
+            $apiClient->getAuthorization('audit@example.test', $secretMarker);
+            $this->fail('Expected authorization request to fail');
+        } catch (Exception $exception) {
+            $this->assertStringNotContainsString($secretMarker, $exception->getMessage());
+            $this->assertStringNotContainsString('untrusted.example.test', $exception->getMessage());
+        }
+
+        $this->assertCount(1, $logMessages);
+        $this->assertStringContainsString('operation=getAuthorization', $logMessages[0]);
+        $this->assertStringContainsString('endpoint=authorize', $logMessages[0]);
+        $this->assertStringNotContainsString($secretMarker, $logMessages[0]);
+        $this->assertStringNotContainsString('untrusted.example.test', $logMessages[0]);
     }
 
     public function testGetAuthorizationFailureWithServerError()
