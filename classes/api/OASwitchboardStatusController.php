@@ -13,11 +13,14 @@ use APP\submission\Submission;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request as IlluminateRequest;
 use Illuminate\Http\Response;
+use PKP\core\PKPRequest;
 use PKP\handler\APIHandler;
 use PKP\plugins\Hook;
+use PKP\plugins\interfaces\HasAuthorizationPolicy;
 use PKP\security\Role;
+use PKP\security\authorization\SubmissionAccessPolicy;
 
-class OASwitchboardStatusController
+class OASwitchboardStatusController implements HasAuthorizationPolicy
 {
     private $plugin;
 
@@ -45,6 +48,7 @@ class OASwitchboardStatusController
                 Role::ROLE_ID_ASSISTANT,
                 Role::ROLE_ID_AUTHOR,
             ],
+            $this,
         );
 
         $apiHandler->addRoute(
@@ -57,9 +61,15 @@ class OASwitchboardStatusController
                 Role::ROLE_ID_MANAGER,
                 Role::ROLE_ID_SUB_EDITOR,
             ],
+            $this,
         );
 
         return false;
+    }
+
+    public function getPolicies(PKPRequest $request, array &$args, array $roleAssignments): array
+    {
+        return [new SubmissionAccessPolicy($request, $args, $roleAssignments)];
     }
 
 
@@ -102,10 +112,23 @@ class OASwitchboardStatusController
             );
         }
 
+        if (!SendStatus::canRetry($submission)) {
+            return response()->json(
+                ['error' => __('plugins.generic.OASwitchboard.resend.notFailed')],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
         try {
-            (new Message($this->plugin))->scheduleSendToOASwitchboard($submission);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            $wasScheduled = (new Message($this->plugin))->retryFailedSendToOASwitchboard($submission);
+            if (!$wasScheduled) {
+                return response()->json(
+                    ['error' => __('plugins.generic.OASwitchboard.resend.notFailed')],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+        } catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
         return response()->json(

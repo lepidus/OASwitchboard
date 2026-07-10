@@ -70,6 +70,10 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
             return;
         }
 
+        if (!$this->isPluginEnabled()) {
+            return;
+        }
+
         if ($this->wasAlreadySent($submission)) {
             return;
         }
@@ -126,5 +130,11 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
     {
         return PluginRegistry::getPlugin('generic', 'oaswitchboardplugin')
             ?? PluginRegistry::loadPlugin('generic', 'OASwitchboard', $this->contextId);
+    }
+
+    protected function isPluginEnabled(): bool
+    {
+        $plugin = $this->ensurePluginIsLoaded();
+        return $plugin && $plugin->getEnabled($this->contextId);
     }
 }

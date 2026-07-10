@@ -70,6 +70,21 @@ class SendStatusTest extends PKPTestCase
         $this->assertNull(SendStatus::readFromSubmission($submission));
     }
 
+    public function testShouldOnlyAllowRetriesForFailedSends()
+    {
+        $submission = new Submission();
+
+        $this->assertFalse(SendStatus::canRetry($submission));
+
+        foreach ([SendStatus::STATUS_PENDING, SendStatus::STATUS_SENT, SendStatus::STATUS_NOT_SENT] as $status) {
+            $submission->setData(SendStatus::SETTING_STATUS, $status);
+            $this->assertFalse(SendStatus::canRetry($submission));
+        }
+
+        $submission->setData(SendStatus::SETTING_STATUS, SendStatus::STATUS_FAILED);
+        $this->assertTrue(SendStatus::canRetry($submission));
+    }
+
     public function testShouldReadRecordedSendStatusFromSubmission()
     {
         $submission = new Submission();

@@ -5,6 +5,8 @@ namespace APP\plugins\generic\OASwitchboard\tests;
 use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardStatusController;
 use APP\submission\Repository as SubmissionRepository;
 use APP\submission\Submission;
+use PKP\core\PKPRequest;
+use PKP\security\authorization\SubmissionAccessPolicy;
 use PKP\tests\PKPTestCase;
 
 class OASwitchboardStatusControllerTest extends PKPTestCase
@@ -81,5 +83,16 @@ class OASwitchboardStatusControllerTest extends PKPTestCase
         $submission->setData('status', Submission::STATUS_QUEUED);
 
         $this->assertFalse($this->createController()->exposedIsPublished($submission));
+    }
+
+    public function testShouldProvideSubmissionAccessPolicyForCustomRoutes()
+    {
+        $request = $this->createMock(PKPRequest::class);
+        $args = [];
+
+        $policies = $this->createController()->getPolicies($request, $args, []);
+
+        $this->assertCount(1, $policies);
+        $this->assertInstanceOf(SubmissionAccessPolicy::class, $policies[0]);
     }
 }

@@ -87,6 +87,11 @@ class SendP1PioMessageJobTest extends PKPTestCase
             {
                 return null;
             }
+
+            protected function isPluginEnabled(): bool
+            {
+                return true;
+            }
         };
     }
 
@@ -135,6 +140,38 @@ class SendP1PioMessageJobTest extends PKPTestCase
             ->method('sendP1PioMessage');
 
         $job = $this->createJobWithService($service);
+        $job->handle();
+
+        $this->assertNull($this->editedParams);
+        $this->assertNull($this->registeredEventLogEntry);
+    }
+
+    public function testShouldNotSendWhenPluginIsDisabled()
+    {
+        $service = $this->createMock(OASwitchboardService::class);
+        $service->expects($this->never())
+            ->method('sendP1PioMessage');
+
+        $job = new class (self::SUBMISSION_ID, self::CONTEXT_ID, $service) extends SendP1PioMessageJob {
+            private $serviceForTests;
+
+            public function __construct(int $submissionId, int $contextId, OASwitchboardService $serviceForTests)
+            {
+                parent::__construct($submissionId, $contextId);
+                $this->serviceForTests = $serviceForTests;
+            }
+
+            protected function createOASwitchboardService($submission): OASwitchboardService
+            {
+                return $this->serviceForTests;
+            }
+
+            protected function isPluginEnabled(): bool
+            {
+                return false;
+            }
+        };
+
         $job->handle();
 
         $this->assertNull($this->editedParams);

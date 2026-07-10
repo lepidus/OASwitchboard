@@ -53,6 +53,34 @@ class Message
         $this->dispatchSendJob($submission->getId(), $contextId, $this->getActingUserId());
     }
 
+    public function retryFailedSendToOASwitchboard($submission): bool
+    {
+        $contextId = (int) $submission->getData('contextId');
+        OASwitchboardService::validatePluginIsConfigured($this->plugin, $contextId);
+
+        try {
+            $this->buildMessage($submission);
+        } catch (P1PioException $exception) {
+            return false;
+        }
+
+        if (!SendStatus::transitionFailedToPending($submission)) {
+            return false;
+        }
+
+        try {
+            $this->dispatchSendJob($submission->getId(), $contextId, $this->getActingUserId());
+        } catch (\Throwable $exception) {
+            SendStatus::recordFailure(
+                $submission,
+                __('plugins.generic.OASwitchboard.serverError')
+            );
+            throw $exception;
+        }
+
+        return true;
+    }
+
     protected function buildMessage($submission): P1Pio
     {
         return new P1Pio($submission);
