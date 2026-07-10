@@ -2,10 +2,11 @@
 
 namespace APP\plugins\generic\OASwitchboard\classes\api;
 
-use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\Exception\ClientException;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use Exception;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\Exception\TransferException;
 
 class OASwitchboardAPIClient
 {
@@ -37,7 +38,7 @@ class OASwitchboardAPIClient
 
     public function getAuthorization(string $email, string $password): string
     {
-        $options  = [
+        $options = [
             'json' => [
                 'email' => $email,
                 'password' => $password
@@ -69,6 +70,11 @@ class OASwitchboardAPIClient
             $this->logRequestFailure($this->getOperationName($endpoint), $endpoint, $e);
             throw new Exception(
                 __('plugins.generic.OASwitchboard.postRequirements')
+            );
+        } catch (TransferException $e) {
+            $this->logRequestFailure($this->getOperationName($endpoint), $endpoint, $e);
+            throw new Exception(
+                __('plugins.generic.OASwitchboard.serverError')
             );
         }
     }
@@ -106,7 +112,7 @@ class OASwitchboardAPIClient
             'endpoint=' . $endpoint,
         ];
 
-        if ($exception->hasResponse()) {
+        if (method_exists($exception, 'hasResponse') && $exception->hasResponse()) {
             $response = $exception->getResponse();
             $logContext[] = 'status=' . $response->getStatusCode();
 
