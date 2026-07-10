@@ -7,9 +7,13 @@ use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\plugins\generic\OASwitchboard\tests\helpers\ClientInterfaceForTests;
 use ArrayObject;
 use Exception;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PKP\tests\PKPTestCase;
@@ -131,6 +135,25 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $apiClient = new OASwitchboardAPIClient($httpClientMock);
 
         $this->assertEquals(200, $apiClient->sendMessage($this->createP1PioMock(), 'mock_token'));
+    }
+
+    public function testSendMessageShouldNotFollowRedirectsOrResendCredentials()
+    {
+        $requestHistory = [];
+        $mockHandler = new MockHandler([
+            new Response(302, ['Location' => 'https://untrusted.example.test/message']),
+            new Response(200),
+        ]);
+        $handlerStack = HandlerStack::create($mockHandler);
+        $handlerStack->push(Middleware::history($requestHistory));
+
+        $apiClient = new OASwitchboardAPIClient(new Client(['handler' => $handlerStack]));
+
+        $this->assertSame(302, $apiClient->sendMessage($this->createP1PioMock(), 'audit-token-marker'));
+        $this->assertCount(1, $requestHistory);
+        $this->assertSame('https://api.oaswitchboard.org/v2/message', (string) $requestHistory[0]['request']->getUri());
+        $this->assertSame('Bearer audit-token-marker', $requestHistory[0]['request']->getHeaderLine('Authorization'));
+        $this->assertSame(1, count($mockHandler));
     }
 
     /**
