@@ -2,6 +2,7 @@
 
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\TransferException;
 
 class OASwitchboardAPIClient
 {
@@ -66,6 +67,11 @@ class OASwitchboardAPIClient
             throw new Exception(
                 __('plugins.generic.OASwitchboard.postRequirements')
             );
+        } catch (TransferException $e) {
+            $this->logRequestFailure($this->getOperationName($endpoint), $endpoint, $e);
+            throw new Exception(
+                __('plugins.generic.OASwitchboard.serverError')
+            );
         }
     }
 
@@ -102,7 +108,7 @@ class OASwitchboardAPIClient
             'endpoint=' . $endpoint,
         ];
 
-        if ($exception->hasResponse()) {
+        if (method_exists($exception, 'hasResponse') && $exception->hasResponse()) {
             $response = $exception->getResponse();
             $logContext[] = 'status=' . $response->getStatusCode();
 
