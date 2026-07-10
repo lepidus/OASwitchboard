@@ -17,8 +17,8 @@ use PKP\core\PKPRequest;
 use PKP\handler\APIHandler;
 use PKP\plugins\Hook;
 use PKP\plugins\interfaces\HasAuthorizationPolicy;
-use PKP\security\Role;
 use PKP\security\authorization\SubmissionAccessPolicy;
+use PKP\security\Role;
 
 class OASwitchboardStatusController implements HasAuthorizationPolicy
 {
@@ -128,7 +128,10 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
                 );
             }
         } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
+            return response()->json(
+                ['error' => __('plugins.generic.OASwitchboard.serverError')],
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         return response()->json(

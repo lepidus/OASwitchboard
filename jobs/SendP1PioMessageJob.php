@@ -92,7 +92,7 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
         }
 
         $this->ensurePluginIsLoaded();
-        SendStatus::recordFailure($submission, $exception ? $exception->getMessage() : '');
+        SendStatus::recordFailure($submission, __('plugins.generic.OASwitchboard.serverError'));
         $this->registerSubmissionEventLog($submission, 'plugins.generic.OASwitchboard.sendMessageWithError');
     }
 

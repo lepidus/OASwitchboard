@@ -220,15 +220,20 @@ class SendP1PioMessageJobTest extends PKPTestCase
         }
     }
 
-    public function testShouldRecordFailedStatusWithErrorMessageWhenJobDefinitivelyFails()
+    public function testShouldRecordFailedStatusWithoutExceptionDetailsWhenJobDefinitivelyFails()
     {
+        $secretMarker = 'audit-job-exception-secret-marker';
         $service = $this->createMock(OASwitchboardService::class);
         $job = $this->createJobWithService($service);
 
-        $job->failed(new \Exception('OA Switchboard API is unavailable'));
+        $job->failed(new \Exception('OA Switchboard API is unavailable: ' . $secretMarker));
 
         $this->assertSame(SendStatus::STATUS_FAILED, $this->editedParams[SendStatus::SETTING_STATUS]);
-        $this->assertSame('OA Switchboard API is unavailable', $this->editedParams[SendStatus::SETTING_ERROR]);
+        $this->assertSame(
+            '##plugins.generic.OASwitchboard.serverError##',
+            $this->editedParams[SendStatus::SETTING_ERROR]
+        );
+        $this->assertStringNotContainsString($secretMarker, $this->editedParams[SendStatus::SETTING_ERROR]);
         $this->assertNotNull($this->registeredEventLogEntry);
         $this->assertSame(
             'plugins.generic.OASwitchboard.sendMessageWithError',

@@ -31,7 +31,7 @@ class Message
         try {
             $this->scheduleSendToOASwitchboard($submission);
         } catch (\Exception $e) {
-            error_log($e->getMessage());
+            error_log('OASwitchboard message scheduling failed');
         }
 
         return false;
