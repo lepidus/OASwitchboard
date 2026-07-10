@@ -125,23 +125,78 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $this->assertEquals(200, $apiClient->sendMessage($this->createP1PioMock(), 'mock_token'));
     }
 
-    public function testSendMessageShouldNotFollowRedirectsOrResendCredentials()
+    public function testSendMessageShouldRejectRedirectWithoutFollowingItOrLoggingSensitiveData()
     {
         $requestHistory = [];
+        $logMessages = new ArrayObject();
+        $tokenMarker = 'audit-token-marker';
+        $locationMarker = 'redirect-location-marker';
+        $bodyMarker = 'redirect-body-marker';
         $mockHandler = new MockHandler([
-            new Response(302, ['Location' => 'https://untrusted.example.test/message']),
+            new Response(
+                302,
+                ['Location' => 'https://untrusted.example.test/message?' . $locationMarker],
+                $bodyMarker
+            ),
             new Response(200),
         ]);
         $handlerStack = HandlerStack::create($mockHandler);
         $handlerStack->push(Middleware::history($requestHistory));
 
-        $apiClient = new OASwitchboardAPIClient(new Client(['handler' => $handlerStack]));
+        $apiClient = $this->createApiClientWithCapturedLogs(
+            new Client(['handler' => $handlerStack]),
+            $logMessages
+        );
 
-        $this->assertSame(302, $apiClient->sendMessage($this->createP1PioMock(), 'audit-token-marker'));
+        try {
+            $apiClient->sendMessage($this->createP1PioMock(), $tokenMarker);
+            $this->fail('Expected redirect response to fail');
+        } catch (Exception $exception) {
+            $this->assertStringNotContainsString($tokenMarker, $exception->getMessage());
+            $this->assertStringNotContainsString($locationMarker, $exception->getMessage());
+            $this->assertStringNotContainsString($bodyMarker, $exception->getMessage());
+        }
+
         $this->assertCount(1, $requestHistory);
         $this->assertSame('https://api.oaswitchboard.org/v2/message', (string) $requestHistory[0]['request']->getUri());
-        $this->assertSame('Bearer audit-token-marker', $requestHistory[0]['request']->getHeaderLine('Authorization'));
+        $this->assertSame('Bearer ' . $tokenMarker, $requestHistory[0]['request']->getHeaderLine('Authorization'));
         $this->assertSame(1, count($mockHandler));
+        $this->assertCount(1, $logMessages);
+        $this->assertStringContainsString('status=302', $logMessages[0]);
+        $this->assertStringNotContainsString($tokenMarker, $logMessages[0]);
+        $this->assertStringNotContainsString($locationMarker, $logMessages[0]);
+        $this->assertStringNotContainsString($bodyMarker, $logMessages[0]);
+        $this->assertStringNotContainsString('untrusted.example.test', $logMessages[0]);
+    }
+
+    /**
+     * @dataProvider messageResponseStatusProvider
+     */
+    public function testSendMessageShouldAcceptOnlyTwoHundredStatusCodes($statusCode, $shouldSucceed)
+    {
+        $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
+        $httpClientMock->method('request')->willReturn(new Response($statusCode));
+        $apiClient = new OASwitchboardAPIClient($httpClientMock);
+
+        if (!$shouldSucceed) {
+            $this->expectException(Exception::class);
+        }
+
+        $result = $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
+        $this->assertSame($statusCode, $result);
+    }
+
+    public static function messageResponseStatusProvider()
+    {
+        return [
+            'lower success boundary' => [200, true],
+            'upper success boundary' => [299, true],
+            'informational response' => [199, false],
+            'redirect lower boundary' => [300, false],
+            'redirect upper boundary' => [399, false],
+            'client error' => [400, false],
+            'server error' => [500, false],
+        ];
     }
 
     /**
@@ -169,6 +224,44 @@ class OASwitchboardAPIClientTest extends PKPTestCase
             'empty token' => [json_encode(['token' => ''])],
             'oversized response' => [str_repeat('a', 16385)],
         ];
+    }
+
+    public function testGetAuthorizationShouldAcceptResponseExactlyAtSizeLimitWithoutContentLength()
+    {
+        $token = str_repeat('t', 16372);
+        $responseBody = json_encode(['token' => $token]);
+        $this->assertSame(16384, strlen($responseBody));
+        $response = new Response(200, [], $responseBody);
+        $this->assertFalse($response->hasHeader('Content-Length'));
+        $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
+        $httpClientMock->method('request')->willReturn($response);
+
+        $apiClient = new OASwitchboardAPIClient($httpClientMock);
+
+        $this->assertSame($token, $apiClient->getAuthorization('test@example.com', 'password'));
+    }
+
+    public function testGetAuthorizationShouldRejectResponseOneByteAboveLimitWithoutLoggingBodyOrToken()
+    {
+        $tokenMarker = str_repeat('t', 16373);
+        $responseBody = json_encode(['token' => $tokenMarker]);
+        $this->assertSame(16385, strlen($responseBody));
+        $logMessages = new ArrayObject();
+        $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
+        $httpClientMock->method('request')->willReturn(new Response(200, [], $responseBody));
+        $apiClient = $this->createApiClientWithCapturedLogs($httpClientMock, $logMessages);
+
+        try {
+            $apiClient->getAuthorization('test@example.com', 'password');
+            $this->fail('Expected oversized authorization response to fail');
+        } catch (Exception $exception) {
+            $this->assertStringNotContainsString($tokenMarker, $exception->getMessage());
+        }
+
+        $this->assertCount(1, $logMessages);
+        $this->assertStringContainsString('operation=getAuthorization', $logMessages[0]);
+        $this->assertStringContainsString('status=200', $logMessages[0]);
+        $this->assertStringNotContainsString($tokenMarker, $logMessages[0]);
     }
 
     public function testRequestFailureShouldLogOnlySanitizedMetadata()
