@@ -2,9 +2,9 @@
 
 namespace APP\plugins\generic\OASwitchboard\classes\migrations;
 
+use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
-use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
 
 class EncryptApiCredentialsMigration extends Migration
 {
@@ -13,93 +13,116 @@ class EncryptApiCredentialsMigration extends Migration
 
     public function up(): void
     {
-        $encrypter = new APIKeyEncryption();
+        $encrypter = $this->createEncrypter();
+        $secretConfigExists = $encrypter->secretConfigExists();
 
-        if (!$encrypter->secretConfigExists()) {
-            error_log(
-                'OASwitchboard Migration: Skipping password encryption - ' .
-                'api_key_secret not configured in config.inc.php'
-            );
-            return;
-        }
-
-        $result = DB::table('plugin_settings')
-            ->where('plugin_name', self::PLUGIN_NAME)
-            ->where('setting_name', self::PASSWORD_SETTING)
-            ->get();
-
-        if ($result->isEmpty()) {
-            error_log(
-                'OASwitchboard Migration: No password settings found to encrypt'
-            );
-            return;
-        }
-
-        $encryptedCount = 0;
-        $skippedCount = 0;
-
-        foreach ($result as $row) {
+        foreach ($this->getPasswordSettings() as $row) {
             $row = get_object_vars($row);
             $settingValue = $row['setting_value'];
+            $contextId = (int) $row['context_id'];
 
-            if (empty($settingValue)) {
-                $skippedCount++;
+            if ($settingValue === null || $settingValue === '') {
                 continue;
             }
 
-            if ($encrypter->textIsEncrypted($settingValue)) {
-                $skippedCount++;
-                error_log(
-                    "OASwitchboard Migration: Password for context_id " .
-                    "{$row['context_id']} is already encrypted - skipping"
+            if (!$secretConfigExists) {
+                $this->clearPassword($contextId);
+                $this->writeLog(
+                    "OASwitchboard Migration: Cleared password for context_id {$contextId} because api_key_secret is not configured"
                 );
                 continue;
             }
 
             try {
+                if ($encrypter->textIsEncrypted($settingValue)) {
+                    continue;
+                }
+
+                if (strpos($settingValue, 'base64:') === 0) {
+                    throw new \Exception('Invalid encrypted credential');
+                }
+
                 $settingValue = $this->extractSettingValue($settingValue);
                 $encryptedValue = $encrypter->encryptString($settingValue);
-
-                DB::table('plugin_settings')
-                    ->where('plugin_name', self::PLUGIN_NAME)
-                    ->where('context_id', $row['context_id'])
-                    ->where('setting_name', self::PASSWORD_SETTING)
-                    ->update(
-                        ['setting_value' => $encryptedValue]
-                    );
-
-                $encryptedCount++;
-                error_log(
-                    "OASwitchboard Migration: Encrypted password for " .
-                    "context_id {$row['context_id']}"
-                );
-            } catch (\Exception $e) {
-                error_log(
-                    "OASwitchboard Migration: Failed to encrypt password " .
-                    "for context_id {$row['context_id']}: " . $e->getMessage()
+                $this->updatePassword($contextId, $encryptedValue);
+            } catch (\Throwable $exception) {
+                $this->clearPassword($contextId);
+                $this->writeLog(
+                    "OASwitchboard Migration: Cleared password for context_id {$contextId} because it could not be migrated"
                 );
             }
         }
-
-        error_log(
-            "OASwitchboard Migration: Completed - Encrypted: " .
-            "{$encryptedCount}, Skipped: {$skippedCount}"
-        );
     }
 
-    private function extractSettingValue($settingValue)
+    protected function createEncrypter()
+    {
+        return new APIKeyEncryption();
+    }
+
+    protected function getPasswordSettings()
+    {
+        return DB::table('plugin_settings')
+            ->where('plugin_name', self::PLUGIN_NAME)
+            ->where('setting_name', self::PASSWORD_SETTING)
+            ->get();
+    }
+
+    protected function updatePassword(int $contextId, string $encryptedValue): void
+    {
+        DB::table('plugin_settings')
+            ->where('plugin_name', self::PLUGIN_NAME)
+            ->where('context_id', $contextId)
+            ->where('setting_name', self::PASSWORD_SETTING)
+            ->update(['setting_value' => $encryptedValue]);
+    }
+
+    protected function clearPassword(int $contextId): void
+    {
+        DB::table('plugin_settings')
+            ->where('plugin_name', self::PLUGIN_NAME)
+            ->where('context_id', $contextId)
+            ->where('setting_name', self::PASSWORD_SETTING)
+            ->delete();
+    }
+
+    protected function writeLog(string $message): void
+    {
+        error_log($message);
+    }
+
+    protected function extractSettingValue($settingValue): string
     {
         $jwtParts = explode('.', $settingValue);
-        if (count($jwtParts) == 3) {
-            $header = json_decode(base64_decode($jwtParts[0]), true);
-            if (!isset($header['alg']) || !isset($header['typ'])) {
-                return $settingValue;
-            }
-
-            $payload = base64_decode($jwtParts[1]);
-            return trim($payload, '"');
+        if (count($jwtParts) !== 3) {
+            return $settingValue;
         }
 
-        return $settingValue;
+        $header = json_decode($this->decodeJwtSegment($jwtParts[0]), true);
+        if (!is_array($header) || !isset($header['alg']) || !isset($header['typ'])) {
+            return $settingValue;
+        }
+
+        $value = json_decode($this->decodeJwtSegment($jwtParts[1]), true);
+        if (!is_string($value)) {
+            throw new \Exception('Invalid legacy credential');
+        }
+
+        return $value;
+    }
+
+    private function decodeJwtSegment(string $segment): string
+    {
+        $segment = strtr($segment, '-_', '+/');
+        $padding = strlen($segment) % 4;
+        if ($padding !== 0) {
+            $segment .= str_repeat('=', 4 - $padding);
+        }
+
+        $decoded = base64_decode($segment, true);
+        if ($decoded === false) {
+            throw new \Exception('Invalid legacy credential');
+        }
+
+        return $decoded;
     }
 }
