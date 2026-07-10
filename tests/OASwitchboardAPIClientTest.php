@@ -137,7 +137,7 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $apiClient->getAuthorization('test@example.com', 'password');
     }
 
-    public function invalidAuthorizationResponseProvider()
+    public static function invalidAuthorizationResponseProvider()
     {
         return [
             'invalid json' => ['not-json'],
