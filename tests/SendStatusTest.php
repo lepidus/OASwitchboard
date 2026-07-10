@@ -16,8 +16,19 @@ class SendStatusTest extends PKPTestCase
 
     public function testShouldUpdateInMemorySubmissionWhenRecording()
     {
-        app()->instance(SubmissionRepository::class, $this->createMock(SubmissionRepository::class));
         $submission = new Submission();
+        $repository = $this->createMock(SubmissionRepository::class);
+        $repository->expects($this->once())
+            ->method('edit')
+            ->with(
+                $submission,
+                $this->callback(function (array $settings) {
+                    return $settings[SendStatus::SETTING_STATUS] === SendStatus::STATUS_PENDING &&
+                        !empty($settings[SendStatus::SETTING_UPDATED_AT]) &&
+                        $settings[SendStatus::SETTING_ERROR] === null;
+                })
+            );
+        app()->instance(SubmissionRepository::class, $repository);
 
         SendStatus::recordPending($submission);
 
@@ -35,6 +46,7 @@ class SendStatusTest extends PKPTestCase
         foreach ([SendStatus::SETTING_STATUS, SendStatus::SETTING_UPDATED_AT, SendStatus::SETTING_ERROR] as $setting) {
             $this->assertObjectHasProperty($setting, $schema->properties);
             $this->assertSame('string', $schema->properties->{$setting}->type);
+            $this->assertTrue($schema->properties->{$setting}->writeDisabledInApi);
         }
     }
 

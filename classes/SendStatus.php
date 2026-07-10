@@ -37,6 +37,7 @@ class SendStatus
                 'type' => 'string',
                 'apiSummary' => false,
                 'validation' => ['nullable'],
+                'writeDisabledInApi' => true,
             ];
         }
         return false;
