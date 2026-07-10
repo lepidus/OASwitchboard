@@ -60,6 +60,7 @@ class OASwitchboardAPIClient
                 $this->apiBaseUrl . $endpoint,
                 $options
             );
+            $this->assertSuccessfulResponse($endpoint, $response);
             return $response;
         } catch (ServerException $e) {
             $this->logRequestFailure($this->getOperationName($endpoint), $endpoint, $e);
@@ -81,9 +82,14 @@ class OASwitchboardAPIClient
 
     private function extractAuthorizationToken($response): string
     {
-        $responseBody = (string) $response->getBody();
+        try {
+            $responseBody = $this->readAuthorizationResponse($response->getBody());
+        } catch (\Throwable $exception) {
+            $this->rejectInvalidAuthorizationResponse($response);
+        }
+
         if (strlen($responseBody) > self::MAX_AUTHORIZATION_RESPONSE_BYTES) {
-            throw new Exception(__('plugins.generic.OASwitchboard.serverError'));
+            $this->rejectInvalidAuthorizationResponse($response);
         }
 
         $responseData = json_decode($responseBody, true);
@@ -94,10 +100,47 @@ class OASwitchboardAPIClient
             !is_string($responseData['token']) ||
             $responseData['token'] === ''
         ) {
-            throw new Exception(__('plugins.generic.OASwitchboard.serverError'));
+            $this->rejectInvalidAuthorizationResponse($response);
         }
 
         return $responseData['token'];
+    }
+
+    private function readAuthorizationResponse($stream): string
+    {
+        $responseBody = '';
+        $readLimit = self::MAX_AUTHORIZATION_RESPONSE_BYTES + 1;
+
+        while (!$stream->eof() && strlen($responseBody) < $readLimit) {
+            $bytesToRead = $readLimit - strlen($responseBody);
+            $chunk = $stream->read($bytesToRead);
+            if ($chunk === '') {
+                break;
+            }
+            $responseBody .= $chunk;
+        }
+
+        return $responseBody;
+    }
+
+    private function assertSuccessfulResponse(string $endpoint, $response): void
+    {
+        $statusCode = $response->getStatusCode();
+        if ($statusCode >= 200 && $statusCode < 300) {
+            return;
+        }
+
+        $this->logResponseFailure($this->getOperationName($endpoint), $endpoint, $response);
+        $messageKey = $statusCode >= 400 && $statusCode < 500
+            ? 'plugins.generic.OASwitchboard.postRequirements'
+            : 'plugins.generic.OASwitchboard.serverError';
+        throw new Exception(__($messageKey));
+    }
+
+    private function rejectInvalidAuthorizationResponse($response): void
+    {
+        $this->logResponseFailure('getAuthorization', self::API_AUTHORIZATION_ENDPOINT, $response);
+        throw new Exception(__('plugins.generic.OASwitchboard.serverError'));
     }
 
     private function getOperationName(string $endpoint): string
@@ -107,19 +150,29 @@ class OASwitchboardAPIClient
 
     private function logRequestFailure(string $operation, string $endpoint, $exception): void
     {
+        if (method_exists($exception, 'hasResponse') && $exception->hasResponse()) {
+            $this->logResponseFailure($operation, $endpoint, $exception->getResponse());
+            return;
+        }
+
         $logContext = [
             'operation=' . $operation,
             'endpoint=' . $endpoint,
         ];
+        $this->writeLog('OASwitchboard API request failed: ' . implode(' ', $logContext));
+    }
 
-        if (method_exists($exception, 'hasResponse') && $exception->hasResponse()) {
-            $response = $exception->getResponse();
-            $logContext[] = 'status=' . $response->getStatusCode();
+    private function logResponseFailure(string $operation, string $endpoint, $response): void
+    {
+        $logContext = [
+            'operation=' . $operation,
+            'endpoint=' . $endpoint,
+            'status=' . $response->getStatusCode(),
+        ];
 
-            $correlationId = $this->getCorrelationId($response);
-            if ($correlationId !== null) {
-                $logContext[] = 'correlationId=' . $correlationId;
-            }
+        $correlationId = $this->getCorrelationId($response);
+        if ($correlationId !== null) {
+            $logContext[] = 'correlationId=' . $correlationId;
         }
 
         $this->writeLog('OASwitchboard API request failed: ' . implode(' ', $logContext));

@@ -139,21 +139,109 @@ class OASwitchboardAPIClientTest extends PKPTestCase
 
     public function testSendMessageShouldNotFollowRedirectsOrResendCredentials()
     {
+        $tokenMarker = 'audit-token-marker';
+        $locationMarker = 'redirect-location-secret-marker';
+        $bodyMarker = 'redirect-body-secret-marker';
+        $logMessages = new ArrayObject();
         $requestHistory = [];
         $mockHandler = new MockHandler([
-            new Response(302, ['Location' => 'https://untrusted.example.test/message']),
+            new Response(
+                302,
+                ['Location' => 'https://untrusted.example.test/message?' . $locationMarker],
+                $bodyMarker
+            ),
             new Response(200),
         ]);
         $handlerStack = HandlerStack::create($mockHandler);
         $handlerStack->push(Middleware::history($requestHistory));
 
-        $apiClient = new OASwitchboardAPIClient(new Client(['handler' => $handlerStack]));
+        $apiClient = $this->createApiClientWithCapturedLogs(
+            new Client(['handler' => $handlerStack]),
+            $logMessages
+        );
 
-        $this->assertSame(302, $apiClient->sendMessage($this->createP1PioMock(), 'audit-token-marker'));
+        try {
+            $apiClient->sendMessage($this->createP1PioMock(), $tokenMarker);
+            $this->fail('Expected redirect response to fail');
+        } catch (Exception $exception) {
+            $this->assertStringNotContainsString($tokenMarker, $exception->getMessage());
+            $this->assertStringNotContainsString($locationMarker, $exception->getMessage());
+            $this->assertStringNotContainsString($bodyMarker, $exception->getMessage());
+        }
+
         $this->assertCount(1, $requestHistory);
         $this->assertSame('https://api.oaswitchboard.org/v2/message', (string) $requestHistory[0]['request']->getUri());
-        $this->assertSame('Bearer audit-token-marker', $requestHistory[0]['request']->getHeaderLine('Authorization'));
+        $this->assertSame('Bearer ' . $tokenMarker, $requestHistory[0]['request']->getHeaderLine('Authorization'));
         $this->assertSame(1, count($mockHandler));
+        $this->assertCount(1, $logMessages);
+        $this->assertStringContainsString('operation=sendMessage', $logMessages[0]);
+        $this->assertStringContainsString('endpoint=message', $logMessages[0]);
+        $this->assertStringContainsString('status=302', $logMessages[0]);
+        $this->assertStringNotContainsString($tokenMarker, $logMessages[0]);
+        $this->assertStringNotContainsString($locationMarker, $logMessages[0]);
+        $this->assertStringNotContainsString($bodyMarker, $logMessages[0]);
+        $this->assertStringNotContainsString('untrusted.example.test', $logMessages[0]);
+    }
+
+    /**
+     * @dataProvider successfulMessageStatusProvider
+     */
+    public function testSendMessageShouldAcceptAny2xxStatus(int $statusCode)
+    {
+        $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
+        $httpClientMock->method('request')
+            ->willReturn(new Response($statusCode));
+
+        $apiClient = new OASwitchboardAPIClient($httpClientMock);
+
+        $this->assertSame($statusCode, $apiClient->sendMessage($this->createP1PioMock(), 'mock_token'));
+    }
+
+    public static function successfulMessageStatusProvider(): array
+    {
+        return [
+            'lower boundary' => [200],
+            'created' => [201],
+            'no content' => [204],
+            'upper boundary' => [299],
+        ];
+    }
+
+    /**
+     * @dataProvider unsuccessfulMessageStatusProvider
+     */
+    public function testSendMessageShouldRejectAnyNon2xxStatus(int $statusCode)
+    {
+        $logMessages = new ArrayObject();
+        $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
+        $httpClientMock->method('request')
+            ->willReturn(new Response($statusCode, ['Location' => 'https://untrusted.example.test/secret']));
+
+        $apiClient = $this->createApiClientWithCapturedLogs($httpClientMock, $logMessages);
+
+        try {
+            $apiClient->sendMessage($this->createP1PioMock(), 'audit-token-marker');
+            $this->fail('Expected non-2xx response to fail');
+        } catch (Exception $exception) {
+            $this->assertStringNotContainsString('audit-token-marker', $exception->getMessage());
+            $this->assertStringNotContainsString('untrusted.example.test', $exception->getMessage());
+        }
+
+        $this->assertCount(1, $logMessages);
+        $this->assertStringContainsString('status=' . $statusCode, $logMessages[0]);
+        $this->assertStringNotContainsString('audit-token-marker', $logMessages[0]);
+        $this->assertStringNotContainsString('untrusted.example.test', $logMessages[0]);
+    }
+
+    public static function unsuccessfulMessageStatusProvider(): array
+    {
+        return [
+            'below success range' => [199],
+            'redirect lower boundary' => [300],
+            'redirect upper boundary' => [399],
+            'client error' => [400],
+            'server error' => [500],
+        ];
     }
 
     /**
@@ -179,8 +267,87 @@ class OASwitchboardAPIClientTest extends PKPTestCase
             'missing token' => [json_encode([])],
             'non-string token' => [json_encode(['token' => 1])],
             'empty token' => [json_encode(['token' => ''])],
-            'oversized response' => [str_repeat('a', 16385)],
         ];
+    }
+
+    public function testAuthorizationResponseExactlyAtLimitShouldSucceed()
+    {
+        $prefix = '{"token":"';
+        $suffix = '"}';
+        $token = str_repeat('a', 16384 - strlen($prefix) - strlen($suffix));
+        $responseBody = $prefix . $token . $suffix;
+        $this->assertSame(16384, strlen($responseBody));
+
+        $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
+        $httpClientMock->method('request')
+            ->willReturn(new Response(200, [], $responseBody));
+
+        $apiClient = new OASwitchboardAPIClient($httpClientMock);
+
+        $this->assertSame($token, $apiClient->getAuthorization('test@example.com', 'password'));
+    }
+
+    public function testAuthorizationResponseOneByteAboveLimitShouldFailWithoutLoggingBody()
+    {
+        $bodyMarker = 'audit-oversized-body-marker';
+        $responseBody = str_pad($bodyMarker, 16385, 'x');
+        $logMessages = new ArrayObject();
+        $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
+        $httpClientMock->method('request')
+            ->willReturn(new Response(200, [], $responseBody));
+
+        $apiClient = $this->createApiClientWithCapturedLogs($httpClientMock, $logMessages);
+
+        try {
+            $apiClient->getAuthorization('test@example.com', 'audit-password-marker');
+            $this->fail('Expected oversized authorization response to fail');
+        } catch (Exception $exception) {
+            $this->assertStringNotContainsString($bodyMarker, $exception->getMessage());
+        }
+
+        $this->assertCount(1, $logMessages);
+        $this->assertStringContainsString('status=200', $logMessages[0]);
+        $this->assertStringNotContainsString($bodyMarker, $logMessages[0]);
+        $this->assertStringNotContainsString('audit-password-marker', $logMessages[0]);
+    }
+
+    public function testAuthorizationResponseWithoutContentLengthShouldSucceed()
+    {
+        $responseBody = json_encode(['token' => 'mock_token']);
+        $response = new Response(200, [], $responseBody);
+        $this->assertFalse($response->hasHeader('Content-Length'));
+        $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
+        $httpClientMock->method('request')->willReturn($response);
+
+        $apiClient = new OASwitchboardAPIClient($httpClientMock);
+
+        $this->assertSame('mock_token', $apiClient->getAuthorization('test@example.com', 'password'));
+    }
+
+    public function testInvalidAuthorizationResponseShouldNotLogBodyOrCredentials()
+    {
+        $bodyMarker = 'audit-invalid-body-marker';
+        $passwordMarker = 'audit-password-marker';
+        $logMessages = new ArrayObject();
+        $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
+        $httpClientMock->method('request')
+            ->willReturn(new Response(200, [], json_encode(['unexpected' => $bodyMarker])));
+
+        $apiClient = $this->createApiClientWithCapturedLogs($httpClientMock, $logMessages);
+
+        try {
+            $apiClient->getAuthorization('test@example.com', $passwordMarker);
+            $this->fail('Expected invalid authorization response to fail');
+        } catch (Exception $exception) {
+            $this->assertStringNotContainsString($bodyMarker, $exception->getMessage());
+            $this->assertStringNotContainsString($passwordMarker, $exception->getMessage());
+        }
+
+        $this->assertCount(1, $logMessages);
+        $this->assertStringContainsString('operation=getAuthorization', $logMessages[0]);
+        $this->assertStringContainsString('status=200', $logMessages[0]);
+        $this->assertStringNotContainsString($bodyMarker, $logMessages[0]);
+        $this->assertStringNotContainsString($passwordMarker, $logMessages[0]);
     }
 
     public function testRequestFailureShouldLogOnlySanitizedMetadata()
