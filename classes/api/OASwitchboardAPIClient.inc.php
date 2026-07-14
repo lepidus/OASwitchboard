@@ -2,6 +2,7 @@
 
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\TransferException;
 
 class OASwitchboardAPIClient
 {
@@ -9,6 +10,9 @@ class OASwitchboardAPIClient
     private const API_SEND_MESSAGE_ENDPOINT = 'message';
     private const API_BASE_URL = 'https://api.oaswitchboard.org/v2/';
     private const API_SANDBOX_BASE_URL = 'https://sandboxapi.oaswitchboard.org/v2/';
+    private const CONNECT_TIMEOUT_SECONDS = 5;
+    private const REQUEST_TIMEOUT_SECONDS = 15;
+    private const MAX_AUTHORIZATION_RESPONSE_BYTES = 16384;
     private $httpClient;
     private $apiBaseUrl;
 
@@ -37,29 +41,156 @@ class OASwitchboardAPIClient
             ]
         ];
         $response = $this->makeRequest('POST', self::API_AUTHORIZATION_ENDPOINT, $options);
-        $responseBody = json_decode($response->getBody());
-        return $responseBody->token;
+        return $this->extractAuthorizationToken($response);
     }
 
     private function makeRequest(string $method, string $endpoint, array $options)
     {
+        $options['allow_redirects'] = false;
+        $options['connect_timeout'] = self::CONNECT_TIMEOUT_SECONDS;
+        $options['timeout'] = self::REQUEST_TIMEOUT_SECONDS;
+
         try {
             $response = $this->httpClient->request(
                 $method,
                 $this->apiBaseUrl . $endpoint,
                 $options
             );
+
+            $statusCode = $response->getStatusCode();
+            if ($statusCode < 200 || $statusCode > 299) {
+                $this->logResponseFailure($this->getOperationName($endpoint), $endpoint, $response);
+                if ($statusCode >= 400 && $statusCode <= 499) {
+                    throw new Exception(__('plugins.generic.OASwitchboard.postRequirements'));
+                }
+                throw new Exception(__('plugins.generic.OASwitchboard.serverError'));
+            }
+
             return $response;
         } catch (ServerException $e) {
-            error_log($e);
+            $this->logRequestFailure($this->getOperationName($endpoint), $endpoint, $e);
             throw new Exception(
                 __('plugins.generic.OASwitchboard.serverError')
             );
         } catch (ClientException $e) {
-            error_log($e);
+            $this->logRequestFailure($this->getOperationName($endpoint), $endpoint, $e);
             throw new Exception(
                 __('plugins.generic.OASwitchboard.postRequirements')
             );
+        } catch (TransferException $e) {
+            $this->logRequestFailure($this->getOperationName($endpoint), $endpoint, $e);
+            throw new Exception(
+                __('plugins.generic.OASwitchboard.serverError')
+            );
         }
+    }
+
+    private function extractAuthorizationToken($response): string
+    {
+        try {
+            $responseBody = $this->readAuthorizationResponse($response->getBody());
+        } catch (Throwable $exception) {
+            $this->logResponseFailure('getAuthorization', self::API_AUTHORIZATION_ENDPOINT, $response);
+            throw new Exception(__('plugins.generic.OASwitchboard.serverError'));
+        }
+
+        if (strlen($responseBody) > self::MAX_AUTHORIZATION_RESPONSE_BYTES) {
+            $this->logResponseFailure('getAuthorization', self::API_AUTHORIZATION_ENDPOINT, $response);
+            throw new Exception(__('plugins.generic.OASwitchboard.serverError'));
+        }
+
+        $responseData = json_decode($responseBody, true);
+        if (
+            json_last_error() !== JSON_ERROR_NONE ||
+            !is_array($responseData) ||
+            !isset($responseData['token']) ||
+            !is_string($responseData['token']) ||
+            $responseData['token'] === ''
+        ) {
+            $this->logResponseFailure('getAuthorization', self::API_AUTHORIZATION_ENDPOINT, $response);
+            throw new Exception(__('plugins.generic.OASwitchboard.serverError'));
+        }
+
+        return $responseData['token'];
+    }
+
+    private function readAuthorizationResponse($stream): string
+    {
+        $responseBody = '';
+        $maximumReadBytes = self::MAX_AUTHORIZATION_RESPONSE_BYTES + 1;
+
+        while (!$stream->eof() && strlen($responseBody) < $maximumReadBytes) {
+            $remainingBytes = $maximumReadBytes - strlen($responseBody);
+            $chunk = $stream->read($remainingBytes);
+            if ($chunk === '') {
+                break;
+            }
+            $responseBody .= $chunk;
+        }
+
+        return $responseBody;
+    }
+
+    private function getOperationName(string $endpoint): string
+    {
+        return $endpoint === self::API_AUTHORIZATION_ENDPOINT ? 'getAuthorization' : 'sendMessage';
+    }
+
+    private function logRequestFailure(string $operation, string $endpoint, $exception): void
+    {
+        $logContext = [
+            'operation=' . $operation,
+            'endpoint=' . $endpoint,
+        ];
+
+        if (method_exists($exception, 'hasResponse') && $exception->hasResponse()) {
+            $response = $exception->getResponse();
+            $logContext[] = 'status=' . $response->getStatusCode();
+
+            $correlationId = $this->getCorrelationId($response);
+            if ($correlationId !== null) {
+                $logContext[] = 'correlationId=' . $correlationId;
+            }
+        }
+
+        $this->writeLog('OASwitchboard API request failed: ' . implode(' ', $logContext));
+    }
+
+    private function logResponseFailure(string $operation, string $endpoint, $response): void
+    {
+        $logContext = [
+            'operation=' . $operation,
+            'endpoint=' . $endpoint,
+            'status=' . $response->getStatusCode(),
+        ];
+
+        $correlationId = $this->getCorrelationId($response);
+        if ($correlationId !== null) {
+            $logContext[] = 'correlationId=' . $correlationId;
+        }
+
+        $this->writeLog('OASwitchboard API request failed: ' . implode(' ', $logContext));
+    }
+
+    private function getCorrelationId($response): ?string
+    {
+        foreach (['X-Correlation-ID', 'X-Request-ID'] as $headerName) {
+            $value = $response->getHeaderLine($headerName);
+            if (
+                preg_match(
+                    '/^[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i',
+                    $value
+                )
+            ) {
+                return $value;
+            }
+        }
+
+        return null;
+    }
+
+    protected function writeLog(string $message): void
+    {
+        error_log($message);
     }
 }

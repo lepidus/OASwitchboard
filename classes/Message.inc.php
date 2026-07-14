@@ -30,7 +30,7 @@ class Message
                 $this->registerSubmissionEventLog($request, $submission, $keyMessage);
             }
         } catch (\Exception $e) {
-            error_log($e->getMessage());
+            error_log('OASwitchboard message delivery failed');
         }
     }
 

@@ -20,8 +20,8 @@ describe('Setup OASwitchboard credentials', function () {
         cy.contains('Use sandbox API for plugin testing purposes.');
         cy.get('#isSandBoxAPI').click();
 
-        cy.get('input[name=OASUsername]').type(Cypress.env('OASUsername'), {force: true});
-        cy.get('input[name=OASPassword]').type(Cypress.env('OASPassword'));
+        cy.get('input[name=OASUsername]').type(Cypress.env('OASUsername'), {force: true, log: false});
+        cy.get('input[name=OASPassword]').type(Cypress.env('OASPassword'), {log: false});
         cy.get('form#OASwitchboardSettingsForm button:contains("Save")').click();
         cy.get('form#OASwitchboardSettingsForm').should('not.be.visible');
         cy.contains('Your changes have been saved.');
@@ -29,7 +29,7 @@ describe('Setup OASwitchboard credentials', function () {
         cy.get('a[id^=' + pluginRowId + '-settings-button]').click();
 
         cy.contains('OA Switchboard Plugin');
-        cy.get('form#OASwitchboardSettingsForm').contains('The API credentials are ready to use! Currently using credentials for: ' + Cypress.env('OASUsername') + '.');
+        cy.get('form#OASwitchboardSettingsForm').contains('The API credentials are ready to use! Currently using credentials for:');
         cy.get('form#OASwitchboardSettingsForm').contains('You can edit the credentials below, or click the Cancel button.');
     })
 })
