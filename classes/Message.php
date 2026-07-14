@@ -2,17 +2,16 @@
 
 namespace APP\plugins\generic\OASwitchboard\classes;
 
-use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
-use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
-use APP\notification\NotificationManager;
-use PKP\notification\PKPNotification;
 use APP\core\Application;
+use APP\facades\Repo;
+use APP\notification\NotificationManager;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
+use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\submission\Submission;
 use PKP\core\Core;
-use APP\facades\Repo;
 use PKP\log\event\PKPSubmissionEventLogEntry;
+use PKP\notification\PKPNotification;
 use PKP\security\Validation;
-use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 
 class Message
 {
@@ -44,7 +43,7 @@ class Message
                 $this->registerSubmissionEventLog($request, $submission, $keyMessage);
             }
         } catch (\Exception $e) {
-            error_log($e->getMessage());
+            error_log('OASwitchboard message delivery failed');
         }
     }
 
@@ -149,7 +148,7 @@ class Message
         $notificationManager->createTrivialNotification(
             $userId,
             $notificationType,
-            array('contents' => $message)
+            ['contents' => $message]
         );
     }
 
