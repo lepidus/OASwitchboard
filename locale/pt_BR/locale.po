@@ -103,3 +103,6 @@ msgstr "Tentar novamente"
 
 msgid "plugins.generic.OASwitchboard.resend.notPublished"
 msgstr "A mensagem P1 só pode ser enviada para uma submissão publicada."
+
+msgid "plugins.generic.OASwitchboard.resend.notFailed"
+msgstr "A mensagem P1 só pode ser reenviada depois de uma falha no envio."

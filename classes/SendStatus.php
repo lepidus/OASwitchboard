@@ -15,6 +15,7 @@ namespace APP\plugins\generic\OASwitchboard\classes;
 
 use APP\facades\Repo;
 use APP\submission\Submission;
+use Illuminate\Support\Facades\DB;
 use PKP\core\Core;
 
 class SendStatus
@@ -37,6 +38,7 @@ class SendStatus
                 'type' => 'string',
                 'apiSummary' => false,
                 'validation' => ['nullable'],
+                'writeDisabledInApi' => true,
             ];
         }
         return false;
@@ -60,6 +62,38 @@ class SendStatus
     public static function recordNotSent(Submission $submission): void
     {
         self::record($submission, self::STATUS_NOT_SENT);
+    }
+
+    public static function canRetry(Submission $submission): bool
+    {
+        return $submission->getData(self::SETTING_STATUS) === self::STATUS_FAILED;
+    }
+
+    public static function transitionFailedToPending(Submission $submission): bool
+    {
+        return DB::transaction(function () use ($submission) {
+            $updated = DB::table('submission_settings')
+                ->where('submission_id', $submission->getId())
+                ->where('setting_name', self::SETTING_STATUS)
+                ->where('setting_value', self::STATUS_FAILED)
+                ->update(['setting_value' => self::STATUS_PENDING]);
+
+            if ($updated !== 1) {
+                return false;
+            }
+
+            $settings = [
+                self::SETTING_UPDATED_AT => Core::getCurrentDate(),
+                self::SETTING_ERROR => null,
+            ];
+            Repo::submission()->edit($submission, $settings);
+            $submission->setData(self::SETTING_STATUS, self::STATUS_PENDING);
+            foreach ($settings as $name => $value) {
+                $submission->setData($name, $value);
+            }
+
+            return true;
+        });
     }
 
     public static function readFromSubmission(Submission $submission): ?array

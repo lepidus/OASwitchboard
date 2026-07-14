@@ -2,11 +2,19 @@
 
 namespace APP\plugins\generic\OASwitchboard\tests;
 
+use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
+use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 use APP\plugins\generic\OASwitchboard\classes\SendStatus;
 use APP\plugins\generic\OASwitchboard\jobs\SendP1PioMessageJob;
 use APP\submission\Repository as SubmissionRepository;
 use APP\submission\Submission;
+use ArrayObject;
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use PKP\log\event\EventLogEntry;
@@ -87,6 +95,11 @@ class SendP1PioMessageJobTest extends PKPTestCase
             {
                 return null;
             }
+
+            protected function isPluginEnabled(): bool
+            {
+                return true;
+            }
         };
     }
 
@@ -141,6 +154,38 @@ class SendP1PioMessageJobTest extends PKPTestCase
         $this->assertNull($this->registeredEventLogEntry);
     }
 
+    public function testShouldNotSendWhenPluginIsDisabled()
+    {
+        $service = $this->createMock(OASwitchboardService::class);
+        $service->expects($this->never())
+            ->method('sendP1PioMessage');
+
+        $job = new class (self::SUBMISSION_ID, self::CONTEXT_ID, $service) extends SendP1PioMessageJob {
+            private $serviceForTests;
+
+            public function __construct(int $submissionId, int $contextId, OASwitchboardService $serviceForTests)
+            {
+                parent::__construct($submissionId, $contextId);
+                $this->serviceForTests = $serviceForTests;
+            }
+
+            protected function createOASwitchboardService($submission): OASwitchboardService
+            {
+                return $this->serviceForTests;
+            }
+
+            protected function isPluginEnabled(): bool
+            {
+                return false;
+            }
+        };
+
+        $job->handle();
+
+        $this->assertNull($this->editedParams);
+        $this->assertNull($this->registeredEventLogEntry);
+    }
+
     public function testShouldRegisterSubmissionEventLogOnSuccess()
     {
         $service = $this->createMock(OASwitchboardService::class);
@@ -183,15 +228,79 @@ class SendP1PioMessageJobTest extends PKPTestCase
         }
     }
 
-    public function testShouldRecordFailedStatusWithErrorMessageWhenJobDefinitivelyFails()
+    public function testRedirectShouldFailWithoutRecordingSentOrLeakingCredentials()
     {
+        $tokenMarker = 'audit-job-token-marker';
+        $locationMarker = 'audit-job-location-marker';
+        $bodyMarker = 'audit-job-body-marker';
+        $requestHistory = [];
+        $logMessages = new ArrayObject();
+        $mockHandler = new MockHandler([
+            new Response(
+                302,
+                ['Location' => 'https://untrusted.example.test/message?' . $locationMarker],
+                $bodyMarker
+            ),
+            new Response(200),
+        ]);
+        $handlerStack = HandlerStack::create($mockHandler);
+        $handlerStack->push(Middleware::history($requestHistory));
+        $apiClient = new class (new Client(['handler' => $handlerStack]), $logMessages) extends OASwitchboardAPIClient {
+            private ArrayObject $logMessages;
+
+            public function __construct($httpClient, ArrayObject $logMessages)
+            {
+                parent::__construct($httpClient);
+                $this->logMessages = $logMessages;
+            }
+
+            protected function writeLog(string $message): void
+            {
+                $this->logMessages->append($message);
+            }
+        };
+        $message = $this->createMock(P1Pio::class);
+        $message->method('getContent')->willReturn([]);
+        $service = $this->createMock(OASwitchboardService::class);
+        $service->method('sendP1PioMessage')
+            ->willReturnCallback(fn () => $apiClient->sendMessage($message, $tokenMarker));
+        $job = $this->createJobWithService($service);
+
+        try {
+            $job->handle();
+            $this->fail('Expected redirect response to fail the job');
+        } catch (\Exception $exception) {
+            $this->assertStringNotContainsString($tokenMarker, $exception->getMessage());
+            $this->assertStringNotContainsString($locationMarker, $exception->getMessage());
+            $this->assertStringNotContainsString($bodyMarker, $exception->getMessage());
+        }
+
+        $this->assertCount(1, $requestHistory);
+        $this->assertSame(1, count($mockHandler));
+        $this->assertNull($this->editedParams);
+        $this->assertNotSame(SendStatus::STATUS_SENT, $this->submission->getData(SendStatus::SETTING_STATUS));
+        $this->assertCount(1, $logMessages);
+        $this->assertStringContainsString('status=302', $logMessages[0]);
+        $this->assertStringNotContainsString($tokenMarker, $logMessages[0]);
+        $this->assertStringNotContainsString($locationMarker, $logMessages[0]);
+        $this->assertStringNotContainsString($bodyMarker, $logMessages[0]);
+        $this->assertStringNotContainsString('untrusted.example.test', $logMessages[0]);
+    }
+
+    public function testShouldRecordFailedStatusWithoutExceptionDetailsWhenJobDefinitivelyFails()
+    {
+        $secretMarker = 'audit-job-exception-secret-marker';
         $service = $this->createMock(OASwitchboardService::class);
         $job = $this->createJobWithService($service);
 
-        $job->failed(new \Exception('OA Switchboard API is unavailable'));
+        $job->failed(new \Exception('OA Switchboard API is unavailable: ' . $secretMarker));
 
         $this->assertSame(SendStatus::STATUS_FAILED, $this->editedParams[SendStatus::SETTING_STATUS]);
-        $this->assertSame('OA Switchboard API is unavailable', $this->editedParams[SendStatus::SETTING_ERROR]);
+        $this->assertSame(
+            '##plugins.generic.OASwitchboard.serverError##',
+            $this->editedParams[SendStatus::SETTING_ERROR]
+        );
+        $this->assertStringNotContainsString($secretMarker, $this->editedParams[SendStatus::SETTING_ERROR]);
         $this->assertNotNull($this->registeredEventLogEntry);
         $this->assertSame(
             'plugins.generic.OASwitchboard.sendMessageWithError',

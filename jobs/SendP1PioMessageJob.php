@@ -70,6 +70,10 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
             return;
         }
 
+        if (!$this->isPluginEnabled()) {
+            return;
+        }
+
         if ($this->wasAlreadySent($submission)) {
             return;
         }
@@ -88,7 +92,7 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
         }
 
         $this->ensurePluginIsLoaded();
-        SendStatus::recordFailure($submission, $exception ? $exception->getMessage() : '');
+        SendStatus::recordFailure($submission, __('plugins.generic.OASwitchboard.serverError'));
         $this->registerSubmissionEventLog($submission, 'plugins.generic.OASwitchboard.sendMessageWithError');
     }
 
@@ -126,5 +130,11 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
     {
         return PluginRegistry::getPlugin('generic', 'oaswitchboardplugin')
             ?? PluginRegistry::loadPlugin('generic', 'OASwitchboard', $this->contextId);
+    }
+
+    protected function isPluginEnabled(): bool
+    {
+        $plugin = $this->ensurePluginIsLoaded();
+        return $plugin && $plugin->getEnabled($this->contextId);
     }
 }
