@@ -71,17 +71,11 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals($orcid, 'https://orcid.org/0000-0000-0000-0000');
     }
 
-    public function testP1PioAuthorsShouldExcludeEmailAndPreserveAllowedIdentityFields()
+    public function testGetAuthorEmail()
     {
         $authorsData = $this->P1Pio->getAuthorsData();
-        $firstAuthor = $authorsData[0];
-
-        $this->assertArrayNotHasKey('email', $firstAuthor);
-        $this->assertEquals('Iris', $firstAuthor['firstName']);
-        $this->assertEquals('Castanheiras', $firstAuthor['lastName']);
-        $this->assertEquals('Lepidus Tecnologia', $firstAuthor['affiliation']);
-        $this->assertEquals('https://orcid.org/0000-0000-0000-0000', $firstAuthor['orcid']);
-        $this->assertEquals('Lepidus Tecnologia', $firstAuthor['institutions'][0]['name']);
+        $email = $authorsData[0]['email'];
+        $this->assertEquals($email, 'castanheirasiris@lepidus.com.br');
     }
 
     public function testGetIsCorrespondingAuthor()

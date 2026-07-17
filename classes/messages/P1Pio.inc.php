@@ -37,6 +37,7 @@ class P1Pio
             $firstName = $author->getLocalizedGivenName();
             $affiliationName = $author->getLocalizedAffiliation();
             $orcid = $author->getOrcid();
+            $email = $author->getEmail();
 
             $authorsData[] = [
                 'lastName' => $lastName,
@@ -56,6 +57,10 @@ class P1Pio
 
             if (!empty($orcid)) {
                 $authorsData[$lastAuthorIndex]['orcid'] = $orcid;
+            }
+
+            if (!empty($email)) {
+                $authorsData[$lastAuthorIndex]['email'] = $email;
             }
 
             $primaryContactId = $this->submission->getCurrentPublication()->getData('primaryContactId');
