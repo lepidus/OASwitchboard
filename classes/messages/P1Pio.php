@@ -69,6 +69,11 @@ class P1Pio
                 $authorEntry['orcid'] = $orcid;
             }
 
+            $email = $author->getEmail();
+            if (!empty($email)) {
+                $authorEntry['email'] = $email;
+            }
+
             $authorEntry['isCorrespondingAuthor'] = $primaryContactId === $author->getId();
             $authorEntry['listingorder'] = $listingOrder;
 
