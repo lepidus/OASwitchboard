@@ -63,11 +63,6 @@ class P1Pio
                 $authorsData[$lastAuthorIndex]['orcid'] = $orcid;
             }
 
-            $email = $author->getEmail();
-            if (!empty($email)) {
-                $authorsData[$lastAuthorIndex]['email'] = $email;
-            }
-
             $primaryContactId = $this->submission->getCurrentPublication()->getData('primaryContactId');
             $authorsData[$lastAuthorIndex]['isCorrespondingAuthor'] = $primaryContactId === $author->getId();
 

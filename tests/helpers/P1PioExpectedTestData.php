@@ -25,7 +25,6 @@ trait P1PioExpectedTestData
                     ]
                 ],
                 'orcid' => 'https://orcid.org/0000-0000-0000-0000',
-                'email' => 'castanheirasiris@lepidus.com.br',
                 'isCorrespondingAuthor' => true,
                 'listingorder' => 1
             ],
