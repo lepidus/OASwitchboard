@@ -18,11 +18,7 @@ msgstr "Permite enviar mensajes a OA Switchboard, de forma automática, al momen
 msgid "plugins.generic.OASwitchboard.settings.description"
 msgstr "Por favor, ingrese sus credenciales de OA Switchboard a continuación, para permitir que el complemento acceda a la API de Open Access Switchboard."
 
-msgid "plugins.generic.OASwitchboard.settings.useApiForTests"
-msgstr "Utilizar API para pruebas"
 
-msgid "plugins.generic.OASwitchboard.settings.useApiForTests.option.label"
-msgstr "Utilizar API sandbox para pruebas del módulo."
 
 msgid "plugins.generic.OASwitchboard.settings.description.hasCredentials"
 msgstr "¡Las credenciales API están listas para usar! Actualmente usando credenciales para: <strong>{$username}</strong>."

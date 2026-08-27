@@ -53,7 +53,7 @@ class MessageTest extends PKPTestCase
     private function createPluginMock(bool $configured): OASwitchboardPlugin
     {
         $settings = $configured
-            ? ['username' => 'user@example.com', 'password' => 'encrypted', 'isSandBoxAPI' => true]
+            ? ['username' => 'user@example.com', 'password' => 'encrypted']
             : [];
         $plugin = $this->createMock(OASwitchboardPlugin::class);
         $plugin->method('getSetting')

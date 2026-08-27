@@ -18,11 +18,7 @@ msgstr "Allows sending messages to OA Switchboard, automatically, at the publica
 msgid "plugins.generic.OASwitchboard.settings.description"
 msgstr "Please, enter your Open Access Switchboard credentials below, to allow the plugin to access the API."
 
-msgid "plugins.generic.OASwitchboard.settings.useApiForTests"
-msgstr "Use API for tests"
 
-msgid "plugins.generic.OASwitchboard.settings.useApiForTests.option.label"
-msgstr "Use sandbox API for plugin testing purposes."
 
 msgid "plugins.generic.OASwitchboard.settings.description.hasCredentials"
 msgstr "The API credentials are ready to use! Currently using credentials for: <strong>{$username}</strong>."

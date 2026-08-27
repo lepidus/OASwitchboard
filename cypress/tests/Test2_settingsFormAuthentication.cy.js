@@ -16,10 +16,7 @@ describe('Setup OASwitchboard credentials', function () {
         cy.contains('Please, enter your Open Access Switchboard credentials below, to allow the plugin to access the API.');
         cy.get('input[name=OASUsername]').should('be.visible');
         cy.get('input[name=OASPassword]').should('be.visible');
-
-        cy.contains('Use API for tests');
-        cy.contains('Use sandbox API for plugin testing purposes.');
-        cy.get('#isSandBoxAPI').click();
+        cy.get('#isSandBoxAPI').should('not.exist');
 
         cy.get('input[name=OASUsername]').type(Cypress.env('OASUsername'), {force: true, log: false});
         cy.get('input[name=OASPassword]').type(Cypress.env('OASPassword'), {log: false});

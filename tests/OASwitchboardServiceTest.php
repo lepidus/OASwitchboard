@@ -3,19 +3,46 @@
 namespace APP\plugins\generic\OASwitchboard\tests;
 
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
+use APP\plugins\generic\OASwitchboard\OASwitchboardPlugin;
 use APP\plugins\generic\OASwitchboard\tests\helpers\ObjectFactory;
+use Exception;
+use PKP\config\Config;
 use PKP\tests\PKPTestCase;
 
 class OASwitchboardServiceTest extends PKPTestCase
 {
+    private const CONTEXT_ID = 1;
+
     private $submission;
+    private $originalSandboxConfiguration;
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->originalSandboxConfiguration = Config::getVar('oaswitchboard', 'sandbox');
         $this->mockRequest();
         $journal = ObjectFactory::createMockedJournal($onlineIssn = '0000-0001', $printIssn = '0000-0002');
         $this->submission = ObjectFactory::createTestSubmission($journal);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->setSandboxConfiguration($this->originalSandboxConfiguration);
+        parent::tearDown();
+    }
+
+    private function setSandboxConfiguration($value): void
+    {
+        $configurationData = & Config::getData();
+        $configurationData['oaswitchboard']['sandbox'] = $value;
+    }
+
+    private function createPluginMock(array $settings): OASwitchboardPlugin
+    {
+        $plugin = $this->createMock(OASwitchboardPlugin::class);
+        $plugin->method('getSetting')
+            ->willReturnCallback(fn ($contextId, $name) => $settings[$name] ?? null);
+        return $plugin;
     }
 
     protected function getMockedDAOs(): array
@@ -40,5 +67,31 @@ class OASwitchboardServiceTest extends PKPTestCase
             ObjectFactory::buildAffiliation(ObjectFactory::AFFILIATION_NAME),
         ]);
         $this->assertFalse(OASwitchboardService::isRorAssociated($this->submission));
+    }
+
+    public function testUsesProductionApiWhenSandboxIsNotConfigured()
+    {
+        $this->setSandboxConfiguration(null);
+        $this->assertFalse(OASwitchboardService::usesSandboxApi());
+    }
+
+    public function testUsesSandboxApiWhenEnabledInConfigurationFile()
+    {
+        $this->setSandboxConfiguration(true);
+        $this->assertTrue(OASwitchboardService::usesSandboxApi());
+    }
+
+    public function testPluginIsConfiguredWithUsernameAndPasswordOnly()
+    {
+        $plugin = $this->createPluginMock(['username' => 'user@example.com', 'password' => 'encrypted']);
+        OASwitchboardService::validatePluginIsConfigured($plugin, self::CONTEXT_ID);
+        $this->addToAssertionCount(1);
+    }
+
+    public function testPluginIsNotConfiguredWithoutCredentials()
+    {
+        $plugin = $this->createPluginMock([]);
+        $this->expectException(Exception::class);
+        OASwitchboardService::validatePluginIsConfigured($plugin, self::CONTEXT_ID);
     }
 }
