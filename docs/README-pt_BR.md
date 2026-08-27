@@ -7,100 +7,90 @@
 [![License type](https://img.shields.io/github/license/lepidus/OASwitchboard)](https://github.com/lepidus/OASwitchboard/blob/main/LICENSE)
 [![Number of downloads](https://img.shields.io/github/downloads/lepidus/OASwitchboard/total)](https://github.com/lepidus/OASwitchboard/releases)
 
-Este plugin permite que revistas do **[OJS](https://pkp.sfu.ca/software/ojs/)** enviem automaticamente mensagens do tipo **P1-PIO** para a API do **[Open Access Switchboard](https://www.oaswitchboard.org/)** no momento da publicação de um artigo.
+Este plugin conecta revistas que usam o [OJS](https://pkp.sfu.ca/software/ojs/) ao [OA Switchboard](https://www.oaswitchboard.org/), a infraestrutura compartilhada que troca metadados de comunicação científica entre editoras, instituições e financiadores. Quando um artigo é publicado, seus [metadados de publicação](#quais-metadados-são-enviados) são extraídos automaticamente e enviados às instituições e aos financiadores de pesquisa relevantes como uma **mensagem P1-PIO** padronizada.
 
 **Anúncio:** [OA Switchboard OJS plug-in: Supporting diamond journals to increase the visibility of their OA output among research funders, libraries, and consortia](https://www.oaswitchboard.org/ojs-plugin).
 
+## Como funciona
 
-# Sumário
-1. [Plugin Open Access Switchboard](#plugin-open-access-switchboard)
-2. [Suporte de versões](#suporte-de-versões)
-3. [Instalação do Plugin](#instalação-do-plugin)
-4. [Requisitos para uso](#requisitos-para-uso)
-    - [Requisitos da Revista](#requisitos-da-revista)
-    - [Requisitos da Publicação](#requisitos-da-publicação)
-5. [Uso](#uso)
-    - [Vídeo de demonstração](#vídeo-de-demonstração)
-6. [Quais campos de metadados são incluídos na mensagem?](#quais-campos-de-metadados-são-incluídos-na-mensagem)
-7. [Créditos](#créditos)
-8. [Licença](#licença)
+Antes da publicação, o plugin verifica se o artigo tem os metadados que o OA Switchboard exige e mostra o resultado na aba **OA Switchboard**, dentro do fluxo de trabalho da submissão. Artigos com pendências podem ser publicados normalmente, apenas sem o envio da mensagem.
 
-## Suporte de versões
+## Primeiros passos
 
-Este ramo do repositório é compatível com o OJS 3.5.0.x.
+### O que sua instalação do OJS precisa ter
 
-Versões compatíveis com versões anteriores do OJS estão disponíveis nos ramos [`stable-3_4_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_4_0) e [`stable-3_3_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_3_0).
+Duas configurações comuns do OJS, normalmente já em vigor:
 
-- A versão `v1.x.x.x` do plugin é compatível com o OJS 3.3.0.x
-- A versão `v2.x.x.x` do plugin é compatível com o OJS 3.4.0.x
-- A versão `v3.x.x.x` do plugin é compatível com o OJS 3.5.0.x
+- **Tarefas em segundo plano** em execução, para que as mensagens saiam logo após a publicação ([Guia do Administrador da PKP](https://docs.pkp.sfu.ca/admin-guide/)).
+- **`api_key_secret`** configurado, para que suas credenciais fiquem armazenadas de forma criptografada ([como defini-lo](https://forum.pkp.sfu.ca/t/how-to-generate-a-api-key-secret-code-in-ojs-3/72008)).
 
-Você pode encontrar a versão mais recente do plugin compatível com a sua versão do OJS na [página de Releases](https://github.com/lepidus/OASwitchboard/releases).
+Ambas são configurações únicas, válidas para toda a instalação, que seu administrador de sistema pode providenciar.
 
-## Instalação do Plugin
+### 1. Torne-se participante do OA Switchboard
 
-1. Vá para *Configurações -> Website -> Plugins -> Galeria de Plugins*. Clique em **OA Switchboard Plugin** e então clique em *Instalar*.
+Assine o Service Agreement no [site do OA Switchboard](https://www.oaswitchboard.org/) para se tornar participante e receber o userID e a senha que o plugin utiliza.
 
-2. Após instalar o plugin, vá até as Configurações do plugin e siga as [instruções de Uso](#uso).
+### 2. Instale o plugin
 
-## Requisitos para uso
+Acesse *Configurações → Website → Plugins → Galeria de plugins*, localize o **OA Switchboard Plugin**, clique em *Instalar* e habilite-o.
 
-Certifique-se de atender a estes requisitos para que a mensagem P1-PIO possa ser enviada ao OASwitchboard no momento da publicação do artigo.
+> [!TIP]
+> Se a galeria não oferecer uma versão compatível com o seu OJS, baixe o `.tar.gz` na [página de releases](https://github.com/lepidus/OASwitchboard/releases) e use **Enviar novo plugin**.
 
-### Requisitos da Revista
+### 3. Informe suas credenciais
 
-1. **api_key_secret**
+Abra as *Configurações* do plugin e informe seu userID e sua senha do OA Switchboard. Eles são verificados no momento de salvar, então você descobre na hora se algo está errado.
 
-A instância do OJS deve ter a configuração `api_key_secret` definida; você pode contatar o administrador do sistema para fazer isso (veja [este post](https://forum.pkp.sfu.ca/t/how-to-generate-a-api-key-secret-code-in-ojs-3/72008)).
+> [!NOTE]
+> Se aparecer um aviso no lugar do formulário, falta o `api_key_secret`. [Como defini-lo](https://forum.pkp.sfu.ca/t/how-to-generate-a-api-key-secret-code-in-ojs-3/72008).
 
-Isso é necessário para utilizar as credenciais de API fornecidas, que são armazenadas de forma criptografada no banco de dados do OJS.
+### 4. Prepare sua revista
 
-2. **ISSN**
+A mensagem só é enviada quando estes metadados estão presentes:
 
-A Revista deve ter pelo menos um ISSN configurado, seja digital ou impresso.
+- **Revista:** ao menos um ISSN, impresso ou eletrônico.
+- **Artigo:** um DOI atribuído.
+- **Todos os autores:** sobrenome e afiliação.
 
-### Requisitos da Publicação
+**Recomendado:** um **ROR ID** na afiliação de ao menos um autor. É ele que permite ao OA Switchboard encaminhar a mensagem àquela instituição.
 
-* Todos os autores do artigo devem ter uma **afiliação** definida.
-* A publicação deve ter um **DOI associado** a ela.
-* Os autores precisam ter **sobrenome** (family name) além do nome.
+**Opcional:** com o [plugin Funding](https://github.com/ajnyga/funding/tree/stable-3_5_0) instalado, os financiadores registrados no artigo entram automaticamente na mensagem. Sem ele, as mensagens continuam sendo enviadas.
 
-Recomenda-se que pelo menos um autor do artigo tenha um **ROR ID** associado à sua afiliação, para que a mensagem seja enviada à afiliação associada.
+## No dia a dia
 
-**Informações de financiamento**: Para incluir informações de financiamento na mensagem, a revista deve estar utilizando o [plugin Funding](https://github.com/ajnyga/funding/tree/stable-3_5_0) para fornecer essa informação sobre o artigo. No OJS 3.5, a Galeria de Plugins pode ainda não listar uma versão compatível do plugin Funding; nesse caso, instale-o manualmente baixando um pacote compatível na [página de releases](https://github.com/ajnyga/funding/releases). Quando o plugin Funding está instalado e habilitado, os financiadores cadastrados para o artigo são automaticamente adicionados à mensagem P1-PIO; sua ausência não bloqueia o envio da mensagem.
+Tudo acontece na aba **OA Switchboard** da submissão.
 
-## Uso
+**Antes de publicar,** a aba informa se o artigo está pronto e lista o que falta, para você ajustar os metadados antes. Você pode publicar de qualquer forma.
 
-* Em primeiro lugar, certifique-se de que todos os [requisitos para o envio adequado das mensagens P1-PIO](#requisitos-para-uso) foram atendidos.
+<img src="images/workflow-tab-requirements.png" width="700" alt="Aba OA Switchboard listando os requisitos que o artigo ainda não cumpre antes da publicação.">
 
-* Após instalar o plugin, vá até as Configurações do plugin e insira suas credenciais de acesso à API do OASwitchboard.
-  * Você pode precisar de credenciais diferentes para a API de *sandbox*.
-* Antes de publicar o artigo, o status da submissão é exibido indicando se a mensagem será enviada com sucesso ou não; você pode ignorá-los ou editar o artigo para atender aos requisitos do plugin.
-* No momento da publicação de um artigo, uma mensagem do tipo P1-PIO será enviada ao OASwitchboard via API, se todos os requisitos da publicação forem atendidos.
-  * Em caso de sucesso, você verá uma notificação verde no canto superior direito da tela.
+**Depois de publicar,** ela mostra o que aconteceu:
 
-### Vídeo de demonstração
+| Situação | Significado |
+| --- | --- |
+| **Enviada** | O OA Switchboard recebeu a mensagem. |
+| **Na fila** | A mensagem está a caminho. |
+| **Falhou** | Algo deu errado. O motivo é exibido, junto com o botão **Tentar novamente**. |
+| **Não enviada** | O artigo não cumpria os requisitos quando foi publicado. |
 
-Este é um vídeo demonstrativo para guiá-lo pela instalação e uso básico do plugin.
+<img src="images/workflow-tab-sent.png" width="700" alt="Aba OA Switchboard confirmando que a mensagem P1 foi enviada com sucesso, com a data da última atualização.">
 
-[![Video Demo](https://img.shields.io/badge/Video%20Demo-Click%20Here-blue?logo=video)](https://vimeo.com/997938301/c62617794b)
+## Quais metadados são enviados?
 
-## Quais campos de metadados são incluídos na mensagem?
-
-Os metadados obtidos do OJS e enviados ao OA Switchboard estão listados abaixo no elemento recolhível.
+Tudo o que é enviado já está no OJS; nada de novo é coletado.
 
 <details>
-<summary>Clique aqui para ver a lista</summary>
+<summary>Clique aqui para ver a lista completa</summary>
 
 - Sobre a **Publicação**:
   - Título
   - Tipo
   - DOI
-  - ID da Submissão
+  - ID da submissão
   - Data de submissão
-  - Data de aceitação
+  - Data de aceite
   - Data de publicação
-  - ID do Manuscrito
+  - ID do manuscrito
   - VoR (Version of Record)
     - Tipo de publicação da revista
     - Licença
@@ -108,13 +98,12 @@ Os metadados obtidos do OJS e enviados ao OA Switchboard estão listados abaixo 
   - Nome
   - Sobrenome
   - ORCID
-  - E-mail
   - Posição na ordem de listagem
   - Se é autor correspondente
-  - Instituição afiliada
+  - Instituição de afiliação
     - Nome
     - ROR ID
-- Sobre cada **Financiador**: (se disponível através do plugin Funding)
+- Sobre cada **Financiador**: (quando disponível pelo plugin Funding)
   - Nome
   - Identificador
 - Sobre a **Revista**:
@@ -126,15 +115,60 @@ Os metadados obtidos do OJS e enviados ao OA Switchboard estão listados abaixo 
 
 </details>
 
+## Vídeo demonstrativo
+
+[![Video Demo](https://img.shields.io/badge/Video%20Demo-Click%20Here-blue?logo=video)](https://vimeo.com/997938301/c62617794b)
+
+*Gravado no OJS 3.3: os passos são os mesmos, mas a interface mudou e a aba no fluxo de trabalho é posterior ao vídeo.*
+
+## Solução de problemas
+
+<details>
+<summary><strong>O envio falhou</strong></summary>
+
+Normalmente credenciais expiradas ou instabilidade temporária. Informe as credenciais novamente, se for o caso, e use **Tentar novamente**. Mais detalhes ficam registrados nos logs do servidor do OJS.
+
+</details>
+
+<details>
+<summary><strong>A aba diz que o plugin não está configurado</strong></summary>
+
+As credenciais ainda não foram salvas, ou sua revista não tem ISSN.
+
+</details>
+
+<details>
+<summary><strong>A mensagem ficou na fila</strong></summary>
+
+Peça ao administrador do sistema para verificar se as tarefas em segundo plano estão em execução.
+
+</details>
+
+## Onde buscar ajuda
+
+- **O plugin:** abra uma issue neste repositório.
+- **Sua conta ou suas mensagens no OA Switchboard:** fale com o [OA Switchboard](https://www.oaswitchboard.org/).
+- **O próprio OJS:** pergunte no [fórum da comunidade PKP](https://forum.pkp.sfu.ca/).
+
+## Compatibilidade de versões
+
+Cada linha de versão do OJS tem seu próprio ramo neste repositório. Este é o do **OJS 3.5.0.x**.
+
+| Versão do plugin | Versão do OJS | Ramo |
+| --- | --- | --- |
+| `v3.x.x.x` | 3.5.0.x | [`main`](https://github.com/lepidus/OASwitchboard/tree/main) (este ramo) |
+| `v2.x.x.x` | 3.4.0.x | [`stable-3_4_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_4_0) |
+| `v1.x.x.x` | 3.3.0.x | [`stable-3_3_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_3_0) |
+
 ## Créditos
 
-Este plugin foi desenvolvido em código aberto para o [OA Switchboard](https://www.oaswitchboard.org/) pela [Lepidus Tecnologia](https://lepidus.com.br/) tendo a [Openjournals.nl](http://openjournals.nl/) como parceira de testes. O desenvolvimento foi viabilizado por financiamento da [Max Planck Digital Library (MPDL)](https://www.mpdl.mpg.de/en/).
+Este plugin foi desenvolvido como software livre para o [OA Switchboard](https://www.oaswitchboard.org/) pela [Lepidus Tecnologia](https://lepidus.com.br/), com a [Openjournals.nl](http://openjournals.nl/) como parceira de testes. O desenvolvimento foi viabilizado pelo financiamento da [Max Planck Digital Library (MPDL)](https://www.mpdl.mpg.de/en/).
 
 Desenvolvido pela [Lepidus Tecnologia](https://github.com/lepidus).
 
 ## Licença
 
-Este plugin está licenciado sob a [GNU General Public License v3.0](/LICENSE).
+Este plugin é distribuído sob a [Licença Pública Geral GNU v3.0](/LICENSE).
 
 Copyright (c) 2024 Lepidus Tecnologia.
 Copyright (c) 2024 Stichting OA Switchboard

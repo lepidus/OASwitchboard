@@ -7,114 +7,103 @@
 [![License type](https://img.shields.io/github/license/lepidus/OASwitchboard)](https://github.com/lepidus/OASwitchboard/blob/main/LICENSE)
 [![Number of downloads](https://img.shields.io/github/downloads/lepidus/OASwitchboard/total)](https://github.com/lepidus/OASwitchboard/releases)
 
-Este módulo permite que las revistas de **[OJS](https://pkp.sfu.ca/software/ojs/)** envíen automáticamente mensajes de tipo **P1-PIO** a la API de **[Open Access Switchboard](https://www.oaswitchboard.org/)** en el momento de la publicación del artículo.
+Este módulo conecta las revistas que usan [OJS](https://pkp.sfu.ca/software/ojs/) con [OA Switchboard](https://www.oaswitchboard.org/), la infraestructura compartida que intercambia metadatos de comunicación científica entre editoriales, instituciones y financiadores. Cuando se publica un artículo, sus [metadatos de publicación](#qué-metadatos-se-envían) se extraen automáticamente y se envían a las instituciones y a los financiadores de investigación pertinentes como un **mensaje P1-PIO** estandarizado.
 
-**Anuncio:** [OA Switchboard OJS plug-in: Supporting diamond journals to increase the visibility of their OA output among research funders, libraries, and consortia](https://www.oaswitchboard.org/ojs-módulo).
+**Anuncio:** [OA Switchboard OJS plug-in: Supporting diamond journals to increase the visibility of their OA output among research funders, libraries, and consortia](https://www.oaswitchboard.org/ojs-plugin).
 
+## Cómo funciona
 
-# Tabla de Contenidos
-1. [Módulo Open Access Switchboard](#módulo-open-access-switchboard)
-2. [Soporte de versiones](#soporte-de-versiones)
-3. [Instalación del Módulo](#instalación-del-módulo)
-4. [Requisitos de uso](#requisitos-de-uso)
-    - [Requisitos de la Revista](#requisitos-de-la-revista)
-    - [Requisitos de la Publicación](#requisitos-de-la-publicación)
-5. [Uso](#uso)
-    - [Video de demostración](#video-de-demostración)
-6. [¿Qué campos de metadatos se incluyen en el mensaje?](#qué-campos-de-metadatos-se-incluyen-en-el-mensaje)
-7. [Créditos](#créditos)
-8. [Licencia](#licencia)
+Antes de la publicación, el módulo comprueba si el artículo tiene los metadatos que OA Switchboard requiere y muestra el resultado en la pestaña **OA Switchboard**, dentro del flujo de trabajo del envío. Los artículos con requisitos pendientes pueden publicarse con normalidad, simplemente sin que se envíe el mensaje.
 
-## Soporte de versiones
+## Primeros pasos
 
-Esta rama del repositorio es compatible con OJS 3.5.0.x.
+### Lo que necesita su instalación de OJS
 
-Versiones compatibles con versiones anteriores de OJS están disponibles en las ramas [`stable-3_4_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_4_0) y [`stable-3_3_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_3_0).
+Dos ajustes habituales de OJS, que normalmente ya están en su sitio:
 
-- La versión `v1.x.x.x` del módulo es compatible con OJS 3.3.0.x
-- La versión `v2.x.x.x` del módulo es compatible con OJS 3.4.0.x
-- La versión `v3.x.x.x` del módulo es compatible con OJS 3.5.0.x
+- **Tareas en segundo plano** en ejecución, para que los mensajes salgan justo después de la publicación ([Guía del Administrador de PKP](https://docs.pkp.sfu.ca/admin-guide/)).
+- **`api_key_secret`** configurado, para que sus credenciales se almacenen cifradas ([cómo definirlo](https://forum.pkp.sfu.ca/t/how-to-generate-a-api-key-secret-code-in-ojs-3/72008)).
 
-Puede encontrar la versión más reciente del módulo compatible con su versión de OJS en la [página de Releases](https://github.com/lepidus/OASwitchboard/releases).
+Ambos son ajustes únicos, válidos para toda la instalación, que su administrador de sistemas puede dejar listos.
 
-## Instalación del Módulo
+### 1. Hágase participante de OA Switchboard
 
-1. Vaya a *Ajustes -> Sitio web -> Módulos -> Galería de módulos*. Haga clic en **OA Switchboard Módulo** y luego en *Instalar*.
+Firme el Service Agreement en el [sitio de OA Switchboard](https://www.oaswitchboard.org/) para convertirse en participante y recibir el userID y la contraseña que utiliza el módulo.
 
-2. Después de instalar el módulo, vaya a la configuración del módulo y siga las [instrucciones de Uso](#uso).
+### 2. Instale el módulo
 
-## Requisitos de uso
+Vaya a *Ajustes → Sitio web → Módulos → Galería de módulos*, localice **OA Switchboard Plugin**, pulse *Instalar* y actívelo.
 
-Asegúrese de cumplir con estos requisitos para que el mensaje P1-PIO pueda enviarse a OASwitchboard en el momento de la publicación del artículo.
+> [!TIP]
+> Si la galería no ofrece una versión compatible con su OJS, descargue el `.tar.gz` desde la [página de releases](https://github.com/lepidus/OASwitchboard/releases) y utilice **Cargar un nuevo módulo**.
 
-### Requisitos de la Revista
+### 3. Introduzca sus credenciales
 
-1. **api_key_secret**
+Abra los *Ajustes* del módulo e introduzca su userID y su contraseña de OA Switchboard. Se comprueban al guardar, así que sabrá de inmediato si algo no está bien.
 
-La instancia de OJS debe tener configurado el parámetro `api_key_secret`; puede contactar al administrador del sistema para hacerlo (vea [esta publicación](https://forum.pkp.sfu.ca/t/how-to-generate-a-api-key-secret-code-in-ojs-3/72008)).
+> [!NOTE]
+> Si aparece un aviso en lugar del formulario, falta el `api_key_secret`. [Cómo definirlo](https://forum.pkp.sfu.ca/t/how-to-generate-a-api-key-secret-code-in-ojs-3/72008).
 
-Esto es necesario para utilizar las credenciales de la API proporcionadas, que se almacenan cifradas en la base de datos de OJS.
+### 4. Prepare su revista
 
-2. **ISSN**
+El mensaje solo se envía cuando estos metadatos están presentes:
 
-La revista debe tener al menos un ISSN configurado, ya sea digital o impreso.
+- **Revista:** al menos un ISSN, impreso o electrónico.
+- **Artículo:** un DOI asignado.
+- **Todos los autores:** apellido y afiliación.
 
-### Requisitos de la Publicación
+**Recomendado:** un **ROR ID** en la afiliación de al menos un autor. Es lo que permite a OA Switchboard encaminar el mensaje a esa institución.
 
-* Todos los autores del artículo deben tener una **afiliación** definida.
-* La publicación debe tener un **DOI asociado**.
-* Los autores deben tener un **apellido** (family name) además del nombre.
+**Opcional:** con el [módulo Funding](https://github.com/ajnyga/funding/tree/stable-3_5_0) instalado, los financiadores registrados en el artículo se incluyen automáticamente en el mensaje. Sin él, los mensajes se siguen enviando.
 
-Se recomienda que al menos un autor del artículo tenga un **ROR ID** asociado a su afiliación, para que el mensaje sea enviado a la afiliación asociada.
+## En el día a día
 
-**Información de financiación**: Para incluir información de financiación en el mensaje, la revista debe estar utilizando el [módulo Funding](https://github.com/ajnyga/funding/tree/stable-3_5_0) para proporcionar esa información sobre el artículo. En OJS 3.5, la Galería de módulos puede aún no listar una versión compatible del módulo Funding; en ese caso, instálelo manualmente descargando un paquete compatible desde la [página de releases](https://github.com/ajnyga/funding/releases). Cuando el módulo Funding está instalado y habilitado, los financiadores registrados para el artículo se agregan automáticamente al mensaje P1-PIO; su ausencia no bloquea el envío del mensaje.
+Todo ocurre en la pestaña **OA Switchboard** del envío.
 
-## Uso
+**Antes de publicar,** la pestaña indica si el artículo está listo y enumera lo que falta, para que pueda corregir los metadatos antes. Puede publicar en cualquiera de los dos casos.
 
-* Ante todo, asegúrese de haber cumplido todos los [requisitos para el envío correcto de los mensajes P1-PIO](#requisitos-de-uso).
+<img src="images/workflow-tab-requirements.png" width="700" alt="Pestaña OA Switchboard enumerando los requisitos que el artículo aún no cumple antes de la publicación.">
 
-* Después de instalar el módulo, vaya a la configuración del módulo e ingrese sus credenciales de acceso a la API de OASwitchboard.
-  * Es posible que necesite credenciales diferentes para la API de *sandbox*.
-* Antes de publicar el artículo, se muestra el estado del envío indicando si el mensaje será enviado con éxito o no; puede ignorarlos o editar el artículo para cumplir con los requisitos del módulo.
-* En el momento de la publicación de un artículo, se enviará un mensaje de tipo P1-PIO a OASwitchboard vía API, si se cumplen todos los requisitos de la publicación.
-  * En caso de éxito, verá una notificación verde en la esquina superior derecha de la pantalla.
+**Después de publicar,** muestra lo que ocurrió:
 
-### Video de demostración
+| Estado | Significado |
+| --- | --- |
+| **Enviado** | OA Switchboard recibió el mensaje. |
+| **En cola** | El mensaje está en camino. |
+| **Falló** | Algo salió mal. Se muestra el motivo, junto con el botón **Intentar de nuevo**. |
+| **No enviado** | El artículo no cumplía los requisitos cuando se publicó. |
 
-Este es un video demostrativo para guiarle a través de la instalación y el uso básico del módulo.
+<img src="images/workflow-tab-sent.png" width="700" alt="Pestaña OA Switchboard confirmando que el mensaje P1 se envió correctamente, con la fecha de la última actualización.">
 
-[![Video Demo](https://img.shields.io/badge/Video%20Demo-Click%20Here-blue?logo=video)](https://vimeo.com/997938301/c62617794b)
+## ¿Qué metadatos se envían?
 
-## ¿Qué campos de metadatos se incluyen en el mensaje?
-
-Los metadatos obtenidos de OJS y enviados a OA Switchboard se listan a continuación en el elemento desplegable.
+Todo lo que se envía ya está en OJS; no se recoge nada nuevo.
 
 <details>
-<summary>Haga clic aquí para ver la lista</summary>
+<summary>Pulse aquí para ver la lista completa</summary>
 
 - Sobre la **Publicación**:
   - Título
   - Tipo
   - DOI
-  - ID del Envío
+  - ID del envío
   - Fecha de envío
   - Fecha de aceptación
   - Fecha de publicación
-  - ID del Manuscrito
+  - ID del manuscrito
   - VoR (Version of Record)
     - Tipo de publicación de la revista
     - Licencia
-- Sobre cada **Autor**:
+- Sobre cada **Autor/a**:
   - Nombre
   - Apellido
   - ORCID
-  - Correo electrónico
-  - Posición en el orden de listado
-  - Si es autor correspondiente
-  - Institución afiliada
+  - Posición en el orden de aparición
+  - Si es autor/a de correspondencia
+  - Institución de afiliación
     - Nombre
     - ROR ID
-- Sobre cada **Financiador**: (si está disponible a través del módulo Funding)
+- Sobre cada **Financiador**: (si está disponible mediante el módulo Funding)
   - Nombre
   - Identificador
 - Sobre la **Revista**:
@@ -126,15 +115,60 @@ Los metadatos obtenidos de OJS y enviados a OA Switchboard se listan a continuac
 
 </details>
 
+## Vídeo de demostración
+
+[![Video Demo](https://img.shields.io/badge/Video%20Demo-Click%20Here-blue?logo=video)](https://vimeo.com/997938301/c62617794b)
+
+*Grabado en OJS 3.3: los pasos son los mismos, pero la interfaz ha cambiado y la pestaña del flujo de trabajo es posterior al vídeo.*
+
+## Solución de problemas
+
+<details>
+<summary><strong>El envío falló</strong></summary>
+
+Normalmente por credenciales caducadas o una interrupción temporal. Vuelva a introducir las credenciales si hace falta y utilice **Intentar de nuevo**. Hay más detalle en los registros del servidor de OJS.
+
+</details>
+
+<details>
+<summary><strong>La pestaña dice que el módulo no está configurado</strong></summary>
+
+Las credenciales todavía no se han guardado, o su revista no tiene ISSN.
+
+</details>
+
+<details>
+<summary><strong>Un mensaje se quedó en cola</strong></summary>
+
+Pida a su administrador de sistemas que compruebe que las tareas en segundo plano están en ejecución.
+
+</details>
+
+## Dónde obtener ayuda
+
+- **El módulo:** abra una issue en este repositorio.
+- **Su cuenta o sus mensajes en OA Switchboard:** contacte con [OA Switchboard](https://www.oaswitchboard.org/).
+- **El propio OJS:** pregunte en el [foro de la comunidad PKP](https://forum.pkp.sfu.ca/).
+
+## Compatibilidad de versiones
+
+Cada línea de versión de OJS tiene su propia rama en este repositorio. Esta es la de **OJS 3.5.0.x**.
+
+| Versión del módulo | Versión de OJS | Rama |
+| --- | --- | --- |
+| `v3.x.x.x` | 3.5.0.x | [`main`](https://github.com/lepidus/OASwitchboard/tree/main) (esta rama) |
+| `v2.x.x.x` | 3.4.0.x | [`stable-3_4_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_4_0) |
+| `v1.x.x.x` | 3.3.0.x | [`stable-3_3_0`](https://github.com/lepidus/OASwitchboard/tree/stable-3_3_0) |
+
 ## Créditos
 
-Este módulo fue desarrollado en código abierto para [OA Switchboard](https://www.oaswitchboard.org/) por [Lepidus Tecnologia](https://lepidus.com.br/) con [Openjournals.nl](http://openjournals.nl/) como socio de pruebas. El desarrollo ha sido posible gracias a la financiación de la [Max Planck Digital Library (MPDL)](https://www.mpdl.mpg.de/en/).
+Este módulo fue desarrollado como software libre para [OA Switchboard](https://www.oaswitchboard.org/) por [Lepidus Tecnologia](https://lepidus.com.br/), con [Openjournals.nl](http://openjournals.nl/) como socio de pruebas. El desarrollo fue posible gracias a la financiación de la [Max Planck Digital Library (MPDL)](https://www.mpdl.mpg.de/en/).
 
 Desarrollado por [Lepidus Tecnologia](https://github.com/lepidus).
 
 ## Licencia
 
-Este módulo está licenciado bajo la [GNU General Public License v3.0](/LICENSE).
+Este módulo se distribuye bajo la [Licencia Pública General GNU v3.0](/LICENSE).
 
-Copyright (c) 2024 Lepidus Tecnologia.  
+Copyright (c) 2024 Lepidus Tecnologia.
 Copyright (c) 2024 Stichting OA Switchboard
