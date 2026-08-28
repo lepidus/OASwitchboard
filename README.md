@@ -28,7 +28,7 @@ Both are one-time, installation-wide settings your system administrator can set 
 
 ### 1. Join the OA Switchboard
 
-Sign the Service Agreement on the [OA Switchboard website](https://www.oaswitchboard.org/) to become a participant and receive the userID and password the plugin uses.
+Join the OA Switchboard as a participant by signing the Service Agreement, and you will be provided with a userID and password to use the plugin. To find out more, get in touch with the [OA Switchboard](https://www.oaswitchboard.org/).
 
 ### 2. Install the plugin
 

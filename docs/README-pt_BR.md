@@ -28,7 +28,7 @@ Ambas são configurações únicas, válidas para toda a instalação, que seu a
 
 ### 1. Torne-se participante do OA Switchboard
 
-Assine o Service Agreement no [site do OA Switchboard](https://www.oaswitchboard.org/) para se tornar participante e receber o userID e a senha que o plugin utiliza.
+Torne-se participante do OA Switchboard assinando o Service Agreement, e você receberá um userID e uma senha para usar o plugin. Para saber mais, entre em contato com o [OA Switchboard](https://www.oaswitchboard.org/).
 
 ### 2. Instale o plugin
 

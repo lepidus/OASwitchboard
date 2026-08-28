@@ -28,7 +28,7 @@ Ambos son ajustes únicos, válidos para toda la instalación, que su administra
 
 ### 1. Hágase participante de OA Switchboard
 
-Firme el Service Agreement en el [sitio de OA Switchboard](https://www.oaswitchboard.org/) para convertirse en participante y recibir el userID y la contraseña que utiliza el módulo.
+Hágase participante de OA Switchboard firmando el Service Agreement, y recibirá un userID y una contraseña para usar el módulo. Para saber más, póngase en contacto con [OA Switchboard](https://www.oaswitchboard.org/).
 
 ### 2. Instale el módulo
 
