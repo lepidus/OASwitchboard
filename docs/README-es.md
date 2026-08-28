@@ -19,15 +19,6 @@ En ambos casos, la pestaña **OA Switchboard**, dentro del flujo de trabajo del 
 
 ## Primeros pasos
 
-### Lo que necesita su instalación de OJS
-
-Dos ajustes habituales de OJS, que normalmente ya están en su sitio:
-
-- **Tareas en segundo plano** en ejecución, para que los mensajes salgan justo después de la publicación ([Guía del Administrador de PKP](https://docs.pkp.sfu.ca/admin-guide/)).
-- **`api_key_secret`** configurado, para que sus credenciales se almacenen cifradas ([cómo definirlo](https://forum.pkp.sfu.ca/t/how-to-generate-a-api-key-secret-code-in-ojs-3/72008)).
-
-Ambos son ajustes únicos, válidos para toda la instalación, que su administrador de sistemas puede dejar listos.
-
 ### 1. Hágase participante de OA Switchboard
 
 Hágase participante de OA Switchboard firmando el Service Agreement, y recibirá un *userID* y una *contraseña* para usar el módulo. Para saber más, póngase en contacto con [OA Switchboard](https://www.oaswitchboard.org/).
@@ -57,6 +48,15 @@ El mensaje solo se envía cuando estos metadatos están presentes:
 **Recomendado:** un **ROR ID** en la afiliación de al menos un autor. Es lo que permite a OA Switchboard encaminar el mensaje a esa institución.
 
 **Opcional:** con el [módulo Funding](https://github.com/ajnyga/funding/tree/stable-3_5_0) instalado, los financiadores registrados en el artículo se incluyen automáticamente en el mensaje.
+
+### Para el administrador de sistemas
+
+Dos ajustes habituales de OJS de los que depende el módulo, que normalmente ya están en su sitio:
+
+- **Tareas en segundo plano** en ejecución, para que los mensajes salgan justo después de la publicación ([Guía del Administrador de PKP](https://docs.pkp.sfu.ca/admin-guide/)).
+- **`api_key_secret`** configurado, para que sus credenciales se almacenen cifradas ([cómo definirlo](https://forum.pkp.sfu.ca/t/how-to-generate-a-api-key-secret-code-in-ojs-3/72008)).
+
+Ambos son ajustes únicos, válidos para toda la instalación.
 
 ## En el día a día
 

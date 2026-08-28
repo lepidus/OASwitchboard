@@ -19,15 +19,6 @@ Either way, the **OA Switchboard** tab in the submission workflow shows where th
 
 ## Getting started
 
-### What your OJS installation needs
-
-Two standard OJS settings, normally already in place:
-
-- **Background jobs** running, so messages are delivered right after publication ([PKP Administrator's Guide](https://docs.pkp.sfu.ca/admin-guide/)).
-- **`api_key_secret`** configured, so your credentials are stored encrypted ([how to set one](https://forum.pkp.sfu.ca/t/how-to-generate-a-api-key-secret-code-in-ojs-3/72008)).
-
-Both are one-time, installation-wide settings your system administrator can set up.
-
 ### 1. Join the OA Switchboard
 
 Join the OA Switchboard as a participant by signing the Service Agreement, and you will be provided with a *userID* and *password* to use the plugin. To find out more, get in touch with the [OA Switchboard](https://www.oaswitchboard.org/).
@@ -57,6 +48,15 @@ A message is sent only when this metadata is in place:
 **Recommended:** a **ROR ID** on at least one author's affiliation. It is what lets the OA Switchboard route the message to that institution.
 
 **Optional:** with the [Funding plugin](https://github.com/ajnyga/funding/tree/stable-3_5_0) installed, funders recorded for an article are included automatically.
+
+### For your system administrator
+
+Two standard OJS settings the plugin relies on, normally already in place:
+
+- **Background jobs** running, so messages are delivered right after publication ([PKP Administrator's Guide](https://docs.pkp.sfu.ca/admin-guide/)).
+- **`api_key_secret`** configured, so your credentials are stored encrypted ([how to set one](https://forum.pkp.sfu.ca/t/how-to-generate-a-api-key-secret-code-in-ojs-3/72008)).
+
+Both are one-time, installation-wide settings.
 
 ## Day-to-day use
 
