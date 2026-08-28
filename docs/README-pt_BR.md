@@ -7,13 +7,15 @@
 [![License type](https://img.shields.io/github/license/lepidus/OASwitchboard)](https://github.com/lepidus/OASwitchboard/blob/main/LICENSE)
 [![Number of downloads](https://img.shields.io/github/downloads/lepidus/OASwitchboard/total)](https://github.com/lepidus/OASwitchboard/releases)
 
-Este plugin conecta revistas que usam o [OJS](https://pkp.sfu.ca/software/ojs/) ao [OA Switchboard](https://www.oaswitchboard.org/), a infraestrutura compartilhada que troca metadados de comunicação científica entre editoras, instituições e financiadores. Quando um artigo é publicado, seus [metadados de publicação](#quais-metadados-são-enviados) são extraídos automaticamente e enviados às instituições e aos financiadores de pesquisa relevantes como uma **mensagem P1-PIO** padronizada.
+Este plugin conecta revistas que usam o [OJS](https://pkp.sfu.ca/software/ojs/) ao [OA Switchboard](https://www.oaswitchboard.org/), a infraestrutura compartilhada que troca metadados de comunicação científica entre editoras, instituições e financiadores. Quando um artigo é publicado, seus [metadados de publicação](#quais-metadados-são-enviados) são extraídos automaticamente e enviados às instituições e aos financiadores de pesquisa relevantes como uma mensagem P1-PIO padronizada.
 
 **Anúncio:** [OA Switchboard OJS plug-in: Supporting diamond journals to increase the visibility of their OA output among research funders, libraries, and consortia](https://www.oaswitchboard.org/ojs-plugin).
 
 ## Como funciona
 
-Antes da publicação, o plugin verifica se o artigo tem os metadados que o OA Switchboard exige e mostra o resultado na aba **OA Switchboard**, dentro do fluxo de trabalho da submissão. Artigos com pendências podem ser publicados normalmente, apenas sem o envio da mensagem.
+Quando um artigo é publicado, o plugin verifica se ele tem os metadados que o OA Switchboard exige. Se tiver, a mensagem é montada e enviada nesse momento. Se não tiver, o artigo é publicado normalmente, apenas sem o envio da mensagem.
+
+Nos dois casos, a aba **OA Switchboard**, dentro do fluxo de trabalho da submissão, mostra a situação: o que ainda falta antes da publicação e o que foi enviado depois dela.
 
 ## Primeiros passos
 
@@ -28,7 +30,7 @@ Ambas são configurações únicas, válidas para toda a instalação, que seu a
 
 ### 1. Torne-se participante do OA Switchboard
 
-Torne-se participante do OA Switchboard assinando o Service Agreement, e você receberá um userID e uma senha para usar o plugin. Para saber mais, entre em contato com o [OA Switchboard](https://www.oaswitchboard.org/).
+Torne-se participante do OA Switchboard assinando o Service Agreement, e você receberá um *userID* e uma *senha* para usar o plugin. Para saber mais, entre em contato com o [OA Switchboard](https://www.oaswitchboard.org/).
 
 ### 2. Instale o plugin
 
@@ -54,7 +56,7 @@ A mensagem só é enviada quando estes metadados estão presentes:
 
 **Recomendado:** um **ROR ID** na afiliação de ao menos um autor. É ele que permite ao OA Switchboard encaminhar a mensagem àquela instituição.
 
-**Opcional:** com o [plugin Funding](https://github.com/ajnyga/funding/tree/stable-3_5_0) instalado, os financiadores registrados no artigo entram automaticamente na mensagem. Sem ele, as mensagens continuam sendo enviadas.
+**Opcional:** com o [plugin Funding](https://github.com/ajnyga/funding/tree/stable-3_5_0) instalado, os financiadores registrados no artigo entram automaticamente na mensagem.
 
 ## No dia a dia
 

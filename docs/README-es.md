@@ -7,13 +7,15 @@
 [![License type](https://img.shields.io/github/license/lepidus/OASwitchboard)](https://github.com/lepidus/OASwitchboard/blob/main/LICENSE)
 [![Number of downloads](https://img.shields.io/github/downloads/lepidus/OASwitchboard/total)](https://github.com/lepidus/OASwitchboard/releases)
 
-Este módulo conecta las revistas que usan [OJS](https://pkp.sfu.ca/software/ojs/) con [OA Switchboard](https://www.oaswitchboard.org/), la infraestructura compartida que intercambia metadatos de comunicación científica entre editoriales, instituciones y financiadores. Cuando se publica un artículo, sus [metadatos de publicación](#qué-metadatos-se-envían) se extraen automáticamente y se envían a las instituciones y a los financiadores de investigación pertinentes como un **mensaje P1-PIO** estandarizado.
+Este módulo conecta las revistas que usan [OJS](https://pkp.sfu.ca/software/ojs/) con [OA Switchboard](https://www.oaswitchboard.org/), la infraestructura compartida que intercambia metadatos de comunicación científica entre editoriales, instituciones y financiadores. Cuando se publica un artículo, sus [metadatos de publicación](#qué-metadatos-se-envían) se extraen automáticamente y se envían a las instituciones y a los financiadores de investigación pertinentes como un mensaje P1-PIO estandarizado.
 
 **Anuncio:** [OA Switchboard OJS plug-in: Supporting diamond journals to increase the visibility of their OA output among research funders, libraries, and consortia](https://www.oaswitchboard.org/ojs-plugin).
 
 ## Cómo funciona
 
-Antes de la publicación, el módulo comprueba si el artículo tiene los metadatos que OA Switchboard requiere y muestra el resultado en la pestaña **OA Switchboard**, dentro del flujo de trabajo del envío. Los artículos con requisitos pendientes pueden publicarse con normalidad, simplemente sin que se envíe el mensaje.
+Cuando se publica un artículo, el módulo comprueba si tiene los metadatos que OA Switchboard requiere. Si los tiene, el mensaje se compone y se envía en ese momento. Si no los tiene, el artículo se publica con normalidad, simplemente sin que se envíe el mensaje.
+
+En ambos casos, la pestaña **OA Switchboard**, dentro del flujo de trabajo del envío, muestra la situación: lo que todavía falta antes de la publicación y lo que se envió después de ella.
 
 ## Primeros pasos
 
@@ -28,7 +30,7 @@ Ambos son ajustes únicos, válidos para toda la instalación, que su administra
 
 ### 1. Hágase participante de OA Switchboard
 
-Hágase participante de OA Switchboard firmando el Service Agreement, y recibirá un userID y una contraseña para usar el módulo. Para saber más, póngase en contacto con [OA Switchboard](https://www.oaswitchboard.org/).
+Hágase participante de OA Switchboard firmando el Service Agreement, y recibirá un *userID* y una *contraseña* para usar el módulo. Para saber más, póngase en contacto con [OA Switchboard](https://www.oaswitchboard.org/).
 
 ### 2. Instale el módulo
 
@@ -54,7 +56,7 @@ El mensaje solo se envía cuando estos metadatos están presentes:
 
 **Recomendado:** un **ROR ID** en la afiliación de al menos un autor. Es lo que permite a OA Switchboard encaminar el mensaje a esa institución.
 
-**Opcional:** con el [módulo Funding](https://github.com/ajnyga/funding/tree/stable-3_5_0) instalado, los financiadores registrados en el artículo se incluyen automáticamente en el mensaje. Sin él, los mensajes se siguen enviando.
+**Opcional:** con el [módulo Funding](https://github.com/ajnyga/funding/tree/stable-3_5_0) instalado, los financiadores registrados en el artículo se incluyen automáticamente en el mensaje.
 
 ## En el día a día
 

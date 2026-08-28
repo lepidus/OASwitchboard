@@ -7,13 +7,15 @@
 [![License type](https://img.shields.io/github/license/lepidus/OASwitchboard)](https://github.com/lepidus/OASwitchboard/blob/main/LICENSE)
 [![Number of downloads](https://img.shields.io/github/downloads/lepidus/OASwitchboard/total)](https://github.com/lepidus/OASwitchboard/releases)
 
-This plugin connects journals running [OJS](https://pkp.sfu.ca/software/ojs/) to the [OA Switchboard](https://www.oaswitchboard.org/), the shared infrastructure that exchanges scholarly communications metadata among publishers, institutions and funders. When an article is published, its [publication metadata](#what-metadata-is-included) is extracted automatically and pushed to the relevant institutions and research funders as a standardised **P1-PIO message**.
+This plugin connects journals running [OJS](https://pkp.sfu.ca/software/ojs/) to the [OA Switchboard](https://www.oaswitchboard.org/), the shared infrastructure that exchanges scholarly communications metadata among publishers, institutions and funders. When an article is published, its [publication metadata](#what-metadata-is-included) is extracted automatically and pushed to the relevant institutions and research funders as a standardised P1-PIO message.
 
 **Announcement:** [OA Switchboard OJS plug-in: Supporting diamond journals to increase the visibility of their OA output among research funders, libraries, and consortia](https://www.oaswitchboard.org/ojs-plugin).
 
 ## How it works
 
-Before publication, the plugin checks whether the article carries the metadata the OA Switchboard needs, and shows the result in an **OA Switchboard** tab in the submission's workflow. Articles that are missing something can be published as usual, simply without a message.
+When an article is published, the plugin checks whether it carries the metadata the OA Switchboard needs. If it does, the message is built and delivered at that moment. If it does not, the article is published as usual, simply without a message.
+
+Either way, the **OA Switchboard** tab in the submission workflow shows where things stand: what is still missing before publication, and what was sent after it.
 
 ## Getting started
 
@@ -28,14 +30,14 @@ Both are one-time, installation-wide settings your system administrator can set 
 
 ### 1. Join the OA Switchboard
 
-Join the OA Switchboard as a participant by signing the Service Agreement, and you will be provided with a userID and password to use the plugin. To find out more, get in touch with the [OA Switchboard](https://www.oaswitchboard.org/).
+Join the OA Switchboard as a participant by signing the Service Agreement, and you will be provided with a *userID* and *password* to use the plugin. To find out more, get in touch with the [OA Switchboard](https://www.oaswitchboard.org/).
 
 ### 2. Install the plugin
 
 Go to *Settings → Website → Plugins → Plugin Gallery*, find **OA Switchboard Plugin**, click *Install*, and enable it.
 
 > [!TIP]
-> If the gallery has no release for your OJS version, download the `.tar.gz` from the [Releases page](https://github.com/lepidus/OASwitchboard/releases) and use **Upload a new plugin** instead.
+> If the gallery has no release for your OJS version, download the `.tar.gz` from the [Releases page](https://github.com/lepidus/OASwitchboard/releases) and use **Upload a new plugin**.
 
 ### 3. Add your credentials
 
@@ -54,7 +56,7 @@ A message is sent only when this metadata is in place:
 
 **Recommended:** a **ROR ID** on at least one author's affiliation. It is what lets the OA Switchboard route the message to that institution.
 
-**Optional:** with the [Funding plugin](https://github.com/ajnyga/funding/tree/stable-3_5_0) installed, funders recorded for an article are included automatically. Without it, messages are still sent.
+**Optional:** with the [Funding plugin](https://github.com/ajnyga/funding/tree/stable-3_5_0) installed, funders recorded for an article are included automatically.
 
 ## Day-to-day use
 
