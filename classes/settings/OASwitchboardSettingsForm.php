@@ -93,7 +93,7 @@ class OASwitchboardSettingsForm extends Form
         $password = $this->getData('OASPassword');
 
         $httpClient = Application::get()->getHttpClient();
-        $APIClient = new OASwitchboardAPIClient($httpClient, OASwitchboardService::usesSandboxApi());
+        $APIClient = new OASwitchboardAPIClient($httpClient);
 
         try {
             $APIClient->getAuthorization(
