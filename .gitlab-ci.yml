@@ -11,12 +11,18 @@ include:
 
 .unit_test_template:
   before_script:
-    - sed -i 's/api_key_secret = ""/api_key_secret = "$API_KEY_SECRET"/' /var/www/ojs/config.inc.php
+    # Salt used to encrypt the credentials in the test installation. It is not a
+    # secret: it exists so that the encryption has a key, and is public on purpose.
+    - TEST_API_KEY_SECRET=$(printf 'ci_test_salt' | base64)
+    - sed -i "s|api_key_secret = \"\"|api_key_secret = \"$TEST_API_KEY_SECRET\"|" /var/www/ojs/config.inc.php
 
 .integration_tests_template:
   before_script:
     - export CYPRESS_OASPassword="$(echo $CYPRESS_OASPassword | base64 -d)"
-    - sed -i 's/api_key_secret = ""/api_key_secret = "$API_KEY_SECRET"/' /var/www/ojs/config.inc.php
+    # Salt used to encrypt the credentials in the test installation. It is not a
+    # secret: it exists so that the encryption has a key, and is public on purpose.
+    - TEST_API_KEY_SECRET=$(printf 'ci_test_salt' | base64)
+    - sed -i "s|api_key_secret = \"\"|api_key_secret = \"$TEST_API_KEY_SECRET\"|" /var/www/ojs/config.inc.php
     # The sandbox API is selected only through config.inc.php, never in the settings form.
     - printf '\n[oaswitchboard]\nsandbox = On\n' >> /var/www/ojs/config.inc.php
 
