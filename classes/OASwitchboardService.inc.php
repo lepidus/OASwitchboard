@@ -30,8 +30,7 @@ class OASwitchboardService
         self::validatePluginIsConfigured($this->plugin, $this->contextId);
 
         $httpClient = Application::get()->getHttpClient();
-        $useSandboxApi = $this->plugin->getSetting($this->contextId, 'isSandBoxAPI');
-        $this->apiClient = new OASwitchboardAPIClient($httpClient, $useSandboxApi);
+        $this->apiClient = new OASwitchboardAPIClient($httpClient);
     }
 
     public function sendP1PioMessage()
@@ -65,8 +64,7 @@ class OASwitchboardService
     {
         $username = $plugin->getSetting($contextId, 'username');
         $password = $plugin->getSetting($contextId, 'password');
-        $useSandboxApi = $plugin->getSetting($contextId, 'isSandBoxAPI');
-        if (is_null($username) || is_null($password) || is_null($useSandboxApi)) {
+        if (is_null($username) || is_null($password)) {
             throw new Exception(__("plugins.generic.OASwitchboard.pluginIsNotConfigured"));
         }
     }

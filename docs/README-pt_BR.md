@@ -75,7 +75,6 @@ Recomenda-se que pelo menos um autor do artigo tenha um **ROR ID** associado à 
 * Em primeiro lugar, certifique-se de que todos os [requisitos para o envio adequado das mensagens P1-PIO](#requisitos-para-uso) foram atendidos.
 
 * Após instalar o plugin, vá até as Configurações do plugin e insira suas credenciais de acesso à API do OASwitchboard.
-  * Você pode precisar de credenciais diferentes para a API de *sandbox*.
 
 * Antes de publicar o artigo, o status da submissão é exibido indicando se a mensagem será enviada com sucesso ou não; você pode ignorá-los ou editar o artigo para atender aos requisitos do plugin.
 

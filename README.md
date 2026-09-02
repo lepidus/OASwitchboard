@@ -76,7 +76,6 @@ to provide that information for the article.
 * First of all, make sure you have met all [requirements for properly sending the P1-PIO messages](#requirements-for-usage).
 
 * After installing the plugin, go to the plugin Settings, and enter your credentials for accessing the OASwitchboard API.
-  * You may need different credentials for the *sandbox* API.
 
 * Before publishing the article, the status of the submission is displayed so that the message is sent successfully or not, you can ignore them or edit the article to meet the requirements of the plugin.
 

@@ -16,10 +16,24 @@ class OASwitchboardAPIClient
     private $httpClient;
     private $apiBaseUrl;
 
-    public function __construct($httpClient, bool $useSandboxApi = false)
+    public function __construct($httpClient, ?bool $useSandboxApi = null)
     {
         $this->httpClient = $httpClient;
+        if ($useSandboxApi === null) {
+            $useSandboxApi = self::usesSandboxApi();
+        }
         $this->apiBaseUrl = $useSandboxApi ? self::API_SANDBOX_BASE_URL : self::API_BASE_URL;
+    }
+
+    /**
+     * Development-only switch: the sandbox API is selected through
+     * config.inc.php ([oaswitchboard] sandbox = On), never through the journal
+     * settings form. Anything the configuration file does not read as enabled
+     * keeps the production API, so a typo cannot send messages to the sandbox.
+     */
+    public static function usesSandboxApi(): bool
+    {
+        return filter_var(Config::getVar('oaswitchboard', 'sandbox', false), FILTER_VALIDATE_BOOLEAN);
     }
 
     public function sendMessage(P1Pio $message, string $authToken): int
