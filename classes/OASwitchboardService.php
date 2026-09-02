@@ -18,7 +18,6 @@ use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
 use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use Exception;
-use PKP\config\Config;
 use PKP\db\DAORegistry;
 
 class OASwitchboardService
@@ -36,7 +35,7 @@ class OASwitchboardService
         self::validatePluginIsConfigured($this->plugin, $this->contextId);
 
         $httpClient = Application::get()->getHttpClient();
-        $this->apiClient = new OASwitchboardAPIClient($httpClient, self::usesSandboxApi());
+        $this->apiClient = new OASwitchboardAPIClient($httpClient);
     }
 
     public function sendP1PioMessage()
@@ -73,13 +72,6 @@ class OASwitchboardService
         if (is_null($username) || is_null($password)) {
             throw new Exception(__('plugins.generic.OASwitchboard.pluginIsNotConfigured'));
         }
-    }
-
-    // Development-only switch: the sandbox API is selected through config.inc.php,
-    // never through the journal settings form.
-    public static function usesSandboxApi(): bool
-    {
-        return (bool) Config::getVar('oaswitchboard', 'sandbox', false);
     }
 
     public static function isRorAssociated($submission)

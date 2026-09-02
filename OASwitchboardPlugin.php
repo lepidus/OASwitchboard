@@ -18,7 +18,7 @@ namespace APP\plugins\generic\OASwitchboard;
 use APP\core\Application;
 use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardStatusController;
 use APP\plugins\generic\OASwitchboard\classes\Message;
-use APP\plugins\generic\OASwitchboard\classes\migrations\EncryptApiCredentialsMigration;
+use APP\plugins\generic\OASwitchboard\classes\migrations\OASwitchboardMigrations;
 use APP\plugins\generic\OASwitchboard\classes\Resources;
 use APP\plugins\generic\OASwitchboard\classes\SendStatus;
 use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardActions;
@@ -81,6 +81,6 @@ class OASwitchboardPlugin extends GenericPlugin
     }
     public function getInstallMigration()
     {
-        return new EncryptApiCredentialsMigration();
+        return new OASwitchboardMigrations();
     }
 }

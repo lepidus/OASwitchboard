@@ -7,7 +7,7 @@ use APP\plugins\generic\OASwitchboard\classes\Message;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\plugins\generic\OASwitchboard\classes\SendStatus;
 use APP\plugins\generic\OASwitchboard\jobs\SendP1PioMessageJob;
-use APP\plugins\generic\OASwitchboard\OASwitchboardPlugin;
+use APP\plugins\generic\OASwitchboard\tests\helpers\CreatesPluginMocks;
 use APP\publication\Publication;
 use APP\submission\Repository as SubmissionRepository;
 use APP\submission\Submission;
@@ -17,6 +17,8 @@ use PKP\tests\PKPTestCase;
 
 class MessageTest extends PKPTestCase
 {
+    use CreatesPluginMocks;
+
     private const SUBMISSION_ID = 456;
     private const CONTEXT_ID = 1;
     private const ACTING_USER_ID = 99;
@@ -50,19 +52,6 @@ class MessageTest extends PKPTestCase
         app()->instance(SubmissionRepository::class, $submissionRepository);
     }
 
-    private function createPluginMock(bool $configured): OASwitchboardPlugin
-    {
-        $settings = $configured
-            ? ['username' => 'user@example.com', 'password' => 'encrypted']
-            : [];
-        $plugin = $this->createMock(OASwitchboardPlugin::class);
-        $plugin->method('getSetting')
-            ->willReturnCallback(function ($contextId, $name) use ($settings) {
-                return $settings[$name] ?? null;
-            });
-        return $plugin;
-    }
-
     /**
      * Builds a Message with the P1 message construction stubbed, so the
      * scheduling decision can be exercised without a fully populated submission.
@@ -72,7 +61,9 @@ class MessageTest extends PKPTestCase
     {
         $messageBuilder ??= fn ($submission) => $this->createMock(P1Pio::class);
 
-        return new class ($this->createPluginMock($configured), $messageBuilder, self::ACTING_USER_ID) extends Message {
+        $plugin = $configured ? $this->createConfiguredPluginMock() : $this->createPluginMock([]);
+
+        return new class ($plugin, $messageBuilder, self::ACTING_USER_ID) extends Message {
             private $messageBuilder;
             private $actingUserId;
 
