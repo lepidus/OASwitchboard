@@ -70,7 +70,7 @@ class OASwitchboardPlugin extends GenericPlugin
 
     public function getInstallMigration()
     {
-        $this->import('classes.migrations.EncryptApiCredentialsMigration');
-        return new EncryptApiCredentialsMigration();
+        $this->import('classes.migrations.OASwitchboardMigrations');
+        return new OASwitchboardMigrations();
     }
 }
