@@ -74,7 +74,6 @@ Se recomienda que al menos un autor del artículo tenga un **ROR ID** asociado a
 * Ante todo, asegúrese de haber cumplido todos los [requisitos para el envío correcto de los mensajes P1-PIO](#requisitos-de-uso).
 
 * Después de instalar el módulo, vaya a la configuración del módulo e ingrese sus credenciales de acceso a la API de OASwitchboard.
-  * Es posible que necesite credenciales diferentes para la API de *sandbox*.
 * Antes de publicar el artículo, se muestra el estado del envío indicando si el mensaje será enviado con éxito o no; puede ignorarlos o editar el artículo para cumplir con los requisitos del módulo.
 * En el momento de la publicación de un artículo, se enviará un mensaje de tipo P1-PIO a OASwitchboard vía API, si se cumplen todos los requisitos de la publicación.
   * En caso de éxito, verá una notificación verde en la esquina superior derecha de la pantalla.

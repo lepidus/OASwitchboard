@@ -16,10 +16,64 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use PKP\config\Config;
 use PKP\tests\PKPTestCase;
 
 class OASwitchboardAPIClientTest extends PKPTestCase
 {
+    private $sandboxWasConfigured;
+    private $originalSandboxConfiguration;
+
+    /**
+     * The sandbox switch is read from config.inc.php, so it is taken out of the
+     * way before each test: otherwise a developer running the suite against an
+     * installation configured for the sandbox would get different endpoints.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $configurationData = & Config::getData();
+        $this->sandboxWasConfigured = array_key_exists('sandbox', $configurationData['oaswitchboard'] ?? []);
+        $this->originalSandboxConfiguration = $configurationData['oaswitchboard']['sandbox'] ?? null;
+        $this->removeSandboxConfiguration();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->removeSandboxConfiguration();
+        if ($this->sandboxWasConfigured) {
+            $this->setSandboxConfiguration($this->originalSandboxConfiguration);
+        }
+        parent::tearDown();
+    }
+
+    private function setSandboxConfiguration($value): void
+    {
+        $configurationData = & Config::getData();
+        $configurationData['oaswitchboard']['sandbox'] = $value;
+    }
+
+    private function removeSandboxConfiguration(): void
+    {
+        $configurationData = & Config::getData();
+        unset($configurationData['oaswitchboard']['sandbox']);
+        if (empty($configurationData['oaswitchboard'])) {
+            unset($configurationData['oaswitchboard']);
+        }
+    }
+
+    private function captureSendMessageRequestUri(): string
+    {
+        $requestHistory = [];
+        $handlerStack = HandlerStack::create(new MockHandler([new Response(200)]));
+        $handlerStack->push(Middleware::history($requestHistory));
+
+        $apiClient = new OASwitchboardAPIClient(new Client(['handler' => $handlerStack]));
+        $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
+
+        return (string) $requestHistory[0]['request']->getUri();
+    }
+
     private function createP1PioMock()
     {
         $P1PioMock = $this->createMock(P1Pio::class);
@@ -419,5 +473,61 @@ class OASwitchboardAPIClientTest extends PKPTestCase
             '##plugins.generic.OASwitchboard.postRequirements##'
         );
         $apiClient->getAuthorization('test@example.com', 'password');
+    }
+
+    /**
+     * @dataProvider sandboxConfigurationProvider
+     */
+    public function testShouldReadTheSandboxSwitchFromTheConfigurationFile($configuredValue, bool $expectedToUseSandbox)
+    {
+        $this->setSandboxConfiguration($configuredValue);
+
+        $this->assertSame($expectedToUseSandbox, OASwitchboardAPIClient::usesSandboxApi());
+    }
+
+    public static function sandboxConfigurationProvider(): array
+    {
+        return [
+            'sandbox = On' => [true, true],
+            'sandbox = Off' => [false, false],
+            'sandbox = "On"' => ['On', true],
+            'sandbox = "Off"' => ['Off', false],
+            'sandbox = 1' => [1, true],
+            'sandbox = 0' => [0, false],
+            'sandbox with no value' => [null, false],
+        ];
+    }
+
+    public function testShouldUseTheProductionApiWhenTheConfigurationFileHasNoSandboxSection()
+    {
+        $this->assertFalse(OASwitchboardAPIClient::usesSandboxApi());
+    }
+
+    public function testShouldSendTheMessageToTheProductionApiWhenTheSandboxIsNotEnabled()
+    {
+        $this->assertSame('https://api.oaswitchboard.org/v2/message', $this->captureSendMessageRequestUri());
+    }
+
+    public function testShouldSendTheMessageToTheSandboxApiWhenTheConfigurationFileEnablesIt()
+    {
+        $this->setSandboxConfiguration(true);
+
+        $this->assertSame('https://sandboxapi.oaswitchboard.org/v2/message', $this->captureSendMessageRequestUri());
+    }
+
+    public function testShouldLetTheCallerOverrideTheConfiguredSandboxSwitch()
+    {
+        $this->setSandboxConfiguration(true);
+        $requestHistory = [];
+        $handlerStack = HandlerStack::create(new MockHandler([new Response(200)]));
+        $handlerStack->push(Middleware::history($requestHistory));
+
+        $apiClient = new OASwitchboardAPIClient(new Client(['handler' => $handlerStack]), false);
+        $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
+
+        $this->assertSame(
+            'https://api.oaswitchboard.org/v2/message',
+            (string) $requestHistory[0]['request']->getUri()
+        );
     }
 }
