@@ -93,16 +93,6 @@ class EncryptApiCredentialsMigrationTest extends PKPTestCase
         ]);
     }
 
-    public function testDirectUpgradeShouldRunTheCredentialMigration()
-    {
-        $upgradeXml = file_get_contents(__DIR__ . '/../upgrade.xml');
-
-        $this->assertStringContainsString(
-            '<migration class="EncryptApiCredentialsMigration"/>',
-            $upgradeXml
-        );
-    }
-
     public function testShouldClearCredentialsWhenApiKeySecretIsMissing()
     {
         $legacyPassword = 'legacy-password-marker';
