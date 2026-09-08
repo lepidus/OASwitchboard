@@ -50,4 +50,12 @@ class UpgradeXmlTest extends PKPTestCase
             $this->getMigrationClasses()
         );
     }
+
+    public function testDirectUpgradeShouldRemoveTheSandboxSetting()
+    {
+        $this->assertContains(
+            'plugins.generic.OASwitchboard.classes.migrations.RemoveSandboxApiSettingMigration',
+            $this->getMigrationClasses()
+        );
+    }
 }
