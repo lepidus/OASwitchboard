@@ -31,10 +31,6 @@
         {include file="controllers/notification/inPlaceNotification.tpl" notificationId="OASwitchboardSettingsFormNotification"}
 
         {fbvFormArea id="authForm"}
-            {fbvFormSection for="sandBoxAPI" title="plugins.generic.OASwitchboard.settings.useApiForTests" list="true"}
-                {fbvElement type="checkbox" name="isSandBoxAPI" label="plugins.generic.OASwitchboard.settings.useApiForTests.option.label" id="isSandBoxAPI" checked=$isSandBoxAPI}
-            {/fbvFormSection}
-
             {fbvFormSection label="plugins.generic.OASwitchboard.settings.username" required=true}
                 {fbvElement type="text" id="OASUsername" value=$username|escape size=$fbvStyles.size.MEDIUM}
             {/fbvFormSection}
