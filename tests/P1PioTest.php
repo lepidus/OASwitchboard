@@ -4,6 +4,7 @@ namespace APP\plugins\generic\OASwitchboard\tests;
 
 use APP\plugins\generic\OASwitchboard\tests\helpers\ObjectFactory;
 use APP\plugins\generic\OASwitchboard\tests\helpers\P1PioExpectedTestData;
+use PKP\core\Registry;
 use PKP\tests\PKPTestCase;
 
 class P1PioTest extends PKPTestCase
@@ -19,6 +20,12 @@ class P1PioTest extends PKPTestCase
         $this->mockRequest();
         $journal = ObjectFactory::createMockedJournal($onlineIssn = '0000-0001', $printIssn = '0000-0002');
         $this->submission = ObjectFactory::createTestSubmission($journal);
+        ObjectFactory::registerStubFundingPlugin([[
+            'id' => 1,
+            'name' => 'Universidade Federal de Santa Catarina',
+            'identification' => 'http://dx.doi.org/10.13039/501100007082',
+            'awardNumbers' => [10 => '2021/12345-6'],
+        ]]);
         $this->P1Pio = ObjectFactory::createP1PioMock($this->submission);
     }
 
@@ -29,7 +36,7 @@ class P1PioTest extends PKPTestCase
 
     protected function getMockedRegistryKeys(): array
     {
-        return [...parent::getMockedRegistryKeys(), 'site'];
+        return [...parent::getMockedRegistryKeys(), 'site', 'plugins', 'daos'];
     }
 
     public function testGetAuthorGivenName()
@@ -108,6 +115,71 @@ class P1PioTest extends PKPTestCase
         $vor = $articleData['vor'];
         $this->assertEquals('pure OA journal', $vor['publication']);
         $this->assertEquals('CC BY-NC-ND', $vor['license']);
+    }
+
+    public function testArticleGrantsShouldListAwardNumbersOfAllFunders()
+    {
+        ObjectFactory::registerStubFundingPlugin([
+            [
+                'id' => 1,
+                'name' => 'Fundação de Amparo à Pesquisa do Estado de São Paulo',
+                'identification' => 'https://doi.org/10.13039/501100001807',
+                'awardNumbers' => [10 => '2021/12345-6', 11 => '2022/65432-1'],
+            ],
+            [
+                'id' => 2,
+                'name' => 'Conselho Nacional de Desenvolvimento Científico e Tecnológico',
+                'identification' => 'https://doi.org/10.13039/501100003593',
+                'awardNumbers' => [12 => 'CNPq-999'],
+            ],
+        ]);
+
+        $articleData = $this->P1Pio->getArticleData();
+
+        $this->assertEquals(
+            [['id' => '2021/12345-6'], ['id' => '2022/65432-1'], ['id' => 'CNPq-999']],
+            $articleData['grants']
+        );
+    }
+
+    public function testArticleShouldOmitGrantsWhenFundersHaveNoAwardNumbers()
+    {
+        ObjectFactory::registerStubFundingPlugin([[
+            'id' => 1,
+            'name' => 'Universidade Federal de Santa Catarina',
+            'identification' => 'http://dx.doi.org/10.13039/501100007082',
+            'awardNumbers' => [],
+        ]]);
+
+        $articleData = $this->P1Pio->getArticleData();
+
+        $this->assertArrayHasKey('funders', $articleData);
+        $this->assertArrayNotHasKey('grants', $articleData);
+    }
+
+    public function testArticleShouldOmitFundersAndGrantsWhenFundingPluginIsDisabled()
+    {
+        ObjectFactory::registerStubFundingPlugin([[
+            'id' => 1,
+            'name' => 'Universidade Federal de Santa Catarina',
+            'identification' => 'http://dx.doi.org/10.13039/501100007082',
+            'awardNumbers' => [10 => '2021/12345-6'],
+        ]], $enabled = false);
+
+        $articleData = $this->P1Pio->getArticleData();
+
+        $this->assertArrayNotHasKey('funders', $articleData);
+        $this->assertArrayNotHasKey('grants', $articleData);
+    }
+
+    public function testArticleShouldOmitFundersAndGrantsWhenFundingPluginIsNotInstalled()
+    {
+        Registry::delete('plugins');
+
+        $articleData = $this->P1Pio->getArticleData();
+
+        $this->assertArrayNotHasKey('funders', $articleData);
+        $this->assertArrayNotHasKey('grants', $articleData);
     }
 
     public function testGetJournalName()
