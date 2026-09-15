@@ -153,8 +153,13 @@ class P1Pio
 
     private function getSubmissionFunders(): array
     {
+        $contextId = (int) $this->submission->getData('contextId');
         $fundingPlugin = PluginRegistry::getPlugin('generic', 'FundingPlugin');
-        if (is_null($fundingPlugin) || !$fundingPlugin->getEnabled()) {
+        if (is_null($fundingPlugin) || !$fundingPlugin->getEnabled($contextId)) {
+            return [];
+        }
+
+        if (!$this->registerMissingFundingDaos()) {
             return [];
         }
 
@@ -164,6 +169,32 @@ class P1Pio
             $submissionFunders[] = $funder;
         }
         return $submissionFunders;
+    }
+
+    /**
+     * The Funding plugin only registers its DAOs when enabled for the journal it was
+     * loaded for, which a queue worker, loading plugins with no journal, never is.
+     */
+    private function registerMissingFundingDaos(): bool
+    {
+        $daos = DAORegistry::getDAOs();
+        foreach (['FunderDAO', 'FunderAwardDAO'] as $daoName) {
+            if (isset($daos[$daoName])) {
+                continue;
+            }
+            $dao = $this->createFundingDao($daoName);
+            if (is_null($dao)) {
+                return false;
+            }
+            DAORegistry::registerDAO($daoName, $dao);
+        }
+        return true;
+    }
+
+    protected function createFundingDao(string $daoName): ?object
+    {
+        $daoClass = 'APP\plugins\generic\funding\classes\\' . $daoName;
+        return class_exists($daoClass) ? new $daoClass() : null;
     }
 
     private function getAcceptanceDate(): ?string

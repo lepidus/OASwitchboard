@@ -5,6 +5,7 @@ namespace APP\plugins\generic\OASwitchboard\tests;
 use APP\plugins\generic\OASwitchboard\tests\helpers\ObjectFactory;
 use APP\plugins\generic\OASwitchboard\tests\helpers\P1PioExpectedTestData;
 use PKP\core\Registry;
+use PKP\db\DAORegistry;
 use PKP\tests\PKPTestCase;
 
 class P1PioTest extends PKPTestCase
@@ -27,6 +28,12 @@ class P1PioTest extends PKPTestCase
             'awardNumbers' => [10 => '2021/12345-6'],
         ]]);
         $this->P1Pio = ObjectFactory::createP1PioMock($this->submission);
+    }
+
+    protected function tearDown(): void
+    {
+        ObjectFactory::$creatableFundingDaos = [];
+        parent::tearDown();
     }
 
     protected function getMockedDAOs(): array
@@ -164,7 +171,7 @@ class P1PioTest extends PKPTestCase
             'name' => 'Universidade Federal de Santa Catarina',
             'identification' => 'http://dx.doi.org/10.13039/501100007082',
             'awardNumbers' => [10 => '2021/12345-6'],
-        ]], $enabled = false);
+        ]], $enabledContextId = null);
 
         $articleData = $this->P1Pio->getArticleData();
 
@@ -175,6 +182,50 @@ class P1PioTest extends PKPTestCase
     public function testArticleShouldOmitFundersAndGrantsWhenFundingPluginIsNotInstalled()
     {
         Registry::delete('plugins');
+
+        $articleData = $this->P1Pio->getArticleData();
+
+        $this->assertArrayNotHasKey('funders', $articleData);
+        $this->assertArrayNotHasKey('grants', $articleData);
+    }
+
+    public function testArticleShouldOmitFundersAndGrantsWhenFundingPluginIsEnabledOnlyForAnotherJournal()
+    {
+        ObjectFactory::registerStubFundingPlugin([[
+            'id' => 1,
+            'name' => 'Universidade Federal de Santa Catarina',
+            'identification' => 'http://dx.doi.org/10.13039/501100007082',
+            'awardNumbers' => [10 => '2021/12345-6'],
+        ]], $enabledContextId = 2);
+
+        $articleData = $this->P1Pio->getArticleData();
+
+        $this->assertArrayNotHasKey('funders', $articleData);
+        $this->assertArrayNotHasKey('grants', $articleData);
+    }
+
+    public function testArticleShouldIncludeFundersAndGrantsWhenFundingPluginWasLoadedWithoutItsDaos()
+    {
+        $fundingDaos = ObjectFactory::createStubFundingDaos([[
+            'id' => 1,
+            'name' => 'Universidade Federal de Santa Catarina',
+            'identification' => 'http://dx.doi.org/10.13039/501100007082',
+            'awardNumbers' => [10 => '2021/12345-6'],
+        ]]);
+        $daos = & DAORegistry::getDAOs();
+        unset($daos['FunderDAO'], $daos['FunderAwardDAO']);
+        ObjectFactory::$creatableFundingDaos = $fundingDaos;
+
+        $articleData = $this->P1Pio->getArticleData();
+
+        $this->assertEquals('Universidade Federal de Santa Catarina', $articleData['funders'][0]['name']);
+        $this->assertEquals([['id' => '2021/12345-6']], $articleData['grants']);
+    }
+
+    public function testArticleShouldOmitFundersAndGrantsWhenFundingPluginDaosCannotBeCreated()
+    {
+        $daos = & DAORegistry::getDAOs();
+        unset($daos['FunderDAO'], $daos['FunderAwardDAO']);
 
         $articleData = $this->P1Pio->getArticleData();
 

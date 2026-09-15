@@ -171,22 +171,32 @@ class ObjectFactory
             {
                 return $this->stubDecisions;
             }
+            protected function createFundingDao(string $daoName): ?object
+            {
+                return ObjectFactory::$creatableFundingDaos[$daoName] ?? null;
+            }
         };
     }
+
+    /**
+     * DAOs returned when P1Pio creates Funding plugin DAOs that are not registered yet, keyed by DAO name.
+     */
+    public static array $creatableFundingDaos = [];
 
     /**
      * Registers a stand-in for the Funding plugin and its DAOs.
      *
      * @param array $funders Each entry has 'id', 'name', 'identification' and 'awardNumbers'
+     * @param ?int $enabledContextId Journal where the plugin is enabled, or null when disabled everywhere
      */
-    public static function registerStubFundingPlugin(array $funders, bool $enabled = true): void
+    public static function registerStubFundingPlugin(array $funders, ?int $enabledContextId = 1): void
     {
-        $fundingPlugin = new class ($enabled) extends Plugin {
-            private bool $enabled;
-            public function __construct(bool $enabled)
+        $fundingPlugin = new class ($enabledContextId) extends Plugin {
+            private ?int $enabledContextId;
+            public function __construct(?int $enabledContextId)
             {
                 parent::__construct();
-                $this->enabled = $enabled;
+                $this->enabledContextId = $enabledContextId;
             }
             public function getName()
             {
@@ -200,15 +210,25 @@ class ObjectFactory
             {
                 return 'Funding';
             }
-            public function getEnabled()
+            public function getEnabled($contextId = null)
             {
-                return $this->enabled;
+                return $contextId !== null && $contextId === $this->enabledContextId;
             }
         };
         $plugins = & PluginRegistry::getPlugins();
         $plugins['generic']['FundingPlugin'] = $fundingPlugin;
 
-        DAORegistry::registerDAO('FunderDAO', new class ($funders) {
+        foreach (self::createStubFundingDaos($funders) as $daoName => $dao) {
+            DAORegistry::registerDAO($daoName, $dao);
+        }
+    }
+
+    /**
+     * @param array $funders Each entry has 'id', 'name', 'identification' and 'awardNumbers'
+     */
+    public static function createStubFundingDaos(array $funders): array
+    {
+        $funderDao = new class ($funders) {
             private array $funders;
             public function __construct(array $funders)
             {
@@ -248,9 +268,9 @@ class ObjectFactory
                     }
                 };
             }
-        });
+        };
 
-        DAORegistry::registerDAO('FunderAwardDAO', new class ($funders) {
+        $funderAwardDao = new class ($funders) {
             private array $funders;
             public function __construct(array $funders)
             {
@@ -265,6 +285,8 @@ class ObjectFactory
                 }
                 return [];
             }
-        });
+        };
+
+        return ['FunderDAO' => $funderDao, 'FunderAwardDAO' => $funderAwardDao];
     }
 }
