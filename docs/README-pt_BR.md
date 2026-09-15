@@ -68,7 +68,7 @@ O plugin DOI deve estar ativo e devidamente configurado na revista.
 
 Recomenda-se que pelo menos um autor do artigo tenha um **ROR ID** associado à sua afiliação (requer o plugin ROR), para que a mensagem seja enviada à afiliação associada. As instruções de uso do ROR para o OJS estão descritas no [README do plugin ROR](https://github.com/withanage/ror?tab=readme-ov-file#user-documentation).
 
-**Informações de financiamento**: Para incluir informações de financiamento na mensagem, a revista deve estar utilizando o [plugin Funding](https://github.com/ajnyga/funding/tree/master) para fornecer essa informação sobre o artigo.
+**Informações de financiamento**: Para incluir informações de financiamento na mensagem, como os financiadores e os números de seus auxílios (award numbers), a revista deve estar utilizando o [plugin Funding](https://github.com/ajnyga/funding/tree/master) para fornecer essa informação sobre o artigo.
 
 ## Uso
 
@@ -113,6 +113,8 @@ Os metadados obtidos do OJS e enviados ao OA Switchboard estão listados abaixo 
 - Sobre cada **Financiador**: (se disponível através do plugin Funding)
   - Nome
   - Identificador
+- Sobre cada **Auxílio (grant)**: (se disponível através do plugin Funding)
+  - Número do auxílio (award number)
 - Sobre a **Revista**:
   - Título
   - ID (pode ser ISSN ou eISSN)
