@@ -47,7 +47,7 @@ A mensagem só é enviada quando estes metadados estão presentes:
 
 **Recomendado:** um **ROR ID** na afiliação de ao menos um autor. É ele que permite ao OA Switchboard encaminhar a mensagem àquela instituição.
 
-**Opcional:** com o [plugin Funding](https://github.com/ajnyga/funding/tree/stable-3_5_0) instalado, os financiadores registrados no artigo entram automaticamente na mensagem.
+**Opcional:** com o [plugin Funding](https://github.com/ajnyga/funding/tree/stable-3_5_0) instalado, os financiadores registrados no artigo e os números de seus auxílios (award numbers) entram automaticamente na mensagem.
 
 ### Para o administrador do sistema
 
@@ -108,6 +108,8 @@ Tudo o que é enviado já está no OJS; nada de novo é coletado.
 - Sobre cada **Financiador**: (quando disponível pelo plugin Funding)
   - Nome
   - Identificador
+- Sobre cada **Auxílio (grant)**: (quando disponível pelo plugin Funding)
+  - Número do auxílio (award number)
 - Sobre a **Revista**:
   - Título
   - ID (pode ser ISSN ou eISSN)

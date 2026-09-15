@@ -13,6 +13,8 @@ use PKP\db\DAORegistry;
 use PKP\decision\Decision;
 use PKP\doi\Doi;
 use PKP\galley\Galley;
+use PKP\plugins\Plugin;
+use PKP\plugins\PluginRegistry;
 use PKP\site\Site;
 use PKP\submissionFile\SubmissionFile;
 
@@ -169,13 +171,122 @@ class ObjectFactory
             {
                 return $this->stubDecisions;
             }
-            public function getFundersData(): array
+            protected function createFundingDao(string $daoName): ?object
             {
-                return [[
-                    'name' => 'Universidade Federal de Santa Catarina',
-                    'fundref' => 'http://dx.doi.org/10.13039/501100007082',
-                ]];
+                return ObjectFactory::$creatableFundingDaos[$daoName] ?? null;
             }
         };
+    }
+
+    /**
+     * DAOs returned when P1Pio creates Funding plugin DAOs that are not registered yet, keyed by DAO name.
+     */
+    public static array $creatableFundingDaos = [];
+
+    /**
+     * Registers a stand-in for the Funding plugin and its DAOs.
+     *
+     * @param array $funders Each entry has 'id', 'name', 'identification' and 'awardNumbers'
+     * @param ?int $enabledContextId Journal where the plugin is enabled, or null when disabled everywhere
+     */
+    public static function registerStubFundingPlugin(array $funders, ?int $enabledContextId = 1): void
+    {
+        $fundingPlugin = new class ($enabledContextId) extends Plugin {
+            private ?int $enabledContextId;
+            public function __construct(?int $enabledContextId)
+            {
+                parent::__construct();
+                $this->enabledContextId = $enabledContextId;
+            }
+            public function getName()
+            {
+                return 'FundingPlugin';
+            }
+            public function getDisplayName()
+            {
+                return 'Funding';
+            }
+            public function getDescription()
+            {
+                return 'Funding';
+            }
+            public function getEnabled($contextId = null)
+            {
+                return $contextId !== null && $contextId === $this->enabledContextId;
+            }
+        };
+        $plugins = & PluginRegistry::getPlugins();
+        $plugins['generic']['FundingPlugin'] = $fundingPlugin;
+
+        foreach (self::createStubFundingDaos($funders) as $daoName => $dao) {
+            DAORegistry::registerDAO($daoName, $dao);
+        }
+    }
+
+    /**
+     * @param array $funders Each entry has 'id', 'name', 'identification' and 'awardNumbers'
+     */
+    public static function createStubFundingDaos(array $funders): array
+    {
+        $funderDao = new class ($funders) {
+            private array $funders;
+            public function __construct(array $funders)
+            {
+                $this->funders = $funders;
+            }
+            public function getBySubmissionId($submissionId)
+            {
+                $funders = array_map(fn ($funder) => new class ($funder) {
+                    private array $funder;
+                    public function __construct(array $funder)
+                    {
+                        $this->funder = $funder;
+                    }
+                    public function getId()
+                    {
+                        return $this->funder['id'];
+                    }
+                    public function getFunderName()
+                    {
+                        return $this->funder['name'];
+                    }
+                    public function getFunderIdentification()
+                    {
+                        return $this->funder['identification'];
+                    }
+                }, $this->funders);
+
+                return new class ($funders) {
+                    private array $funders;
+                    public function __construct(array $funders)
+                    {
+                        $this->funders = $funders;
+                    }
+                    public function next()
+                    {
+                        return array_shift($this->funders);
+                    }
+                };
+            }
+        };
+
+        $funderAwardDao = new class ($funders) {
+            private array $funders;
+            public function __construct(array $funders)
+            {
+                $this->funders = $funders;
+            }
+            public function getFunderAwardNumbersByFunderId($funderId)
+            {
+                foreach ($this->funders as $funder) {
+                    if ($funder['id'] === $funderId) {
+                        return $funder['awardNumbers'];
+                    }
+                }
+                return [];
+            }
+        };
+
+        return ['FunderDAO' => $funderDao, 'FunderAwardDAO' => $funderAwardDao];
     }
 }

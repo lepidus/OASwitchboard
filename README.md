@@ -47,7 +47,7 @@ A message is sent only when this metadata is in place:
 
 **Recommended:** a **ROR ID** on at least one author's affiliation. It is what lets the OA Switchboard route the message to that institution.
 
-**Optional:** with the [Funding plugin](https://github.com/ajnyga/funding/tree/stable-3_5_0) installed, funders recorded for an article are included automatically.
+**Optional:** with the [Funding plugin](https://github.com/ajnyga/funding/tree/stable-3_5_0) installed, funders recorded for an article, and their grant (award) numbers, are included automatically.
 
 ### For your system administrator
 
@@ -108,6 +108,8 @@ Everything sent is metadata already in OJS; nothing new is collected.
 - About each **Funder**: (if available with Funding plugin)
   - Name
   - Identifier
+- About each **Grant**: (if available with Funding plugin)
+  - Award number
 - About the **Journal**:
   - Title
   - ID (can be ISSN or eISSN)
