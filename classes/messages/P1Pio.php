@@ -108,26 +108,56 @@ class P1Pio
         if (!empty($funders)) {
             $articleData['funders'] = $funders;
         }
+
+        $grants = $this->getGrantsData();
+        if (!empty($grants)) {
+            $articleData['grants'] = $grants;
+        }
         return $articleData;
     }
 
     public function getFundersData(): array
     {
         $fundersData = [];
-        $fundingPlugin = PluginRegistry::getPlugin('generic', 'FundingPlugin');
-        if (!is_null($fundingPlugin)) {
-            if ($fundingPlugin->getEnabled()) {
-                $funderDao = DAORegistry::getDAO('FunderDAO');
-                $funders = $funderDao->getBySubmissionId($this->submission->getId());
-                while ($funder = $funders->next()) {
-                    $fundersData[] = [
-                        'name' => (string) $funder->getFunderName(),
-                        'fundref' => (string) $funder->getFunderIdentification()
-                    ];
-                }
-            }
+        foreach ($this->getSubmissionFunders() as $funder) {
+            $fundersData[] = [
+                'name' => (string) $funder->getFunderName(),
+                'fundref' => (string) $funder->getFunderIdentification()
+            ];
         }
         return $fundersData;
+    }
+
+    public function getGrantsData(): array
+    {
+        $grantsData = [];
+        $funders = $this->getSubmissionFunders();
+        if (empty($funders)) {
+            return $grantsData;
+        }
+
+        $funderAwardDao = DAORegistry::getDAO('FunderAwardDAO');
+        foreach ($funders as $funder) {
+            foreach ($funderAwardDao->getFunderAwardNumbersByFunderId($funder->getId()) as $awardNumber) {
+                $grantsData[] = ['id' => (string) $awardNumber];
+            }
+        }
+        return $grantsData;
+    }
+
+    private function getSubmissionFunders(): array
+    {
+        $fundingPlugin = PluginRegistry::getPlugin('generic', 'FundingPlugin');
+        if (is_null($fundingPlugin) || !$fundingPlugin->getEnabled()) {
+            return [];
+        }
+
+        $submissionFunders = [];
+        $funders = DAORegistry::getDAO('FunderDAO')->getBySubmissionId($this->submission->getId());
+        while ($funder = $funders->next()) {
+            $submissionFunders[] = $funder;
+        }
+        return $submissionFunders;
     }
 
     private function getAcceptanceDate(): ?string
