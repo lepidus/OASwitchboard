@@ -104,7 +104,7 @@ class ObjectFactory
     {
         $P1PioMock = $testClass->getMockBuilder(P1Pio::class)
             ->setConstructorArgs([$submission])
-            ->setMethods(['getGenreIdOfSubmissionFile', 'getSubmissionDateDecided', 'getFundersData'])
+            ->setMethods(['getGenreIdOfSubmissionFile', 'getSubmissionDateDecided'])
             ->getMock();
 
         $P1PioMock->expects($testClass->any())
@@ -115,18 +115,103 @@ class ObjectFactory
             ->method('getSubmissionDateDecided')
             ->will($testClass->returnValue("2021-01-20 00:00:00"));
 
-        $P1PioMock->expects($testClass->any())
-            ->method('getFundersData')
-            ->will($testClass->returnValue(
-                [
-                    0 => [
-                        'name' => "Universidade Federal de Santa Catarina",
-                        'fundref' => "http://dx.doi.org/10.13039/501100007082"
-                    ]
-                ]
-            ));
-
         return $P1PioMock;
     }
 
+    /**
+     * Registers a stand-in for the Funding plugin and its DAOs.
+     *
+     * @param array $funders Each entry has 'id', 'name', 'identification' and 'awardNumbers'
+     */
+    public static function registerStubFundingPlugin(array $funders, bool $enabled = true): void
+    {
+        import('lib.pkp.classes.plugins.Plugin');
+        $fundingPlugin = new class ($enabled) extends Plugin {
+            private $enabled;
+            public function __construct(bool $enabled)
+            {
+                parent::__construct();
+                $this->enabled = $enabled;
+            }
+            public function getName()
+            {
+                return 'FundingPlugin';
+            }
+            public function getDisplayName()
+            {
+                return 'Funding';
+            }
+            public function getDescription()
+            {
+                return 'Funding';
+            }
+            public function getEnabled()
+            {
+                return $this->enabled;
+            }
+        };
+        $plugins = & PluginRegistry::getPlugins();
+        $plugins['generic']['FundingPlugin'] = $fundingPlugin;
+
+        DAORegistry::registerDAO('FunderDAO', new class ($funders) {
+            private $funders;
+            public function __construct(array $funders)
+            {
+                $this->funders = $funders;
+            }
+            public function getBySubmissionId($submissionId)
+            {
+                $funders = array_map(function ($funder) {
+                    return new class ($funder) {
+                        private $funder;
+                        public function __construct(array $funder)
+                        {
+                            $this->funder = $funder;
+                        }
+                        public function getId()
+                        {
+                            return $this->funder['id'];
+                        }
+                        public function getFunderName()
+                        {
+                            return $this->funder['name'];
+                        }
+                        public function getFunderIdentification()
+                        {
+                            return $this->funder['identification'];
+                        }
+                    };
+                }, $this->funders);
+
+                return new class ($funders) {
+                    private $funders;
+                    public function __construct(array $funders)
+                    {
+                        $this->funders = $funders;
+                    }
+                    public function next()
+                    {
+                        return array_shift($this->funders);
+                    }
+                };
+            }
+        });
+
+        DAORegistry::registerDAO('FunderAwardDAO', new class ($funders) {
+            private $funders;
+            public function __construct(array $funders)
+            {
+                $this->funders = $funders;
+            }
+            public function getFunderAwardNumbersByFunderId($funderId)
+            {
+                foreach ($this->funders as $funder) {
+                    if ($funder['id'] === $funderId) {
+                        return $funder['awardNumbers'];
+                    }
+                }
+                return [];
+            }
+        });
+    }
 }

@@ -68,7 +68,7 @@ El módulo DOI debe estar activo y correctamente configurado en la revista.
 
 Se recomienda que al menos un autor del artículo tenga un **ROR ID** asociado a su afiliación (requiere el módulo ROR), para que el mensaje sea enviado a la afiliación asociada. Las instrucciones de uso de ROR para OJS están descritas en el [README del módulo ROR](https://github.com/withanage/ror?tab=readme-ov-file#user-documentation).
 
-**Información de financiación**: Para incluir información de financiación en el mensaje, la revista debe estar utilizando el [módulo Funding](https://github.com/ajnyga/funding/tree/master) para proporcionar esa información sobre el artículo.
+**Información de financiación**: Para incluir información de financiación en el mensaje, como los financiadores y los números de sus ayudas (award numbers), la revista debe estar utilizando el [módulo Funding](https://github.com/ajnyga/funding/tree/master) para proporcionar esa información sobre el artículo.
 
 ## Uso
 
@@ -113,6 +113,8 @@ Los metadatos obtenidos de OJS y enviados a OA Switchboard se listan a continuac
 - Sobre cada **Financiador**: (si está disponible a través del módulo Funding)
   - Nombre
   - Identificador
+- Sobre cada **Ayuda (grant)**: (si está disponible a través del módulo Funding)
+  - Número de la ayuda (award number)
 - Sobre la **Revista**:
   - Título
   - ID (puede ser ISSN o eISSN)

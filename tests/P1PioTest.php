@@ -17,6 +17,12 @@ class P1PioTest extends PKPTestCase
         parent::setUp();
         $journal = $journal = ObjectFactory::createMockedJournal($this, $onlineIssn = "0000-0001", $printIssn = "0000-0002");
         $this->submission = ObjectFactory::createTestSubmission($journal, true);
+        ObjectFactory::registerStubFundingPlugin([[
+            'id' => 1,
+            'name' => 'Universidade Federal de Santa Catarina',
+            'identification' => 'http://dx.doi.org/10.13039/501100007082',
+            'awardNumbers' => [10 => '2021/12345-6'],
+        ]]);
         $this->P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
     }
 
@@ -25,6 +31,11 @@ class P1PioTest extends PKPTestCase
         return [
             'JournalDAO'
         ];
+    }
+
+    protected function getMockedRegistryKeys()
+    {
+        return array_merge(parent::getMockedRegistryKeys(), ['plugins', 'daos']);
     }
 
     public function testGetAuthorGivenName()
@@ -157,6 +168,71 @@ class P1PioTest extends PKPTestCase
         $articleData = $this->P1Pio->getArticleData();
         $acceptanceDate = $articleData['manuscript']['dates']['acceptance'];
         $this->assertEquals($acceptanceDate, "2021-01-20");
+    }
+
+    public function testArticleGrantsShouldListAwardNumbersOfAllFunders()
+    {
+        ObjectFactory::registerStubFundingPlugin([
+            [
+                'id' => 1,
+                'name' => 'Fundação de Amparo à Pesquisa do Estado de São Paulo',
+                'identification' => 'https://doi.org/10.13039/501100001807',
+                'awardNumbers' => [10 => '2021/12345-6', 11 => '2022/65432-1'],
+            ],
+            [
+                'id' => 2,
+                'name' => 'Conselho Nacional de Desenvolvimento Científico e Tecnológico',
+                'identification' => 'https://doi.org/10.13039/501100003593',
+                'awardNumbers' => [12 => 'CNPq-999'],
+            ],
+        ]);
+
+        $articleData = $this->P1Pio->getArticleData();
+
+        $this->assertEquals(
+            [['id' => '2021/12345-6'], ['id' => '2022/65432-1'], ['id' => 'CNPq-999']],
+            $articleData['grants']
+        );
+    }
+
+    public function testArticleShouldOmitGrantsWhenFundersHaveNoAwardNumbers()
+    {
+        ObjectFactory::registerStubFundingPlugin([[
+            'id' => 1,
+            'name' => 'Universidade Federal de Santa Catarina',
+            'identification' => 'http://dx.doi.org/10.13039/501100007082',
+            'awardNumbers' => [],
+        ]]);
+
+        $articleData = $this->P1Pio->getArticleData();
+
+        $this->assertArrayHasKey('funders', $articleData);
+        $this->assertArrayNotHasKey('grants', $articleData);
+    }
+
+    public function testArticleShouldOmitFundersAndGrantsWhenFundingPluginIsDisabled()
+    {
+        ObjectFactory::registerStubFundingPlugin([[
+            'id' => 1,
+            'name' => 'Universidade Federal de Santa Catarina',
+            'identification' => 'http://dx.doi.org/10.13039/501100007082',
+            'awardNumbers' => [10 => '2021/12345-6'],
+        ]], $enabled = false);
+
+        $articleData = $this->P1Pio->getArticleData();
+
+        $this->assertArrayNotHasKey('funders', $articleData);
+        $this->assertArrayNotHasKey('grants', $articleData);
+    }
+
+    public function testArticleShouldOmitFundersAndGrantsWhenFundingPluginIsNotInstalled()
+    {
+        Registry::delete('plugins');
+
+        $articleData = $this->P1Pio->getArticleData();
+
+        $this->assertArrayNotHasKey('funders', $articleData);
+        $this->assertArrayNotHasKey('grants', $articleData);
     }
 
     public function testGetJournalName()
