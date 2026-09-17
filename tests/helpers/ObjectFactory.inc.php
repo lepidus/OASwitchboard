@@ -127,7 +127,7 @@ class ObjectFactory
     {
         import('lib.pkp.classes.plugins.Plugin');
         $fundingPlugin = new class ($enabled) extends Plugin {
-            private bool $enabled;
+            private $enabled;
             public function __construct(bool $enabled)
             {
                 parent::__construct();
@@ -154,35 +154,37 @@ class ObjectFactory
         $plugins['generic']['FundingPlugin'] = $fundingPlugin;
 
         DAORegistry::registerDAO('FunderDAO', new class ($funders) {
-            private array $funders;
+            private $funders;
             public function __construct(array $funders)
             {
                 $this->funders = $funders;
             }
             public function getBySubmissionId($submissionId)
             {
-                $funders = array_map(fn ($funder) => new class ($funder) {
-                    private array $funder;
-                    public function __construct(array $funder)
-                    {
-                        $this->funder = $funder;
-                    }
-                    public function getId()
-                    {
-                        return $this->funder['id'];
-                    }
-                    public function getFunderName()
-                    {
-                        return $this->funder['name'];
-                    }
-                    public function getFunderIdentification()
-                    {
-                        return $this->funder['identification'];
-                    }
+                $funders = array_map(function ($funder) {
+                    return new class ($funder) {
+                        private $funder;
+                        public function __construct(array $funder)
+                        {
+                            $this->funder = $funder;
+                        }
+                        public function getId()
+                        {
+                            return $this->funder['id'];
+                        }
+                        public function getFunderName()
+                        {
+                            return $this->funder['name'];
+                        }
+                        public function getFunderIdentification()
+                        {
+                            return $this->funder['identification'];
+                        }
+                    };
                 }, $this->funders);
 
                 return new class ($funders) {
-                    private array $funders;
+                    private $funders;
                     public function __construct(array $funders)
                     {
                         $this->funders = $funders;
@@ -196,7 +198,7 @@ class ObjectFactory
         });
 
         DAORegistry::registerDAO('FunderAwardDAO', new class ($funders) {
-            private array $funders;
+            private $funders;
             public function __construct(array $funders)
             {
                 $this->funders = $funders;

@@ -35,7 +35,7 @@ class P1PioTest extends PKPTestCase
 
     protected function getMockedRegistryKeys()
     {
-        return [...parent::getMockedRegistryKeys(), 'plugins', 'daos'];
+        return array_merge(parent::getMockedRegistryKeys(), ['plugins', 'daos']);
     }
 
     public function testGetAuthorGivenName()
