@@ -4,9 +4,7 @@ namespace APP\plugins\generic\OASwitchboard\classes\api;
 
 use APP\core\Application;
 use APP\facades\Repo;
-use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use APP\plugins\generic\OASwitchboard\classes\Message;
-use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 use APP\plugins\generic\OASwitchboard\classes\SendStatus;
 use APP\submission\Submission;
@@ -168,12 +166,11 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
             return response()->json($payload, Response::HTTP_OK);
         }
 
-        try {
-            new P1Pio($submission);
-            $payload['readyToSend'] = true;
-        } catch (P1PioException $e) {
-            $payload['missingFields'] = array_values(array_unique($e->getP1PioErrors() ?? []));
-        }
+        $payload['missingFields'] = OASwitchboardService::getMissingRequirements(
+            $submission,
+            Application::get()->getRequest()->getContext()
+        );
+        $payload['readyToSend'] = empty($payload['missingFields']);
 
         return response()->json($payload, Response::HTTP_OK);
     }

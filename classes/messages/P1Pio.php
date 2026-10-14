@@ -20,6 +20,8 @@ class P1Pio
     private const OPEN_ACCESS_POLICY = 'pure OA journal';
     private const STAGE_ID_ACCEPTED = 3;
 
+    public const REQUIREMENT_DOI = 'plugins.generic.OASwitchboard.postRequirementsError.doi';
+
     public function __construct(Submission $submission)
     {
         $this->submission = $submission;
@@ -318,7 +320,7 @@ class P1Pio
             }
         }
         if (empty($data['article']['doi'])) {
-            $missingDataMessages[] = 'plugins.generic.OASwitchboard.postRequirementsError.doi';
+            $missingDataMessages[] = self::REQUIREMENT_DOI;
         }
         if (empty($data['journal']['id'])) {
             $missingDataMessages[] = 'plugins.generic.OASwitchboard.postRequirementsError.issn';

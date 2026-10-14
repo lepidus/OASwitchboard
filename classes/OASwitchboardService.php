@@ -15,9 +15,13 @@ namespace APP\plugins\generic\OASwitchboard\classes;
 
 use APP\core\Application;
 use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
+use APP\facades\Repo;
 use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
+use APP\submission\Submission;
 use Exception;
+use PKP\context\Context;
 use PKP\db\DAORegistry;
 
 class OASwitchboardService
@@ -72,6 +76,37 @@ class OASwitchboardService
         if (is_null($username) || is_null($password)) {
             throw new Exception(__('plugins.generic.OASwitchboard.pluginIsNotConfigured'));
         }
+    }
+
+    public static function getMissingRequirements(Submission $submission, Context $context): array
+    {
+        try {
+            new P1Pio($submission);
+            return [];
+        } catch (P1PioException $exception) {
+            return self::excludeRequirementsMetOnPublication(
+                array_values(array_unique($exception->getP1PioErrors() ?? [])),
+                $submission,
+                $context
+            );
+        }
+    }
+
+    public static function excludeRequirementsMetOnPublication(array $missingRequirements, Submission $submission, Context $context): array
+    {
+        if ($submission->getData('status') === Submission::STATUS_PUBLISHED || !self::willAssignDoiOnPublication($context)) {
+            return $missingRequirements;
+        }
+
+        return array_values(array_diff($missingRequirements, [P1Pio::REQUIREMENT_DOI]));
+    }
+
+    public static function willAssignDoiOnPublication(Context $context): bool
+    {
+        return $context->areDoisEnabled()
+            && $context->isDoiTypeEnabled(Repo::doi()::TYPE_PUBLICATION)
+            && $context->getData(Context::SETTING_DOI_CREATION_TIME) !== Repo::doi()::CREATION_TIME_NEVER
+            && !empty($context->getData(Context::SETTING_DOI_PREFIX));
     }
 
     public static function isRorAssociated($submission)

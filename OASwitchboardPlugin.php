@@ -22,6 +22,8 @@ use APP\plugins\generic\OASwitchboard\classes\migrations\OASwitchboardMigrations
 use APP\plugins\generic\OASwitchboard\classes\Resources;
 use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardActions;
 use APP\plugins\generic\OASwitchboard\classes\settings\OASwitchboardManage;
+use Illuminate\Support\Facades\Event;
+use PKP\observers\events\PublicationPublished;
 use PKP\plugins\GenericPlugin;
 use PKP\plugins\Hook;
 
@@ -30,12 +32,17 @@ class OASwitchboardPlugin extends GenericPlugin
     public function register($category, $path, $mainContextId = null)
     {
         $success = parent::register($category, $path);
-        if ($success && $this->getEnabled()) {
-            $message = new Message($this);
+        if (!$success) {
+            return false;
+        }
+
+        $message = new Message($this);
+        Event::listen(PublicationPublished::class, [$message, 'handlePublicationPublished']);
+
+        if ($this->getEnabled()) {
             $resources = new Resources($this);
             $statusController = new OASwitchboardStatusController($this);
 
-            Hook::add('Publication::publish', [$message, 'sendToOASwitchboard']);
             Hook::add('Form::config::before', [$message, 'validateBeforePublicationEvent']);
 
             $statusController->register();

@@ -2,6 +2,7 @@
 
 namespace APP\plugins\generic\OASwitchboard\tests;
 
+use APP\journal\Journal;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use APP\plugins\generic\OASwitchboard\classes\Message;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
@@ -13,6 +14,7 @@ use APP\submission\Submission;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use PKP\observers\events\PublicationPublished;
 use PKP\tests\DatabaseTestCase;
 
 class MessageTest extends DatabaseTestCase
@@ -50,11 +52,12 @@ class MessageTest extends DatabaseTestCase
      * scheduling decision can be exercised without a fully populated submission.
      * The default builder stands for a submission that meets the requirements.
      */
-    private function createMessage(bool $configured = true, ?callable $messageBuilder = null): Message
+    private function createMessage(bool $configured = true, ?callable $messageBuilder = null, bool $enabled = true): Message
     {
         $messageBuilder ??= fn ($submission) => $this->createMock(P1Pio::class);
 
-        $plugin = $configured ? $this->createConfiguredPluginMock() : $this->createPluginMock([]);
+        $settings = $configured ? ['username' => 'user@example.com', 'password' => 'encrypted'] : [];
+        $plugin = $this->createPluginMock($settings, $enabled);
 
         return new class ($plugin, $messageBuilder, self::ACTING_USER_ID) extends Message {
             private $messageBuilder;
@@ -87,7 +90,7 @@ class MessageTest extends DatabaseTestCase
         return $submission;
     }
 
-    private function buildPublishHookArguments(int $publicationStatus): array
+    private function buildPublishedEvent(int $publicationStatus): PublicationPublished
     {
         $submission = $this->buildSubmission();
 
@@ -95,15 +98,17 @@ class MessageTest extends DatabaseTestCase
         $publication->setData('status', $publicationStatus);
         $publication->setData('submissionId', $submission->getId());
 
-        return [$publication, null, $submission];
+        $context = new Journal();
+        $context->setId(self::CONTEXT_ID);
+
+        return new PublicationPublished($publication, new Publication(), $submission, $context);
     }
 
     public function testShouldRecordPendingStatusAndDispatchSendJobWhenPublished()
     {
         $message = $this->createMessage();
-        $args = $this->buildPublishHookArguments(Submission::STATUS_PUBLISHED);
 
-        $message->sendToOASwitchboard('Publication::publish', $args);
+        $message->handlePublicationPublished($this->buildPublishedEvent(Submission::STATUS_PUBLISHED));
 
         Bus::assertDispatched(
             SendP1PioMessageJob::class,
@@ -115,9 +120,8 @@ class MessageTest extends DatabaseTestCase
     public function testShouldNotDispatchSendJobWhenPluginIsNotConfigured()
     {
         $message = $this->createMessage(configured: false);
-        $args = $this->buildPublishHookArguments(Submission::STATUS_PUBLISHED);
 
-        $message->sendToOASwitchboard('Publication::publish', $args);
+        $message->handlePublicationPublished($this->buildPublishedEvent(Submission::STATUS_PUBLISHED));
 
         Bus::assertNotDispatched(SendP1PioMessageJob::class);
         $this->assertNull($this->recordedStatus());
@@ -160,11 +164,35 @@ class MessageTest extends DatabaseTestCase
     public function testShouldNotDispatchSendJobWhenPublicationIsNotPublished()
     {
         $message = $this->createMessage();
-        $args = $this->buildPublishHookArguments(Submission::STATUS_QUEUED);
 
-        $message->sendToOASwitchboard('Publication::publish', $args);
+        $message->handlePublicationPublished($this->buildPublishedEvent(Submission::STATUS_SCHEDULED));
 
         Bus::assertNotDispatched(SendP1PioMessageJob::class);
         $this->assertNull($this->recordedStatus());
+    }
+
+    public function testShouldNotDispatchSendJobWhenPluginIsDisabledForTheSubmissionJournal()
+    {
+        $message = $this->createMessage(enabled: false);
+
+        $message->handlePublicationPublished($this->buildPublishedEvent(Submission::STATUS_PUBLISHED));
+
+        Bus::assertNotDispatched(SendP1PioMessageJob::class);
+        $this->assertNull($this->recordedStatus());
+    }
+
+    public function testShouldBuildTheMessageFromTheSubmissionAsStoredAfterPublication()
+    {
+        $builtFrom = null;
+        $message = $this->createMessage(messageBuilder: function ($submission) use (&$builtFrom) {
+            $builtFrom = $submission;
+            return $this->createMock(P1Pio::class);
+        });
+        $event = $this->buildPublishedEvent(Submission::STATUS_PUBLISHED);
+
+        $message->handlePublicationPublished($event);
+
+        $this->assertNotSame($event->submission, $builtFrom);
+        $this->assertSame($this->submissionId, $builtFrom->getId());
     }
 }

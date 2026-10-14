@@ -8,6 +8,8 @@ use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\plugins\generic\OASwitchboard\jobs\SendP1PioMessageJob;
 use APP\submission\Submission;
+use PKP\components\forms\FieldHTML;
+use PKP\observers\events\PublicationPublished;
 use PKP\security\Validation;
 
 class Message
@@ -19,22 +21,21 @@ class Message
         $this->plugin = $plugin;
     }
 
-    public function sendToOASwitchboard($hookName, $args)
+    public function handlePublicationPublished(PublicationPublished $event): void
     {
-        $publication = & $args[0];
-        $submission = & $args[2];
+        if ($event->publication->getData('status') !== Submission::STATUS_PUBLISHED) {
+            return;
+        }
 
-        if ($publication->getData('status') !== Submission::STATUS_PUBLISHED) {
-            return false;
+        if (!$this->plugin->getEnabled((int) $event->submission->getData('contextId'))) {
+            return;
         }
 
         try {
-            $this->scheduleSendToOASwitchboard($submission);
-        } catch (\Exception $e) {
-            error_log('OASwitchboard message scheduling failed');
+            $this->scheduleSendToOASwitchboard(Repo::submission()->get($event->submission->getId()));
+        } catch (\Throwable $exception) {
+            error_log('OASwitchboard message scheduling failed for submission ' . $event->submission->getId() . ': ' . $exception->getMessage());
         }
-
-        return false;
     }
 
     public function scheduleSendToOASwitchboard($submission): void
@@ -102,39 +103,33 @@ class Message
             return;
         }
 
-        $contextId = Application::get()->getRequest()->getContext()->getId();
+        $context = Application::get()->getRequest()->getContext();
         $submission = Repo::submission()->get($form->publication->getData('submissionId'));
 
         try {
-            OASwitchboardService::validatePluginIsConfigured($this->plugin, $contextId);
+            OASwitchboardService::validatePluginIsConfigured($this->plugin, $context->getId());
         } catch (\Exception $e) {
-            $message = '<div class="pkpNotification pkpNotification--information">' . $e->getMessage() . '</div>';
-            $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
-                'description' => $message,
-                'groupId' => 'default',
-            ]));
+            $this->addPublishNotice($form, '<div class="pkpNotification pkpNotification--information">' . $e->getMessage() . '</div>');
             return false;
         }
 
-        try {
-            $p1Pio = new P1Pio($submission);
-            $successMessage = $this->getSubmissionAlreadyToSendMessage($submission);
-
-            $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
-                'description' => $successMessage,
-                'groupId' => 'default',
-            ]));
-        } catch (P1PioException $e) {
-            if ($e->getP1PioErrors()) {
-                $errorMessage = $this->getMandatoryDataErrorMessage($e->getP1PioErrors(), $submission);
-                $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
-                    'description' => $errorMessage,
-                    'groupId' => 'default',
-                ]));
-            }
-        }
+        $missingRequirements = OASwitchboardService::getMissingRequirements($submission, $context);
+        $this->addPublishNotice(
+            $form,
+            empty($missingRequirements)
+                ? $this->getSubmissionAlreadyToSendMessage($submission)
+                : $this->getMandatoryDataErrorMessage($missingRequirements, $submission)
+        );
 
         return false;
+    }
+
+    private function addPublishNotice($form, string $description): void
+    {
+        $form->addField(new FieldHTML('registerNotice', [
+            'description' => $description,
+            'groupId' => 'default',
+        ]));
     }
 
     private function getMandatoryDataErrorMessage($p1PioErrors, $submission, $includePrefix = true): string
