@@ -67,6 +67,16 @@ class OASwitchboardServiceTest extends PKPTestCase
         OASwitchboardService::validatePluginIsConfigured($plugin, self::CONTEXT_ID);
     }
 
+    public function testRequirementsThatCannotBeCheckedShouldBeReportedInsteadOfThrown()
+    {
+        $context = new Journal();
+        $context->setId(self::CONTEXT_ID);
+
+        $missingRequirements = OASwitchboardService::getMissingRequirements(new Submission(), $context);
+
+        $this->assertSame([OASwitchboardService::REQUIREMENTS_UNCHECKED], $missingRequirements);
+    }
+
     private function buildContextAssigningDoiOnPublication(): Journal
     {
         $context = new Journal();

@@ -26,6 +26,8 @@ use PKP\db\DAORegistry;
 
 class OASwitchboardService
 {
+    public const REQUIREMENTS_UNCHECKED = 'plugins.generic.OASwitchboard.postRequirementsError.unchecked';
+
     private $plugin;
     private $apiClient;
     private $contextId;
@@ -89,6 +91,9 @@ class OASwitchboardService
                 $submission,
                 $context
             );
+        } catch (\Throwable $exception) {
+            error_log('OASwitchboard could not check the requirements of submission ' . $submission->getId() . ': ' . $exception);
+            return [self::REQUIREMENTS_UNCHECKED];
         }
     }
 

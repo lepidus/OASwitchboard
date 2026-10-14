@@ -124,6 +124,7 @@ tk('plugins.generic.OASwitchboard.postRequirementsError.affiliation');
 tk('plugins.generic.OASwitchboard.postRequirementsError.doi');
 tk('plugins.generic.OASwitchboard.postRequirementsError.familyName');
 tk('plugins.generic.OASwitchboard.postRequirementsError.issn');
+tk('plugins.generic.OASwitchboard.postRequirementsError.unchecked');
 
 // Keys resolved dynamically from the send status returned by the API.
 tk('plugins.generic.OASwitchboard.sendStatus.pending');
