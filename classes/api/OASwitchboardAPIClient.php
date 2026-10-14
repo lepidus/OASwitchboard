@@ -2,9 +2,11 @@
 
 namespace APP\plugins\generic\OASwitchboard\classes\api;
 
+use APP\plugins\generic\OASwitchboard\classes\exceptions\OASwitchboardException;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\UnconfirmedDeliveryException;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
-use Exception;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use PKP\config\Config;
@@ -18,6 +20,9 @@ class OASwitchboardAPIClient
     private const CONNECT_TIMEOUT_SECONDS = 5;
     private const REQUEST_TIMEOUT_SECONDS = 15;
     private const MAX_AUTHORIZATION_RESPONSE_BYTES = 16384;
+    private const CURL_COULDNT_RESOLVE_HOST = 6;
+    private const CURL_COULDNT_CONNECT = 7;
+    private const CURL_SSL_CONNECT_ERROR = 35;
     private $httpClient;
     private $apiBaseUrl;
 
@@ -77,20 +82,34 @@ class OASwitchboardAPIClient
             return $response;
         } catch (ServerException $e) {
             $this->logRequestFailure($this->getOperationName($endpoint), $endpoint, $e);
-            throw new Exception(
+            throw new OASwitchboardException(
                 __('plugins.generic.OASwitchboard.serverError')
             );
         } catch (ClientException $e) {
             $this->logRequestFailure($this->getOperationName($endpoint), $endpoint, $e);
-            throw new Exception(
+            throw new OASwitchboardException(
                 __('plugins.generic.OASwitchboard.postRequirements')
             );
         } catch (TransferException $e) {
             $this->logRequestFailure($this->getOperationName($endpoint), $endpoint, $e);
-            throw new Exception(
-                __('plugins.generic.OASwitchboard.serverError')
-            );
+            if ($e instanceof RequestException && $e->hasResponse()) {
+                throw new OASwitchboardException(__('plugins.generic.OASwitchboard.serverError'));
+            }
+            if ($endpoint === self::API_SEND_MESSAGE_ENDPOINT && !$this->failedBeforeReachingTheServer($e)) {
+                throw new UnconfirmedDeliveryException(__('plugins.generic.OASwitchboard.unconfirmedDelivery'));
+            }
+            throw new OASwitchboardException(__('plugins.generic.OASwitchboard.connectionError'));
         }
+    }
+
+    private function failedBeforeReachingTheServer(TransferException $exception): bool
+    {
+        $handlerContext = method_exists($exception, 'getHandlerContext') ? $exception->getHandlerContext() : [];
+        return in_array(
+            $handlerContext['errno'] ?? null,
+            [self::CURL_COULDNT_RESOLVE_HOST, self::CURL_COULDNT_CONNECT, self::CURL_SSL_CONNECT_ERROR],
+            true
+        );
     }
 
     private function extractAuthorizationToken($response): string
@@ -147,13 +166,13 @@ class OASwitchboardAPIClient
         $messageKey = $statusCode >= 400 && $statusCode < 500
             ? 'plugins.generic.OASwitchboard.postRequirements'
             : 'plugins.generic.OASwitchboard.serverError';
-        throw new Exception(__($messageKey));
+        throw new OASwitchboardException(__($messageKey));
     }
 
     private function rejectInvalidAuthorizationResponse($response): void
     {
         $this->logResponseFailure('getAuthorization', self::API_AUTHORIZATION_ENDPOINT, $response);
-        throw new Exception(__('plugins.generic.OASwitchboard.serverError'));
+        throw new OASwitchboardException(__('plugins.generic.OASwitchboard.serverError'));
     }
 
     private function getOperationName(string $endpoint): string
@@ -171,8 +190,19 @@ class OASwitchboardAPIClient
         $logContext = [
             'operation=' . $operation,
             'endpoint=' . $endpoint,
+            'exception=' . (new \ReflectionClass($exception))->getShortName(),
+            'error=' . $this->describeTransferError($exception),
         ];
         $this->writeLog('OASwitchboard API request failed: ' . implode(' ', $logContext));
+    }
+
+    private function describeTransferError($exception): string
+    {
+        $message = $exception->getMessage();
+        if (method_exists($exception, 'getRequest')) {
+            $message = str_replace((string) $exception->getRequest()->getUri(), '[request uri]', $message);
+        }
+        return $message;
     }
 
     private function logResponseFailure(string $operation, string $endpoint, $response): void

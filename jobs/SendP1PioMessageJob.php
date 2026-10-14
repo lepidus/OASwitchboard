@@ -15,6 +15,9 @@ namespace APP\plugins\generic\OASwitchboard\jobs;
 
 use APP\core\Application;
 use APP\facades\Repo;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\OASwitchboardException;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\UnconfirmedDeliveryException;
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 use APP\plugins\generic\OASwitchboard\classes\SendStatus;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -82,7 +85,12 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
         }
 
         $service = $this->createOASwitchboardService($submission);
-        $service->sendP1PioMessage();
+        try {
+            $service->sendP1PioMessage();
+        } catch (UnconfirmedDeliveryException $exception) {
+            $this->fail($exception);
+            return;
+        }
         SendStatus::recordSent($submission);
         $this->registerSubmissionEventLog($submission, 'plugins.generic.OASwitchboard.sendMessageWithSuccess');
     }
@@ -95,8 +103,16 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
         }
 
         $this->ensurePluginIsLoaded();
-        SendStatus::recordFailure($submission, __('plugins.generic.OASwitchboard.serverError'));
+        SendStatus::recordFailure($submission, $this->describeFailure($exception));
         $this->registerSubmissionEventLog($submission, 'plugins.generic.OASwitchboard.sendMessageWithError');
+    }
+
+    private function describeFailure(?\Throwable $exception): string
+    {
+        if ($exception instanceof OASwitchboardException || $exception instanceof P1PioException) {
+            return $exception->getMessage();
+        }
+        return __('plugins.generic.OASwitchboard.serverError');
     }
 
     // Guards against duplicate deliveries when requeuing multiple failed jobs.

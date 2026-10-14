@@ -46,6 +46,12 @@ msgstr "Error al intentar enviar un mensaje a través de la API de OA Switchboar
 msgid "plugins.generic.OASwitchboard.serverError"
 msgstr "Error al enviar el mensaje. La API de OA Switchboard devolvió un error interno."
 
+msgid "plugins.generic.OASwitchboard.connectionError"
+msgstr "No fue posible conectarse a OA Switchboard. Inténtelo de nuevo más tarde."
+
+msgid "plugins.generic.OASwitchboard.unconfirmedDelivery"
+msgstr "La conexión con OA Switchboard se interrumpió después del envío del mensaje, por lo que no se sabe si llegó. Consulte con OA Switchboard antes de intentarlo de nuevo."
+
 msgid "plugins.generic.OASwitchboard.rorRecommendation"
 msgstr "Se recomienda que al menos un autor tenga un ID ROR vinculado a su afiliación para enviar el mensaje a la institución del autor."
 

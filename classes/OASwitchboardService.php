@@ -17,10 +17,10 @@ use APP\core\Application;
 use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
 use APP\facades\Repo;
 use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\OASwitchboardException;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\submission\Submission;
-use Exception;
 use PKP\context\Context;
 use PKP\db\DAORegistry;
 
@@ -76,7 +76,7 @@ class OASwitchboardService
         $username = $plugin->getSetting($contextId, 'username');
         $password = $plugin->getSetting($contextId, 'password');
         if (is_null($username) || is_null($password)) {
-            throw new Exception(__('plugins.generic.OASwitchboard.pluginIsNotConfigured'));
+            throw new OASwitchboardException(__('plugins.generic.OASwitchboard.pluginIsNotConfigured'));
         }
     }
 

@@ -3,6 +3,8 @@
 namespace APP\plugins\generic\OASwitchboard\tests;
 
 use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\OASwitchboardException;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\UnconfirmedDeliveryException;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\plugins\generic\OASwitchboard\tests\helpers\ClientInterfaceForTests;
 use ArrayObject;
@@ -10,6 +12,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -477,8 +480,77 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $this->assertCount(1, $logMessages);
         $this->assertStringContainsString('operation=getAuthorization', $logMessages[0]);
         $this->assertStringContainsString('endpoint=authorize', $logMessages[0]);
+        $this->assertStringContainsString('exception=ConnectException', $logMessages[0]);
+        $this->assertStringContainsString('error=Unable to connect to', $logMessages[0]);
         $this->assertStringNotContainsString($secretMarker, $logMessages[0]);
         $this->assertStringNotContainsString('untrusted.example.test', $logMessages[0]);
+    }
+
+    private function createApiClientFailingWith(\Throwable $exception)
+    {
+        $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
+        $httpClientMock->method('request')->willThrowException($exception);
+        return $this->createApiClientWithCapturedLogs($httpClientMock, new ArrayObject());
+    }
+
+    private function createConnectException(int $curlErrorNumber): ConnectException
+    {
+        return new ConnectException(
+            'cURL error ' . $curlErrorNumber,
+            new Request('POST', 'https://api.oaswitchboard.org/v2/message'),
+            null,
+            ['errno' => $curlErrorNumber]
+        );
+    }
+
+    public function testMessageThatNeverReachedTheServerShouldReportAConnectionError()
+    {
+        foreach ([6, 7, 35] as $curlErrorNumber) {
+            $apiClient = $this->createApiClientFailingWith($this->createConnectException($curlErrorNumber));
+            try {
+                $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
+                $this->fail('Expected the message to fail');
+            } catch (OASwitchboardException $exception) {
+                $this->assertNotInstanceOf(UnconfirmedDeliveryException::class, $exception, (string) $curlErrorNumber);
+                $this->assertSame('##plugins.generic.OASwitchboard.connectionError##', $exception->getMessage());
+            }
+        }
+    }
+
+    public function testMessageInterruptedAfterConnectingShouldBeReportedAsUnconfirmed()
+    {
+        $apiClient = $this->createApiClientFailingWith($this->createConnectException(28));
+
+        $this->expectException(UnconfirmedDeliveryException::class);
+        $this->expectExceptionMessage('##plugins.generic.OASwitchboard.unconfirmedDelivery##');
+        $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
+    }
+
+    public function testMessageFailingWithoutResponseShouldBeReportedAsUnconfirmed()
+    {
+        $apiClient = $this->createApiClientFailingWith(new RequestException(
+            'cURL error 56',
+            new Request('POST', 'https://api.oaswitchboard.org/v2/message'),
+            null,
+            null,
+            ['errno' => 56]
+        ));
+
+        $this->expectException(UnconfirmedDeliveryException::class);
+        $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
+    }
+
+    public function testAuthorizationTimeoutShouldReportAConnectionError()
+    {
+        $apiClient = $this->createApiClientFailingWith($this->createConnectException(28));
+
+        try {
+            $apiClient->getAuthorization('user@example.com', 'password');
+            $this->fail('Expected the authorization to fail');
+        } catch (OASwitchboardException $exception) {
+            $this->assertNotInstanceOf(UnconfirmedDeliveryException::class, $exception);
+            $this->assertSame('##plugins.generic.OASwitchboard.connectionError##', $exception->getMessage());
+        }
     }
 
     public function testGetAuthorizationFailureWithServerError()

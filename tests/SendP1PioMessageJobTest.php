@@ -3,6 +3,8 @@
 namespace APP\plugins\generic\OASwitchboard\tests;
 
 use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\OASwitchboardException;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\UnconfirmedDeliveryException;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 use APP\plugins\generic\OASwitchboard\classes\SendStatus;
@@ -106,7 +108,40 @@ class SendP1PioMessageJobTest extends DatabaseTestCase
             {
                 return true;
             }
+
+            public function fail($exception = null)
+            {
+                $this->failedWith = $exception;
+                $this->failed($exception);
+            }
+
+            public $failedWith = null;
         };
+    }
+
+    public function testShouldFailWithoutRetryingWhenDeliveryIsUnconfirmed()
+    {
+        $service = $this->createMock(OASwitchboardService::class);
+        $service->expects($this->once())
+            ->method('sendP1PioMessage')
+            ->willThrowException(new UnconfirmedDeliveryException('delivery not confirmed'));
+        $job = $this->createJobWithService($service);
+
+        $job->handle();
+
+        $this->assertInstanceOf(UnconfirmedDeliveryException::class, $job->failedWith);
+        $this->assertSame('delivery not confirmed', $this->recordedSendStatus()['error']);
+    }
+
+    public function testShouldRecordThePluginErrorMessageWhenTheJobFails()
+    {
+        $job = $this->createJobWithService($this->createMock(OASwitchboardService::class));
+
+        $job->failed(new OASwitchboardException('Could not connect to OA Switchboard.'));
+
+        $sendStatus = $this->recordedSendStatus();
+        $this->assertSame(SendStatus::STATUS_FAILED, $sendStatus['status']);
+        $this->assertSame('Could not connect to OA Switchboard.', $sendStatus['error']);
     }
 
     public function testShouldSendMessageAndRecordSentStatusOnSuccess()
