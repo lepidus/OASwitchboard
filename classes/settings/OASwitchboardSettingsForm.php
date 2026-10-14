@@ -87,6 +87,11 @@ class OASwitchboardSettingsForm extends Form
         $this->setData('username', $this->plugin->getSetting($this->contextId, 'username'));
     }
 
+    public function canBeSaved(): bool
+    {
+        return $this->apiKeyEncryption->secretConfigExists();
+    }
+
     public function validateAPICredentials(): bool
     {
         $username = $this->getData('OASUsername');
