@@ -37,7 +37,7 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
         $apiHandler->addRoute(
             'GET',
             '{submissionId}/oaSwitchboardStatus',
-            fn (IlluminateRequest $request) => $this->getStatus((int) $request->route('submissionId')),
+            $this->getOASwitchboardStatus(...),
             'oaSwitchboard.status',
             [
                 Role::ROLE_ID_SITE_ADMIN,
@@ -52,7 +52,7 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
         $apiHandler->addRoute(
             'POST',
             '{submissionId}/oaSwitchboardResend',
-            fn (IlluminateRequest $request) => $this->resend((int) $request->route('submissionId')),
+            $this->resendOASwitchboardMessage(...),
             'oaSwitchboard.resend',
             [
                 Role::ROLE_ID_SITE_ADMIN,
@@ -95,8 +95,9 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
         );
     }
 
-    private function resend(int $submissionId): JsonResponse
+    private function resendOASwitchboardMessage(IlluminateRequest $illuminateRequest): JsonResponse
     {
+        $submissionId = (int) $illuminateRequest->route('submissionId');
         $contextId = $this->getRequestContextId();
         $submission = $this->getSubmissionInContext($submissionId, $contextId);
         if (!$submission) {
@@ -138,8 +139,9 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
         );
     }
 
-    private function getStatus(int $submissionId): JsonResponse
+    private function getOASwitchboardStatus(IlluminateRequest $illuminateRequest): JsonResponse
     {
+        $submissionId = (int) $illuminateRequest->route('submissionId');
         $contextId = $this->getRequestContextId();
         $submission = $this->getSubmissionInContext($submissionId, $contextId);
         if (!$submission) {
