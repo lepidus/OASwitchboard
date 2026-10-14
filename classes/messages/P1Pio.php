@@ -98,9 +98,9 @@ class P1Pio
             'submissionId' => (string) $this->submission->getId(),
             'manuscript' => [
                 'dates' => [
-                    'submission' => (string) date('Y-m-d', strtotime($this->submission->getData('dateSubmitted'))),
+                    'submission' => $this->formatDate($this->submission->getData('dateSubmitted')),
                     'acceptance' => (string) $this->getAcceptanceDate(),
-                    'publication' => (string) date('Y-m-d', strtotime($this->submission->getData('datePublished')))
+                    'publication' => $this->formatDate($publication->getData('datePublished'))
                 ]
             ]
         ];
@@ -197,6 +197,11 @@ class P1Pio
         return class_exists($daoClass) ? new $daoClass() : null;
     }
 
+    private function formatDate(?string $date): string
+    {
+        return empty($date) ? '' : date('Y-m-d', strtotime($date));
+    }
+
     private function getAcceptanceDate(): ?string
     {
         $editorialDecision = $this->getSubmissionDecisions();
@@ -206,7 +211,7 @@ class P1Pio
                 $decision->getData('stageId') === self::STAGE_ID_ACCEPTED &&
                 $decision->getData('decision') === Decision::ACCEPT
             ) {
-                return date('Y-m-d', strtotime($decision->getData('dateDecided')));
+                return $this->formatDate($decision->getData('dateDecided'));
             }
         }
         return null;

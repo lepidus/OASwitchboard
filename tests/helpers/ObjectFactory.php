@@ -123,6 +123,7 @@ class ObjectFactory
         $publication->setId(rand());
         $publication->setData('title', 'The International relations of Middle-Earth');
         $publication->setData('licenseUrl', 'https://creativecommons.org/licenses/by-nc-nd/4.0/');
+        $publication->setData('datePublished', '2021-03-01');
 
         $doiObject = new Doi();
         $doiObject->setData('doi', '00.0000/mearth.0000');
@@ -141,7 +142,6 @@ class ObjectFactory
         $submission->setData('galleys', [$galley]);
 
         $submission->setData('dateSubmitted', '2021-01-01 00:00:00');
-        $submission->setData('datePublished', '2021-03-01 00:00:00');
 
         $galley->setData('submissionId', $submission->getId());
         $galley->setData('submissionFileId', $submissionFile->getId());

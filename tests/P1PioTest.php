@@ -124,6 +124,26 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals('CC BY-NC-ND', $vor['license']);
     }
 
+    public function testArticlePublicationDateShouldComeFromTheCurrentPublication()
+    {
+        $this->submission->getCurrentPublication()->setData('datePublished', '2022-07-15');
+
+        $dates = $this->P1Pio->getArticleData()['manuscript']['dates'];
+
+        $this->assertSame('2022-07-15', $dates['publication']);
+    }
+
+    public function testArticleDatesShouldBeEmptyWhenUnknown()
+    {
+        $this->submission->getCurrentPublication()->setData('datePublished', null);
+        $this->submission->setData('dateSubmitted', null);
+
+        $dates = $this->P1Pio->getArticleData()['manuscript']['dates'];
+
+        $this->assertSame('', $dates['submission']);
+        $this->assertSame('', $dates['publication']);
+    }
+
     public function testArticleGrantsShouldListAwardNumbersOfAllFunders()
     {
         ObjectFactory::registerStubFundingPlugin([
