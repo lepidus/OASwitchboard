@@ -58,7 +58,7 @@ class OASwitchboardSettingsForm extends Form
         $templateMgr = TemplateManager::getManager($request);
         $templateMgr->assign('pluginName', $this->plugin->getName());
         $templateMgr->assign(
-            'hasCredentials',
+            'storedUsername',
             $this->plugin->getSetting($this->contextId, 'username')
         );
         $templateMgr->assign(
@@ -84,7 +84,7 @@ class OASwitchboardSettingsForm extends Form
 
     public function initData(): void
     {
-        $this->setData('username', $this->plugin->getSetting($this->contextId, 'username'));
+        $this->setData('OASUsername', $this->plugin->getSetting($this->contextId, 'username'));
     }
 
     public function canBeSaved(): bool
