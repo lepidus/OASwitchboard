@@ -17,6 +17,8 @@ Cuando se publica un artículo, el módulo comprueba si tiene los metadatos que 
 
 En ambos casos, la pestaña **OA Switchboard**, dentro del flujo de trabajo del envío, muestra la situación: lo que todavía falta antes de la publicación y lo que se envió después de ella.
 
+Se envía un mensaje nuevo cada vez que se publica el artículo: cuando se publica una nueva versión, cuando un artículo despublicado se vuelve a publicar y cuando OJS publica un artículo programado en un número.
+
 ## Primeros pasos
 
 ### 1. Hágase participante de OA Switchboard
@@ -42,7 +44,7 @@ Abra los *Ajustes* del módulo e introduzca su userID y su contraseña de OA Swi
 El mensaje solo se envía cuando estos metadatos están presentes:
 
 - **Revista:** al menos un ISSN, impreso o electrónico.
-- **Artículo:** un DOI asignado.
+- **Artículo:** un DOI, asignado antes de publicar o por OJS al publicar, cuando la configuración de DOI los asigna automáticamente.
 - **Todos los autores:** apellido y afiliación.
 
 **Recomendado:** un **ROR ID** en la afiliación de al menos un autor. Es lo que permite a OA Switchboard encaminar el mensaje a esa institución.
@@ -71,7 +73,7 @@ Todo ocurre en la pestaña **OA Switchboard** del envío.
 | Estado | Significado |
 | --- | --- |
 | **Enviado** | OA Switchboard recibió el mensaje. |
-| **En cola** | El mensaje está en camino. |
+| **En cola** | El mensaje está en camino. Si sigue en cola más de una hora, aparece el botón **Intentar de nuevo**. |
 | **Falló** | Algo salió mal. Se muestra el motivo, junto con el botón **Intentar de nuevo**. |
 | **No enviado** | El artículo no cumplía los requisitos cuando se publicó. |
 
@@ -80,6 +82,9 @@ Todo ocurre en la pestaña **OA Switchboard** del envío.
 ## ¿Qué metadatos se envían?
 
 Todo lo que se envía ya está en OJS; no se recoge nada nuevo.
+
+> [!NOTE]
+> Todos los mensajes indican el tipo de artículo como `research-article` y el modelo de publicación de la revista como `pure OA journal`, sea cual sea la sección o el modelo de negocio de la revista.
 
 <details>
 <summary>Pulse aquí para ver la lista completa</summary>
@@ -132,6 +137,8 @@ Todo lo que se envía ya está en OJS; no se recoge nada nuevo.
 
 Normalmente por credenciales caducadas o una interrupción temporal. Vuelva a introducir las credenciales si hace falta y utilice **Intentar de nuevo**. Hay más detalle en los registros del servidor de OJS.
 
+Si la conexión se cortó después de enviar el mensaje, el módulo no lo reintenta por su cuenta, porque no puede saber si llegó. Consulte con OA Switchboard antes de usar **Intentar de nuevo**.
+
 </details>
 
 <details>
@@ -144,7 +151,7 @@ Las credenciales todavía no se han guardado, o su revista no tiene ISSN.
 <details>
 <summary><strong>Un mensaje se quedó en cola</strong></summary>
 
-Pida a su administrador de sistemas que compruebe que las tareas en segundo plano están en ejecución.
+Pida a su administrador de sistemas que compruebe que las tareas en segundo plano están en ejecución. Tras una hora en cola, el botón **Intentar de nuevo** pasa a estar disponible.
 
 </details>
 

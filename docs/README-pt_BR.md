@@ -17,6 +17,8 @@ Quando um artigo é publicado, o plugin verifica se ele tem os metadados que o O
 
 Nos dois casos, a aba **OA Switchboard**, dentro do fluxo de trabalho da submissão, mostra a situação: o que ainda falta antes da publicação e o que foi enviado depois dela.
 
+Uma nova mensagem é enviada a cada publicação do artigo: quando uma nova versão é publicada, quando um artigo despublicado é publicado de novo e quando o OJS publica um artigo agendado numa edição.
+
 ## Primeiros passos
 
 ### 1. Torne-se participante do OA Switchboard
@@ -42,7 +44,7 @@ Abra as *Configurações* do plugin e informe seu userID e sua senha do OA Switc
 A mensagem só é enviada quando estes metadados estão presentes:
 
 - **Revista:** ao menos um ISSN, impresso ou eletrônico.
-- **Artigo:** um DOI atribuído.
+- **Artigo:** um DOI, atribuído antes da publicação ou pelo OJS na publicação, quando as configurações de DOI o atribuem automaticamente.
 - **Todos os autores:** sobrenome e afiliação.
 
 **Recomendado:** um **ROR ID** na afiliação de ao menos um autor. É ele que permite ao OA Switchboard encaminhar a mensagem àquela instituição.
@@ -71,7 +73,7 @@ Tudo acontece na aba **OA Switchboard** da submissão.
 | Situação | Significado |
 | --- | --- |
 | **Enviada** | O OA Switchboard recebeu a mensagem. |
-| **Na fila** | A mensagem está a caminho. |
+| **Na fila** | A mensagem está a caminho. Se continuar na fila por mais de uma hora, aparece o botão **Tentar novamente**. |
 | **Falhou** | Algo deu errado. O motivo é exibido, junto com o botão **Tentar novamente**. |
 | **Não enviada** | O artigo não cumpria os requisitos quando foi publicado. |
 
@@ -80,6 +82,9 @@ Tudo acontece na aba **OA Switchboard** da submissão.
 ## Quais metadados são enviados?
 
 Tudo o que é enviado já está no OJS; nada de novo é coletado.
+
+> [!NOTE]
+> Toda mensagem informa o tipo do artigo como `research-article` e o modelo de publicação da revista como `pure OA journal`, seja qual for a seção ou o modelo de negócio da revista.
 
 <details>
 <summary>Clique aqui para ver a lista completa</summary>
@@ -132,6 +137,8 @@ Tudo o que é enviado já está no OJS; nada de novo é coletado.
 
 Normalmente credenciais expiradas ou instabilidade temporária. Informe as credenciais novamente, se for o caso, e use **Tentar novamente**. Mais detalhes ficam registrados nos logs do servidor do OJS.
 
+Se a conexão caiu depois do envio da mensagem, o plugin não tenta de novo sozinho, porque não tem como saber se ela chegou. Confirme com o OA Switchboard antes de usar **Tentar novamente**.
+
 </details>
 
 <details>
@@ -144,7 +151,7 @@ As credenciais ainda não foram salvas, ou sua revista não tem ISSN.
 <details>
 <summary><strong>A mensagem ficou na fila</strong></summary>
 
-Peça ao administrador do sistema para verificar se as tarefas em segundo plano estão em execução.
+Peça ao administrador do sistema para verificar se as tarefas em segundo plano estão em execução. Depois de uma hora na fila, o botão **Tentar novamente** fica disponível.
 
 </details>
 

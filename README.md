@@ -17,6 +17,8 @@ When an article is published, the plugin checks whether it carries the metadata 
 
 Either way, the **OA Switchboard** tab in the submission workflow shows where things stand: what is still missing before publication, and what was sent after it.
 
+A new message is sent every time an article is published: when a new version is published, when an unpublished article is published again, and when OJS publishes an article scheduled in an issue.
+
 ## Getting started
 
 ### 1. Join the OA Switchboard
@@ -42,7 +44,7 @@ Open the plugin's *Settings* and enter your OA Switchboard userID and password. 
 A message is sent only when this metadata is in place:
 
 - **Journal:** at least one ISSN, print or digital.
-- **Article:** an assigned DOI.
+- **Article:** a DOI, assigned before publishing or by OJS at publication when its DOI settings assign DOIs automatically.
 - **Every author:** family name and affiliation.
 
 **Recommended:** a **ROR ID** on at least one author's affiliation. It is what lets the OA Switchboard route the message to that institution.
@@ -71,7 +73,7 @@ Everything happens in the **OA Switchboard** tab of a submission.
 | Status | Meaning |
 | --- | --- |
 | **Sent** | The OA Switchboard received the message. |
-| **Queued** | The message is on its way. |
+| **Queued** | The message is on its way. If it stays queued for more than an hour, a **Try again** button appears. |
 | **Failed** | Something went wrong. The reason is shown, with a **Try again** button. |
 | **Not sent** | The article did not meet the requirements when it was published. |
 
@@ -80,6 +82,9 @@ Everything happens in the **OA Switchboard** tab of a submission.
 ## What metadata is included?
 
 Everything sent is metadata already in OJS; nothing new is collected.
+
+> [!NOTE]
+> Every message gives the article type as `research-article` and the journal's publication model as `pure OA journal`, whatever the section or the journal's business model.
 
 <details>
 <summary>Click here to see the full list</summary>
@@ -132,6 +137,8 @@ Everything sent is metadata already in OJS; nothing new is collected.
 
 Usually expired credentials or a temporary outage. Re-enter your credentials if needed, then use **Try again**. Further detail is recorded in your OJS server logs.
 
+If the connection dropped after the message was sent, the plugin does not try again on its own, because it cannot tell whether the message arrived. Check with the OA Switchboard before using **Try again**.
+
 </details>
 
 <details>
@@ -144,7 +151,7 @@ The credentials have not been saved yet, or your journal has no ISSN.
 <details>
 <summary><strong>A message stayed queued</strong></summary>
 
-Ask your system administrator to check that background jobs are running.
+Ask your system administrator to check that background jobs are running. After an hour in the queue, **Try again** becomes available.
 
 </details>
 
