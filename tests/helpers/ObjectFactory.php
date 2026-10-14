@@ -149,14 +149,20 @@ class ObjectFactory
         return $submission;
     }
 
-    public static function createP1PioMock($submission): P1Pio
+    public static function buildDecision(int $decisionType, string $dateDecided, int $stageId = 3): Decision
     {
         $decision = new Decision();
-        $decision->setData('stageId', 3);
-        $decision->setData('decision', Decision::ACCEPT);
-        $decision->setData('dateDecided', '2021-02-01');
+        $decision->setData('stageId', $stageId);
+        $decision->setData('decision', $decisionType);
+        $decision->setData('dateDecided', $dateDecided);
+        return $decision;
+    }
 
-        return new class ($submission, [$decision]) extends P1Pio {
+    public static function createP1PioMock($submission, ?array $decisions = null): P1Pio
+    {
+        $decisions ??= [self::buildDecision(Decision::ACCEPT, '2021-02-01')];
+
+        return new class ($submission, $decisions) extends P1Pio {
             private array $stubDecisions;
             public function __construct($submission, array $stubDecisions)
             {
@@ -229,6 +235,7 @@ class ObjectFactory
     public static function createStubFundingDaos(array $funders): array
     {
         $funderDao = new class ($funders) {
+            public int $calls = 0;
             private array $funders;
             public function __construct(array $funders)
             {
@@ -236,6 +243,7 @@ class ObjectFactory
             }
             public function getBySubmissionId($submissionId)
             {
+                $this->calls++;
                 $funders = array_map(fn ($funder) => new class ($funder) {
                     private array $funder;
                     public function __construct(array $funder)
