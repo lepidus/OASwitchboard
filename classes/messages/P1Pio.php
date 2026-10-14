@@ -319,11 +319,9 @@ class P1Pio
     {
         $missingDataMessages = [];
 
-        $message = $this->getContent();
-        $header = $message['header'];
-        $data = $message['data'];
+        $data = $this->getContent()['data'];
 
-        foreach ($data['authors'] as $key => $author) {
+        foreach ($data['authors'] as $author) {
             if (empty($author['lastName'])) {
                 $missingDataMessages[] = 'plugins.generic.OASwitchboard.postRequirementsError.familyName';
             }

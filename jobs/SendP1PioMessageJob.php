@@ -127,7 +127,7 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
         $eventLog = Repo::eventLog()->newDataObject([
             'assocType' => Application::ASSOC_TYPE_SUBMISSION,
             'assocId' => $submission->getId(),
-            'eventType' => PKPSubmissionEventLogEntry::SUBMISSION_LOG_CREATE_VERSION,
+            'eventType' => PKPSubmissionEventLogEntry::SUBMISSION_LOG_METADATA_PUBLISH,
             'userId' => $this->userId,
             'message' => $message,
             'isTranslated' => false,
