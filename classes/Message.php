@@ -53,7 +53,7 @@ class Message
         $this->dispatchSendJob($submission->getId(), $contextId, $this->getActingUserId());
     }
 
-    public function retryFailedSendToOASwitchboard($submission): bool
+    public function retrySendToOASwitchboard($submission): bool
     {
         $contextId = (int) $submission->getData('contextId');
         OASwitchboardService::validatePluginIsConfigured($this->plugin, $contextId);
@@ -64,7 +64,7 @@ class Message
             return false;
         }
 
-        if (!SendStatus::transitionFailedToPending($submission)) {
+        if (!SendStatus::transitionToPending($submission)) {
             return false;
         }
 

@@ -45,7 +45,7 @@
                     </pkp-notification>
 
                     <pkp-button-row
-                        v-if="sendStatus.status === 'failed'"
+                        v-if="status.canRetry"
                         class="oas-status__actions"
                     >
                         <pkp-button
@@ -132,6 +132,7 @@ tk('plugins.generic.OASwitchboard.sendMessageWithSuccess');
 tk('plugins.generic.OASwitchboard.sendMessageWithError');
 
 const SEND_STATUS_POLL_INTERVAL = 5000;
+const SEND_STATUS_POLL_LIMIT = 60;
 
 const props = defineProps({
     submission: {type: Object, required: true},
@@ -206,24 +207,34 @@ watch(
 );
 
 let sendStatusPollTimer = null;
+let sendStatusPollCount = 0;
 
 function stopSendStatusPolling() {
     if (sendStatusPollTimer) {
         clearInterval(sendStatusPollTimer);
         sendStatusPollTimer = null;
     }
+    sendStatusPollCount = 0;
+}
+
+function pollSendStatus() {
+    sendStatusPollCount++;
+    if (sendStatusPollCount > SEND_STATUS_POLL_LIMIT) {
+        stopSendStatusPolling();
+        return;
+    }
+    fetchStatus();
 }
 
 watch(
-    () => sendStatus.value?.status,
-    (currentStatus) => {
-        if (currentStatus === 'pending') {
-            sendStatusPollTimer ??= setInterval(
-                fetchStatus,
+    () => `${sendStatus.value?.status}|${sendStatus.value?.updatedAt}`,
+    () => {
+        stopSendStatusPolling();
+        if (sendStatus.value?.status === 'pending') {
+            sendStatusPollTimer = setInterval(
+                pollSendStatus,
                 SEND_STATUS_POLL_INTERVAL,
             );
-        } else {
-            stopSendStatusPolling();
         }
     },
 );

@@ -2,100 +2,149 @@
 
 namespace APP\plugins\generic\OASwitchboard\tests;
 
+use APP\facades\Repo;
 use APP\plugins\generic\OASwitchboard\classes\SendStatus;
-use APP\submission\Repository as SubmissionRepository;
 use APP\submission\Submission;
-use PKP\tests\PKPTestCase;
+use Illuminate\Support\Facades\DB;
+use PKP\tests\DatabaseTestCase;
 
-class SendStatusTest extends PKPTestCase
+class SendStatusTest extends DatabaseTestCase
 {
-    protected function getMockedContainerKeys(): array
+    private Submission $submission;
+
+    protected function getAffectedTables()
     {
-        return [...parent::getMockedContainerKeys(), SubmissionRepository::class];
+        return ['submission_settings'];
     }
 
-    public function testShouldUpdateInMemorySubmissionWhenRecording()
+    protected function setUp(): void
     {
-        $submission = new Submission();
-        $repository = $this->createMock(SubmissionRepository::class);
-        $repository->expects($this->once())
-            ->method('edit')
-            ->with(
-                $submission,
-                $this->callback(function (array $settings) {
-                    return $settings[SendStatus::SETTING_STATUS] === SendStatus::STATUS_PENDING &&
-                        !empty($settings[SendStatus::SETTING_UPDATED_AT]) &&
-                        $settings[SendStatus::SETTING_ERROR] === null;
-                })
+        parent::setUp();
+        $submissionId = DB::table('submissions')->value('submission_id');
+        $this->assertNotNull($submissionId, 'The database fixture must contain a submission');
+        $this->submission = new Submission();
+        $this->submission->setId($submissionId);
+    }
+
+    private function storeSettings(array $settings): void
+    {
+        foreach ($settings as $name => $value) {
+            DB::table('submission_settings')->updateOrInsert(
+                ['submission_id' => $this->submission->getId(), 'locale' => '', 'setting_name' => $name],
+                ['setting_value' => $value]
             );
-        app()->instance(SubmissionRepository::class, $repository);
-
-        SendStatus::recordPending($submission);
-
-        $sendStatus = SendStatus::readFromSubmission($submission);
-        $this->assertSame(SendStatus::STATUS_PENDING, $sendStatus['status']);
-        $this->assertNotEmpty($sendStatus['updatedAt']);
-    }
-
-    public function testShouldAddSendStatusPropertiesToSubmissionSchema()
-    {
-        $schema = (object) ['properties' => (object) []];
-
-        SendStatus::addToSubmissionSchema('Schema::get::submission', [&$schema]);
-
-        foreach ([SendStatus::SETTING_STATUS, SendStatus::SETTING_UPDATED_AT, SendStatus::SETTING_ERROR] as $setting) {
-            $this->assertObjectHasProperty($setting, $schema->properties);
-            $this->assertSame('string', $schema->properties->{$setting}->type);
-            $this->assertTrue($schema->properties->{$setting}->writeDisabledInApi);
         }
     }
 
-    public function testShouldRecordNotSentStatusWithoutError()
+    private function storedStatus(): ?string
     {
-        app()->instance(SubmissionRepository::class, $this->createMock(SubmissionRepository::class));
-        $submission = new Submission();
+        return DB::table('submission_settings')
+            ->where('submission_id', $this->submission->getId())
+            ->where('locale', '')
+            ->where('setting_name', SendStatus::SETTING_STATUS)
+            ->value('setting_value');
+    }
 
-        SendStatus::recordNotSent($submission);
-
-        $sendStatus = SendStatus::readFromSubmission($submission);
-        $this->assertSame(SendStatus::STATUS_NOT_SENT, $sendStatus['status']);
-        $this->assertNotEmpty($sendStatus['updatedAt']);
-        $this->assertNull($sendStatus['error']);
+    private function hoursAgo(int $hours): string
+    {
+        return date('Y-m-d H:i:s', time() - $hours * 3600);
     }
 
     public function testShouldReadNullWhenNoSendWasRecorded()
     {
-        $submission = new Submission();
-
-        $this->assertNull(SendStatus::readFromSubmission($submission));
+        $this->assertNull(SendStatus::read($this->submission));
     }
 
-    public function testShouldOnlyAllowRetriesForFailedSends()
+    public function testShouldRecordPendingStatusWithoutError()
     {
-        $submission = new Submission();
+        SendStatus::recordPending($this->submission);
 
-        $this->assertFalse(SendStatus::canRetry($submission));
+        $sendStatus = SendStatus::read($this->submission);
+        $this->assertSame(SendStatus::STATUS_PENDING, $sendStatus['status']);
+        $this->assertNotEmpty($sendStatus['updatedAt']);
+        $this->assertNull($sendStatus['error']);
+    }
 
-        foreach ([SendStatus::STATUS_PENDING, SendStatus::STATUS_SENT, SendStatus::STATUS_NOT_SENT] as $status) {
-            $submission->setData(SendStatus::SETTING_STATUS, $status);
-            $this->assertFalse(SendStatus::canRetry($submission));
+    public function testShouldRecordFailureWithErrorAndClearItOnTheNextStatus()
+    {
+        SendStatus::recordFailure($this->submission, 'OA Switchboard API is unavailable');
+        $this->assertSame('OA Switchboard API is unavailable', SendStatus::read($this->submission)['error']);
+
+        SendStatus::recordSent($this->submission);
+
+        $sendStatus = SendStatus::read($this->submission);
+        $this->assertSame(SendStatus::STATUS_SENT, $sendStatus['status']);
+        $this->assertNull($sendStatus['error']);
+    }
+
+    public function testShouldReadStatusFromAFreshlyLoadedSubmission()
+    {
+        SendStatus::recordNotSent($this->submission);
+
+        $freshSubmission = new Submission();
+        $freshSubmission->setId($this->submission->getId());
+
+        $this->assertSame(SendStatus::STATUS_NOT_SENT, SendStatus::read($freshSubmission)['status']);
+    }
+
+    public function testShouldKeepStatusWhenCoreEditsAStaleSubmission()
+    {
+        $originalRow = (array) DB::table('submissions')->where('submission_id', $this->submission->getId())->first();
+        SendStatus::recordPending($this->submission);
+        $staleSubmission = Repo::submission()->get($this->submission->getId());
+        SendStatus::recordSent($this->submission);
+
+        try {
+            Repo::submission()->edit($staleSubmission, []);
+        } finally {
+            DB::table('submissions')->where('submission_id', $this->submission->getId())->update($originalRow);
         }
 
-        $submission->setData(SendStatus::SETTING_STATUS, SendStatus::STATUS_FAILED);
-        $this->assertTrue(SendStatus::canRetry($submission));
+        $this->assertSame(SendStatus::STATUS_SENT, SendStatus::read($this->submission)['status']);
     }
 
-    public function testShouldReadRecordedSendStatusFromSubmission()
+    public function testShouldAllowRetryOnlyForFailedOrStalePendingSends()
     {
-        $submission = new Submission();
-        $submission->setData(SendStatus::SETTING_STATUS, SendStatus::STATUS_FAILED);
-        $submission->setData(SendStatus::SETTING_UPDATED_AT, '2026-06-12 10:00:00');
-        $submission->setData(SendStatus::SETTING_ERROR, 'OA Switchboard API is unavailable');
+        $this->assertFalse(SendStatus::canRetry($this->submission));
 
-        $sendStatus = SendStatus::readFromSubmission($submission);
+        foreach ([SendStatus::STATUS_SENT, SendStatus::STATUS_NOT_SENT] as $status) {
+            $this->storeSettings([SendStatus::SETTING_STATUS => $status, SendStatus::SETTING_UPDATED_AT => $this->hoursAgo(5)]);
+            $this->assertFalse(SendStatus::canRetry($this->submission), $status);
+        }
 
-        $this->assertSame(SendStatus::STATUS_FAILED, $sendStatus['status']);
-        $this->assertSame('2026-06-12 10:00:00', $sendStatus['updatedAt']);
-        $this->assertSame('OA Switchboard API is unavailable', $sendStatus['error']);
+        $this->storeSettings([SendStatus::SETTING_STATUS => SendStatus::STATUS_PENDING, SendStatus::SETTING_UPDATED_AT => $this->hoursAgo(0)]);
+        $this->assertFalse(SendStatus::canRetry($this->submission));
+
+        $this->storeSettings([SendStatus::SETTING_STATUS => SendStatus::STATUS_PENDING, SendStatus::SETTING_UPDATED_AT => $this->hoursAgo(2)]);
+        $this->assertTrue(SendStatus::canRetry($this->submission));
+
+        $this->storeSettings([SendStatus::SETTING_STATUS => SendStatus::STATUS_FAILED, SendStatus::SETTING_UPDATED_AT => $this->hoursAgo(0)]);
+        $this->assertTrue(SendStatus::canRetry($this->submission));
+    }
+
+    public function testShouldTransitionFailedToPendingOnlyOnce()
+    {
+        $this->storeSettings([
+            SendStatus::SETTING_STATUS => SendStatus::STATUS_FAILED,
+            SendStatus::SETTING_UPDATED_AT => $this->hoursAgo(0),
+            SendStatus::SETTING_ERROR => 'OA Switchboard API is unavailable',
+        ]);
+
+        $this->assertTrue(SendStatus::transitionToPending($this->submission));
+        $this->assertSame(SendStatus::STATUS_PENDING, $this->storedStatus());
+        $this->assertNull(SendStatus::read($this->submission)['error']);
+        $this->assertFalse(SendStatus::transitionToPending($this->submission));
+        $this->assertSame(SendStatus::STATUS_PENDING, $this->storedStatus());
+    }
+
+    public function testShouldTransitionStalePendingToPending()
+    {
+        $this->storeSettings([
+            SendStatus::SETTING_STATUS => SendStatus::STATUS_PENDING,
+            SendStatus::SETTING_UPDATED_AT => $this->hoursAgo(2),
+        ]);
+
+        $this->assertTrue(SendStatus::transitionToPending($this->submission));
+        $this->assertFalse(SendStatus::canRetry($this->submission));
     }
 }

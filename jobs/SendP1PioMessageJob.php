@@ -28,6 +28,8 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
 {
     private const LOCK_EXPIRES_AFTER_SECONDS = 90;
 
+    public int $uniqueFor = SendStatus::STALE_PENDING_SECONDS;
+
     protected int $submissionId;
     protected int $contextId;
     protected ?int $userId;
@@ -71,6 +73,7 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
         }
 
         if (!$this->isPluginEnabled()) {
+            SendStatus::recordFailure($submission, __('plugins.generic.OASwitchboard.sendStatus.pluginDisabled'));
             return;
         }
 
@@ -99,7 +102,7 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
     // Guards against duplicate deliveries when requeuing multiple failed jobs.
     private function wasAlreadySent($submission): bool
     {
-        $sendStatus = SendStatus::readFromSubmission($submission);
+        $sendStatus = SendStatus::read($submission);
         return ($sendStatus['status'] ?? null) === SendStatus::STATUS_SENT;
     }
 
@@ -122,10 +125,6 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
         return new OASwitchboardService($this->ensurePluginIsLoaded(), $this->contextId, $submission);
     }
 
-    /**
-     * In a queue worker the plugin may not be registered yet; loading it also
-     * registers the submission schema hook that send status recording relies on.
-     */
     protected function ensurePluginIsLoaded()
     {
         return PluginRegistry::getPlugin('generic', 'oaswitchboardplugin')

@@ -95,8 +95,11 @@ msgstr "Última atualização: {$date}"
 msgid "plugins.generic.OASwitchboard.sendStatus.retry"
 msgstr "Tentar novamente"
 
+msgid "plugins.generic.OASwitchboard.sendStatus.pluginDisabled"
+msgstr "O plugin OA Switchboard está desabilitado para esta revista, por isso a mensagem não foi enviada."
+
 msgid "plugins.generic.OASwitchboard.resend.notPublished"
 msgstr "A mensagem P1 só pode ser enviada para uma submissão publicada."
 
 msgid "plugins.generic.OASwitchboard.resend.notFailed"
-msgstr "A mensagem P1 só pode ser reenviada depois de uma falha no envio."
+msgstr "A mensagem P1 só pode ser reenviada após uma falha no envio, ou quando um envio está aguardando há mais de uma hora."

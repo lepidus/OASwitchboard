@@ -120,7 +120,7 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
         }
 
         try {
-            $wasScheduled = (new Message($this->plugin))->retryFailedSendToOASwitchboard($submission);
+            $wasScheduled = (new Message($this->plugin))->retrySendToOASwitchboard($submission);
             if (!$wasScheduled) {
                 return response()->json(
                     ['error' => __('plugins.generic.OASwitchboard.resend.notFailed')],
@@ -135,7 +135,7 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
         }
 
         return response()->json(
-            ['sendStatus' => SendStatus::readFromSubmission($submission)],
+            ['sendStatus' => SendStatus::read($submission)],
             Response::HTTP_OK
         );
     }
@@ -160,7 +160,8 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
             'readyToSend' => false,
             'missingFields' => [],
             'hasRor' => OASwitchboardService::isRorAssociated($submission),
-            'sendStatus' => SendStatus::readFromSubmission($submission),
+            'sendStatus' => SendStatus::read($submission),
+            'canRetry' => SendStatus::canRetry($submission),
         ];
 
         if (!$pluginConfigured) {

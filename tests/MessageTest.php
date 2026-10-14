@@ -9,21 +9,20 @@ use APP\plugins\generic\OASwitchboard\classes\SendStatus;
 use APP\plugins\generic\OASwitchboard\jobs\SendP1PioMessageJob;
 use APP\plugins\generic\OASwitchboard\tests\helpers\CreatesPluginMocks;
 use APP\publication\Publication;
-use APP\submission\Repository as SubmissionRepository;
 use APP\submission\Submission;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
-use PKP\tests\PKPTestCase;
+use Illuminate\Support\Facades\DB;
+use PKP\tests\DatabaseTestCase;
 
-class MessageTest extends PKPTestCase
+class MessageTest extends DatabaseTestCase
 {
     use CreatesPluginMocks;
 
-    private const SUBMISSION_ID = 456;
     private const CONTEXT_ID = 1;
     private const ACTING_USER_ID = 99;
 
-    private $editedParams;
+    private int $submissionId;
 
     protected function setUp(): void
     {
@@ -33,23 +32,17 @@ class MessageTest extends PKPTestCase
         // only released once the job processes. Under Bus::fake() it never does,
         // so the lock would leak into the next test and block its dispatch.
         Cache::clear();
-        $this->editedParams = null;
-        $this->registerSubmissionRepositoryMock();
+        $this->submissionId = DB::table('submissions')->value('submission_id');
     }
 
-    protected function getMockedContainerKeys(): array
+    protected function getAffectedTables()
     {
-        return [...parent::getMockedContainerKeys(), SubmissionRepository::class];
+        return ['submission_settings'];
     }
 
-    private function registerSubmissionRepositoryMock(): void
+    private function recordedStatus(): ?string
     {
-        $submissionRepository = $this->createMock(SubmissionRepository::class);
-        $submissionRepository->method('edit')
-            ->willReturnCallback(function ($submission, $params) {
-                $this->editedParams = $params;
-            });
-        app()->instance(SubmissionRepository::class, $submissionRepository);
+        return SendStatus::read($this->buildSubmission())['status'] ?? null;
     }
 
     /**
@@ -89,7 +82,7 @@ class MessageTest extends PKPTestCase
     private function buildSubmission(): Submission
     {
         $submission = new Submission();
-        $submission->setId(self::SUBMISSION_ID);
+        $submission->setId($this->submissionId);
         $submission->setData('contextId', self::CONTEXT_ID);
         return $submission;
     }
@@ -116,7 +109,7 @@ class MessageTest extends PKPTestCase
             SendP1PioMessageJob::class,
             fn (SendP1PioMessageJob $job) => $job->getUserId() === self::ACTING_USER_ID,
         );
-        $this->assertSame(SendStatus::STATUS_PENDING, $this->editedParams[SendStatus::SETTING_STATUS]);
+        $this->assertSame(SendStatus::STATUS_PENDING, $this->recordedStatus());
     }
 
     public function testShouldNotDispatchSendJobWhenPluginIsNotConfigured()
@@ -127,7 +120,7 @@ class MessageTest extends PKPTestCase
         $message->sendToOASwitchboard('Publication::publish', $args);
 
         Bus::assertNotDispatched(SendP1PioMessageJob::class);
-        $this->assertNull($this->editedParams);
+        $this->assertNull($this->recordedStatus());
     }
 
     public function testShouldRecordPendingStatusAndDispatchSendJobWhenSchedulingDirectly()
@@ -137,7 +130,7 @@ class MessageTest extends PKPTestCase
         $message->scheduleSendToOASwitchboard($this->buildSubmission());
 
         Bus::assertDispatched(SendP1PioMessageJob::class);
-        $this->assertSame(SendStatus::STATUS_PENDING, $this->editedParams[SendStatus::SETTING_STATUS]);
+        $this->assertSame(SendStatus::STATUS_PENDING, $this->recordedStatus());
     }
 
     public function testShouldRecordNotSentAndSkipDispatchWhenRequirementsAreMissing()
@@ -153,7 +146,7 @@ class MessageTest extends PKPTestCase
         $message->scheduleSendToOASwitchboard($this->buildSubmission());
 
         Bus::assertNotDispatched(SendP1PioMessageJob::class);
-        $this->assertSame(SendStatus::STATUS_NOT_SENT, $this->editedParams[SendStatus::SETTING_STATUS]);
+        $this->assertSame(SendStatus::STATUS_NOT_SENT, $this->recordedStatus());
     }
 
     public function testShouldThrowWhenSchedulingWithPluginNotConfigured()
@@ -172,6 +165,6 @@ class MessageTest extends PKPTestCase
         $message->sendToOASwitchboard('Publication::publish', $args);
 
         Bus::assertNotDispatched(SendP1PioMessageJob::class);
-        $this->assertNull($this->editedParams);
+        $this->assertNull($this->recordedStatus());
     }
 }

@@ -13,7 +13,6 @@
 
 namespace APP\plugins\generic\OASwitchboard\classes;
 
-use APP\facades\Repo;
 use APP\submission\Submission;
 use Illuminate\Support\Facades\DB;
 use PKP\core\Core;
@@ -29,88 +28,92 @@ class SendStatus
     public const SETTING_UPDATED_AT = 'oaSwitchboardSendStatusUpdatedAt';
     public const SETTING_ERROR = 'oaSwitchboardSendError';
 
-    // prevent the settings from being silently dropped on edit() by EntityDAO.
-    public static function addToSubmissionSchema($hookName, $args): bool
-    {
-        $schema = & $args[0];
-        foreach ([self::SETTING_STATUS, self::SETTING_UPDATED_AT, self::SETTING_ERROR] as $setting) {
-            $schema->properties->{$setting} = (object) [
-                'type' => 'string',
-                'apiSummary' => false,
-                'validation' => ['nullable'],
-                'writeDisabledInApi' => true,
-            ];
-        }
-        return false;
-    }
+    public const STALE_PENDING_SECONDS = 3600;
+
+    private const SETTINGS_TABLE = 'submission_settings';
 
     public static function recordPending(Submission $submission): void
     {
-        self::record($submission, self::STATUS_PENDING);
+        self::record($submission->getId(), self::STATUS_PENDING);
     }
 
     public static function recordSent(Submission $submission): void
     {
-        self::record($submission, self::STATUS_SENT);
+        self::record($submission->getId(), self::STATUS_SENT);
     }
 
     public static function recordFailure(Submission $submission, string $errorMessage): void
     {
-        self::record($submission, self::STATUS_FAILED, $errorMessage);
+        self::record($submission->getId(), self::STATUS_FAILED, $errorMessage);
     }
 
     public static function recordNotSent(Submission $submission): void
     {
-        self::record($submission, self::STATUS_NOT_SENT);
+        self::record($submission->getId(), self::STATUS_NOT_SENT);
     }
 
-    public static function canRetry(Submission $submission): bool
+    public static function read(Submission $submission): ?array
     {
-        return $submission->getData(self::SETTING_STATUS) === self::STATUS_FAILED;
-    }
-
-    public static function transitionFailedToPending(Submission $submission): bool
-    {
-        return DB::transaction(function () use ($submission) {
-            $updated = DB::table('submission_settings')
-                ->where('submission_id', $submission->getId())
-                ->where('setting_name', self::SETTING_STATUS)
-                ->where('setting_value', self::STATUS_FAILED)
-                ->update(['setting_value' => self::STATUS_PENDING]);
-
-            if ($updated !== 1) {
-                return false;
-            }
-
-            $settings = [
-                self::SETTING_UPDATED_AT => Core::getCurrentDate(),
-                self::SETTING_ERROR => null,
-            ];
-            Repo::submission()->edit($submission, $settings);
-            $submission->setData(self::SETTING_STATUS, self::STATUS_PENDING);
-            foreach ($settings as $name => $value) {
-                $submission->setData($name, $value);
-            }
-
-            return true;
-        });
-    }
-
-    public static function readFromSubmission(Submission $submission): ?array
-    {
-        $status = $submission->getData(self::SETTING_STATUS);
-        if (!$status) {
+        $settings = self::readSettings($submission->getId());
+        if (empty($settings[self::SETTING_STATUS])) {
             return null;
         }
 
         return [
-            'status' => $status,
-            'updatedAt' => $submission->getData(self::SETTING_UPDATED_AT),
-            'error' => $submission->getData(self::SETTING_ERROR),
+            'status' => $settings[self::SETTING_STATUS],
+            'updatedAt' => $settings[self::SETTING_UPDATED_AT] ?? null,
+            'error' => $settings[self::SETTING_ERROR] ?? null,
         ];
     }
 
-    private static function record(Submission $submission, string $status, ?string $errorMessage = null): void
+    public static function canRetry(Submission $submission): bool
+    {
+        return self::isRetryable(self::readSettings($submission->getId()));
+    }
+
+    public static function transitionToPending(Submission $submission): bool
+    {
+        return DB::transaction(function () use ($submission) {
+            $settings = self::readSettings($submission->getId(), true);
+            if (!self::isRetryable($settings)) {
+                return false;
+            }
+
+            self::record($submission->getId(), self::STATUS_PENDING);
+            return true;
+        });
+    }
+
+    private static function isRetryable(array $settings): bool
+    {
+        $status = $settings[self::SETTING_STATUS] ?? null;
+        if ($status === self::STATUS_FAILED) {
+            return true;
+        }
+
+        if ($status !== self::STATUS_PENDING) {
+            return false;
+        }
+
+        $updatedAt = strtotime($settings[self::SETTING_UPDATED_AT] ?? '');
+        return $updatedAt === false || $updatedAt <= strtotime(Core::getCurrentDate()) - self::STALE_PENDING_SECONDS;
+    }
+
+    private static function readSettings(int $submissionId, bool $lockForUpdate = false): array
+    {
+        $query = DB::table(self::SETTINGS_TABLE)
+            ->where('submission_id', $submissionId)
+            ->where('locale', '')
+            ->whereIn('setting_name', [self::SETTING_STATUS, self::SETTING_UPDATED_AT, self::SETTING_ERROR]);
+
+        if ($lockForUpdate) {
+            $query->lockForUpdate();
+        }
+
+        return $query->pluck('setting_value', 'setting_name')->all();
+    }
+
+    private static function record(int $submissionId, string $status, ?string $errorMessage = null): void
     {
         $settings = [
             self::SETTING_STATUS => $status,
@@ -118,9 +121,15 @@ class SendStatus
             self::SETTING_ERROR => $errorMessage,
         ];
 
-        Repo::submission()->edit($submission, $settings);
-        foreach ($settings as $name => $value) {
-            $submission->setData($name, $value);
-        }
+        DB::transaction(function () use ($submissionId, $settings) {
+            foreach ($settings as $name => $value) {
+                $key = ['submission_id' => $submissionId, 'locale' => '', 'setting_name' => $name];
+                if ($value === null) {
+                    DB::table(self::SETTINGS_TABLE)->where($key)->delete();
+                    continue;
+                }
+                DB::table(self::SETTINGS_TABLE)->updateOrInsert($key, ['setting_value' => $value]);
+            }
+        });
     }
 }
