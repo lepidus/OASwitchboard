@@ -26,9 +26,19 @@ class MessageTest extends PKPTestCase
                 $this->calls = $calls;
             }
 
+            protected function getSubmissionWithPublicationIdentifiers($submission, $contextId)
+            {
+                $reloaded = new Submission();
+                $reloaded->setId($submission->getId());
+                $this->calls['reloadedContextId'] = $contextId;
+                $this->calls['reloadedSubmission'] = $reloaded;
+                return $reloaded;
+            }
+
             protected function createService($contextId, $submission)
             {
                 $this->calls['serviceContextId'] = $contextId;
+                $this->calls['serviceSubmission'] = $submission;
                 return $this->service;
             }
 
@@ -60,6 +70,8 @@ class MessageTest extends PKPTestCase
         $this->createMessage($service, $calls)->sendToOASwitchboard('Publication::publish', $this->buildPublishHookArguments(STATUS_PUBLISHED));
 
         $this->assertSame(self::CONTEXT_ID, $calls['serviceContextId']);
+        $this->assertSame(self::CONTEXT_ID, $calls['reloadedContextId']);
+        $this->assertSame($calls['reloadedSubmission'], $calls['serviceSubmission']);
         $this->assertArrayHasKey('reported', $calls);
     }
 

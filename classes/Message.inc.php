@@ -25,6 +25,7 @@ class Message
         }
 
         try {
+            $submission = $this->getSubmissionWithPublicationIdentifiers($submission, $contextId);
             $this->createService($contextId, $submission)->sendP1PioMessage();
             $this->reportSuccess($submission);
         } catch (Throwable $exception) {
@@ -32,6 +33,13 @@ class Message
         }
 
         return false;
+    }
+
+    protected function getSubmissionWithPublicationIdentifiers($submission, $contextId)
+    {
+        PluginRegistry::loadCategory('pubIds', true, $contextId);
+        Services::get('schema')->get(SCHEMA_PUBLICATION, true);
+        return Services::get('submission')->get($submission->getId());
     }
 
     protected function createService($contextId, $submission)
