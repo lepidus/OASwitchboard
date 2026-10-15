@@ -7,6 +7,7 @@ use APP\template\TemplateManager;
 use APP\core\Application;
 use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
 use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\ConnectionFailedException;
 use APP\notification\NotificationManager;
 use Exception;
 use PKP\notification\PKPNotification;
@@ -41,7 +42,7 @@ class OASwitchboardSettingsForm extends Form
         $this->addCheck(new \PKP\form\validation\FormValidatorCSRF($this));
     }
 
-    private function authenticationFailNotification(): void
+    protected function notifyCredentialsFailure(string $message): void
     {
         $request = Application::get()->getRequest();
         $user = $request->getUser();
@@ -49,8 +50,13 @@ class OASwitchboardSettingsForm extends Form
         $notificationManager->createTrivialNotification(
             $user->getId(),
             PKPNotification::NOTIFICATION_TYPE_ERROR,
-            array('contents' => __('plugins.generic.OASwitchboard.settings.apiAuthenticatorFailed'))
+            ['contents' => $message]
         );
+    }
+
+    protected function createAPIClient(): OASwitchboardAPIClient
+    {
+        return new OASwitchboardAPIClient(Application::get()->getHttpClient());
     }
 
     public function fetch($request, $template = null, $display = false)
@@ -58,7 +64,7 @@ class OASwitchboardSettingsForm extends Form
         $templateMgr = TemplateManager::getManager($request);
         $templateMgr->assign('pluginName', $this->plugin->getName());
         $templateMgr->assign(
-            'hasCredentials',
+            'storedUsername',
             $this->plugin->getSetting($this->contextId, 'username')
         );
         $templateMgr->assign(
@@ -84,7 +90,7 @@ class OASwitchboardSettingsForm extends Form
 
     public function initData(): void
     {
-        $this->setData('username', $this->plugin->getSetting($this->contextId, 'username'));
+        $this->setData('OASUsername', $this->plugin->getSetting($this->contextId, 'username'));
     }
 
     public function canBeSaved(): bool
@@ -97,17 +103,14 @@ class OASwitchboardSettingsForm extends Form
         $username = $this->getData('OASUsername');
         $password = $this->getData('OASPassword');
 
-        $httpClient = Application::get()->getHttpClient();
-        $APIClient = new OASwitchboardAPIClient($httpClient);
-
         try {
-            $APIClient->getAuthorization(
-                $username,
-                $password
-            );
+            $this->createAPIClient()->getAuthorization($username, $password);
             return true;
+        } catch (ConnectionFailedException $e) {
+            $this->notifyCredentialsFailure($e->getMessage());
+            return false;
         } catch (Exception $e) {
-            $this->authenticationFailNotification();
+            $this->notifyCredentialsFailure(__('plugins.generic.OASwitchboard.settings.apiAuthenticatorFailed'));
             return false;
         }
     }
