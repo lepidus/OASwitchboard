@@ -62,6 +62,12 @@ msgstr "O artigo precisa ter um DOI associado."
 msgid "plugins.generic.OASwitchboard.postRequirementsError.issn"
 msgstr "A revista precisa ter um ISSN atribuído."
 
+msgid "plugins.generic.OASwitchboard.postRequirementsError.unchecked"
+msgstr "Não foi possível verificar os requisitos por causa de um erro inesperado. Os detalhes estão no log de erros do servidor."
+
+msgid "plugins.generic.OASwitchboard.postRequirementsError"
+msgstr "A submissão não cumpre os requisitos mínimos para enviar a mensagem P1 ao OA Switchboard."
+
 msgid "plugins.generic.OASwitchboard.postRequirementsError.conclusionText"
 msgstr "Você pode rever estes metadados, ou continuar com a publicação sem o envio da mensagem para o OA Switchboard."
 

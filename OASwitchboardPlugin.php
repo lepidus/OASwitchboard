@@ -14,6 +14,8 @@
 
 namespace APP\plugins\generic\OASwitchboard;
 
+use Illuminate\Support\Facades\Event;
+use PKP\observers\events\PublicationPublished;
 use PKP\plugins\GenericPlugin;
 use PKP\plugins\Hook;
 use APP\core\Application;
@@ -28,11 +30,16 @@ class OASwitchboardPlugin extends GenericPlugin
     public function register($category, $path, $mainContextId = null)
     {
         $success = parent::register($category, $path);
-        if ($success && $this->getEnabled()) {
-            $message = new Message($this);
+        if (!$success) {
+            return false;
+        }
+
+        $message = new Message($this);
+        Event::listen(PublicationPublished::class, [$message, 'handlePublicationPublished']);
+
+        if ($this->getEnabled()) {
             $resources = new Resources($this);
             Hook::add('Template::Workflow::Publication', [$message, 'addSubmissionStatusToWorkflow']);
-            Hook::add('Publication::publish', [$message, 'sendToOASwitchboard']);
             Hook::add('TemplateManager::display', [$resources, 'addWorkflowNotificationsJavaScript']);
             Hook::add('Form::config::before', [$message, 'validateBeforePublicationEvent']);
         }
