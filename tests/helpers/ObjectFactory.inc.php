@@ -100,38 +100,45 @@ class ObjectFactory
         return $submission;
     }
 
-    public static function createP1PioMock(PKPTestCase $testClass, $submission)
+    public static $creatableFundingDaos = [];
+
+    public static function buildDecision($decisionType, $dateDecided, $stageId = 3): array
     {
+        return ['stageId' => $stageId, 'decision' => $decisionType, 'dateDecided' => $dateDecided];
+    }
+
+    public static function createP1PioMock(PKPTestCase $testClass, $submission, $decisions = null)
+    {
+        import('classes.workflow.EditorDecisionActionsManager');
+        if ($decisions === null) {
+            $decisions = [self::buildDecision(SUBMISSION_EDITOR_DECISION_ACCEPT, '2021-01-20 00:00:00')];
+        }
+
         $P1PioMock = $testClass->getMockBuilder(P1Pio::class)
-            ->setConstructorArgs([$submission])
-            ->setMethods(['getGenreIdOfSubmissionFile', 'getSubmissionDateDecided'])
+            ->disableOriginalConstructor()
+            ->setMethods(['getGenreIdOfSubmissionFile', 'getSubmissionDecisions', 'createFundingDao'])
             ->getMock();
 
-        $P1PioMock->expects($testClass->any())
-            ->method('getGenreIdOfSubmissionFile')
-            ->will($testClass->returnValue(1));
+        $P1PioMock->method('getGenreIdOfSubmissionFile')->willReturn(1);
+        $P1PioMock->method('getSubmissionDecisions')->willReturn($decisions);
+        $P1PioMock->method('createFundingDao')
+            ->willReturnCallback(function ($daoName) {
+                return isset(ObjectFactory::$creatableFundingDaos[$daoName]) ? ObjectFactory::$creatableFundingDaos[$daoName] : null;
+            });
 
-        $P1PioMock->expects($testClass->any())
-            ->method('getSubmissionDateDecided')
-            ->will($testClass->returnValue("2021-01-20 00:00:00"));
-
+        $P1PioMock->__construct($submission);
         return $P1PioMock;
     }
 
-    /**
-     * Registers a stand-in for the Funding plugin and its DAOs.
-     *
-     * @param array $funders Each entry has 'id', 'name', 'identification' and 'awardNumbers'
-     */
-    public static function registerStubFundingPlugin(array $funders, bool $enabled = true): void
+    public static function registerStubFundingPlugin(array $funders, $enabledContextId = 1): void
     {
         import('lib.pkp.classes.plugins.Plugin');
-        $fundingPlugin = new class ($enabled) extends Plugin {
-            private $enabled;
-            public function __construct(bool $enabled)
+        $fundingPlugin = new class ($enabledContextId) extends Plugin {
+            private $enabledContextId;
+            public function __construct($enabledContextId)
             {
                 parent::__construct();
-                $this->enabled = $enabled;
+                $this->enabledContextId = $enabledContextId;
             }
             public function getName()
             {
@@ -145,15 +152,23 @@ class ObjectFactory
             {
                 return 'Funding';
             }
-            public function getEnabled()
+            public function getEnabled($contextId = null)
             {
-                return $this->enabled;
+                return $contextId !== null && $contextId === $this->enabledContextId;
             }
         };
         $plugins = & PluginRegistry::getPlugins();
         $plugins['generic']['FundingPlugin'] = $fundingPlugin;
 
-        DAORegistry::registerDAO('FunderDAO', new class ($funders) {
+        foreach (self::createStubFundingDaos($funders) as $daoName => $dao) {
+            DAORegistry::registerDAO($daoName, $dao);
+        }
+    }
+
+    public static function createStubFundingDaos(array $funders): array
+    {
+        $funderDao = new class ($funders) {
+            public $calls = 0;
             private $funders;
             public function __construct(array $funders)
             {
@@ -161,6 +176,7 @@ class ObjectFactory
             }
             public function getBySubmissionId($submissionId)
             {
+                $this->calls++;
                 $funders = array_map(function ($funder) {
                     return new class ($funder) {
                         private $funder;
@@ -195,9 +211,9 @@ class ObjectFactory
                     }
                 };
             }
-        });
+        };
 
-        DAORegistry::registerDAO('FunderAwardDAO', new class ($funders) {
+        $funderAwardDao = new class ($funders) {
             private $funders;
             public function __construct(array $funders)
             {
@@ -212,6 +228,8 @@ class ObjectFactory
                 }
                 return [];
             }
-        });
+        };
+
+        return ['FunderDAO' => $funderDao, 'FunderAwardDAO' => $funderAwardDao];
     }
 }
