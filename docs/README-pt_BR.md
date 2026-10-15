@@ -62,7 +62,7 @@ A Revista deve ter pelo menos um ISSN configurado, seja digital ou impresso.
 ### Requisitos da Publicação
 
 * Todos os autores do artigo devem ter uma **afiliação** definida.
-* A publicação deve ter um **DOI associado** a ela.
+* A publicação deve ter um **DOI associado** a ela, atribuído antes da publicação ou pelo OJS na publicação, quando as configurações de DOI o atribuem automaticamente.
 * Os autores precisam ter **sobrenome** (family name) além do nome.
 
 Recomenda-se que pelo menos um autor do artigo tenha um **ROR ID** associado à sua afiliação (requer o plugin ROR), para que a mensagem seja enviada à afiliação associada. As instruções de uso do ROR para o OJS estão descritas no [README do plugin ROR](https://github.com/withanage/ror?tab=readme-ov-file#user-documentation).
@@ -77,6 +77,7 @@ Recomenda-se que pelo menos um autor do artigo tenha um **ROR ID** associado à 
 * Antes de publicar o artigo, o status da submissão é exibido indicando se a mensagem será enviada com sucesso ou não; você pode ignorá-los ou editar o artigo para atender aos requisitos do plugin.
 * No momento da publicação de um artigo, uma mensagem do tipo P1-PIO será enviada ao OASwitchboard via API, se todos os requisitos da publicação forem atendidos.
   * Em caso de sucesso, você verá uma notificação verde no canto superior direito da tela.
+* Uma nova mensagem é enviada a cada publicação do artigo: quando uma nova versão é publicada, quando um artigo despublicado é publicado de novo e quando o OJS publica um artigo agendado numa edição.
 
 ### Vídeo de demonstração
 
@@ -87,6 +88,8 @@ Este é um vídeo demonstrativo para guiá-lo pela instalação e uso básico do
 ## Quais campos de metadados são incluídos na mensagem?
 
 Os metadados obtidos do OJS e enviados ao OA Switchboard estão listados abaixo no elemento recolhível.
+
+Toda mensagem informa o tipo do artigo como `research-article` e o modelo de publicação da revista como `pure OA journal`, seja qual for a seção ou o modelo de negócio da revista.
 
 <details>
 <summary>Clique aqui para ver a lista</summary>

@@ -62,7 +62,7 @@ La revista debe tener al menos un ISSN configurado, ya sea digital o impreso.
 ### Requisitos de la Publicación
 
 * Todos los autores del artículo deben tener una **afiliación** definida.
-* La publicación debe tener un **DOI asociado**.
+* La publicación debe tener un **DOI asociado**, asignado antes de publicar o por OJS al publicar, cuando la configuración de DOI los asigna automáticamente.
 * Los autores deben tener un **apellido** (family name) además del nombre.
 
 Se recomienda que al menos un autor del artículo tenga un **ROR ID** asociado a su afiliación (requiere el módulo ROR), para que el mensaje sea enviado a la afiliación asociada. Las instrucciones de uso de ROR para OJS están descritas en el [README del módulo ROR](https://github.com/withanage/ror?tab=readme-ov-file#user-documentation).
@@ -77,6 +77,7 @@ Se recomienda que al menos un autor del artículo tenga un **ROR ID** asociado a
 * Antes de publicar el artículo, se muestra el estado del envío indicando si el mensaje será enviado con éxito o no; puede ignorarlos o editar el artículo para cumplir con los requisitos del módulo.
 * En el momento de la publicación de un artículo, se enviará un mensaje de tipo P1-PIO a OASwitchboard vía API, si se cumplen todos los requisitos de la publicación.
   * En caso de éxito, verá una notificación verde en la esquina superior derecha de la pantalla.
+* Se envía un mensaje nuevo cada vez que se publica el artículo: cuando se publica una nueva versión, cuando un artículo despublicado se vuelve a publicar y cuando OJS publica un artículo programado en un número.
 
 ### Video de demostración
 
@@ -87,6 +88,8 @@ Este es un video demostrativo para guiarle a través de la instalación y el uso
 ## ¿Qué campos de metadatos se incluyen en el mensaje?
 
 Los metadatos obtenidos de OJS y enviados a OA Switchboard se listan a continuación en el elemento desplegable.
+
+Todos los mensajes indican el tipo de artículo como `research-article` y el modelo de publicación de la revista como `pure OA journal`, sea cual sea la sección o el modelo de negocio de la revista.
 
 <details>
 <summary>Haga clic aquí para ver la lista</summary>
