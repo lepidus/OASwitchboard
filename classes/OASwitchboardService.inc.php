@@ -14,9 +14,13 @@
 import('plugins.generic.OASwitchboard.classes.messages.P1Pio');
 import('plugins.generic.OASwitchboard.lib.APIKeyEncryption.APIKeyEncryption');
 import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIClient');
+import('plugins.generic.OASwitchboard.classes.exceptions.OASwitchboardException');
+import('plugins.generic.OASwitchboard.classes.exceptions.P1PioException');
 
 class OASwitchboardService
 {
+    public const REQUIREMENTS_UNCHECKED = 'plugins.generic.OASwitchboard.postRequirementsError.unchecked';
+
     private $plugin;
     private $apiClient;
     private $contextId;
@@ -65,7 +69,20 @@ class OASwitchboardService
         $username = $plugin->getSetting($contextId, 'username');
         $password = $plugin->getSetting($contextId, 'password');
         if (is_null($username) || is_null($password)) {
-            throw new Exception(__("plugins.generic.OASwitchboard.pluginIsNotConfigured"));
+            throw new OASwitchboardException(__('plugins.generic.OASwitchboard.pluginIsNotConfigured'));
+        }
+    }
+
+    public static function getMissingRequirements($submission): array
+    {
+        try {
+            new P1Pio($submission);
+            return [];
+        } catch (P1PioException $exception) {
+            return array_values(array_unique($exception->getP1PioErrors() ?: []));
+        } catch (Throwable $exception) {
+            error_log('OASwitchboard could not check the requirements of submission ' . $submission->getId() . ': ' . $exception);
+            return [self::REQUIREMENTS_UNCHECKED];
         }
     }
 

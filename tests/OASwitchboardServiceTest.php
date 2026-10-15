@@ -52,4 +52,11 @@ class OASwitchboardServiceTest extends PKPTestCase
         $this->expectException(Exception::class);
         OASwitchboardService::validatePluginIsConfigured($plugin, self::CONTEXT_ID);
     }
+
+    public function testRequirementsThatCannotBeCheckedShouldBeReportedInsteadOfThrown()
+    {
+        import('classes.submission.Submission');
+
+        $this->assertSame([OASwitchboardService::REQUIREMENTS_UNCHECKED], OASwitchboardService::getMissingRequirements(new Submission()));
+    }
 }

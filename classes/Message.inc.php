@@ -1,8 +1,6 @@
 <?php
 
 import('plugins.generic.OASwitchboard.classes.OASwitchboardService');
-import('plugins.generic.OASwitchboard.classes.exceptions.P1PioException');
-import('plugins.generic.OASwitchboard.classes.messages.P1Pio');
 
 class Message
 {
@@ -15,23 +13,41 @@ class Message
 
     public function sendToOASwitchboard($hookName, $args)
     {
-        $publication = & $args[0];
-        $submission = & $args[2];
-        $contextId = PKPApplication::get()->getRequest()->getContext()->getId();
-        $request = PKPApplication::get()->getRequest();
-        $userId = $request->getUser()->getId();
+        $publication = $args[0];
+        $submission = $args[2];
+        if ($publication->getData('status') !== STATUS_PUBLISHED) {
+            return false;
+        }
+
+        $contextId = (int) $submission->getData('contextId');
+        if (!$this->plugin->getEnabled($contextId)) {
+            return false;
+        }
 
         try {
-            if ($publication->getData('status') === STATUS_PUBLISHED) {
-                $OASwitchboard = new OASwitchboardService($this->plugin, $contextId, $submission);
-                $OASwitchboard->sendP1PioMessage();
-                $keyMessage = 'plugins.generic.OASwitchboard.sendMessageWithSuccess';
-                $this->sendNotification($userId, __($keyMessage), NOTIFICATION_TYPE_SUCCESS);
-                $this->registerSubmissionEventLog($request, $submission, $keyMessage);
-            }
-        } catch (\Exception $e) {
-            error_log('OASwitchboard message delivery failed');
+            $this->createService($contextId, $submission)->sendP1PioMessage();
+            $this->reportSuccess($submission);
+        } catch (Throwable $exception) {
+            error_log('OASwitchboard message delivery failed for submission ' . $submission->getId() . ': ' . $exception->getMessage());
         }
+
+        return false;
+    }
+
+    protected function createService($contextId, $submission)
+    {
+        return new OASwitchboardService($this->plugin, $contextId, $submission);
+    }
+
+    protected function reportSuccess($submission)
+    {
+        $request = Application::get()->getRequest();
+        $keyMessage = 'plugins.generic.OASwitchboard.sendMessageWithSuccess';
+        $user = $request->getUser();
+        if ($user) {
+            $this->sendNotification($user->getId(), __($keyMessage), NOTIFICATION_TYPE_SUCCESS);
+        }
+        $this->registerSubmissionEventLog($request, $submission, $keyMessage);
     }
 
     public function validateBeforePublicationEvent($hookName, $form)
@@ -54,23 +70,13 @@ class Message
             return false;
         }
 
-        try {
-            $p1Pio = new P1Pio($submission);
-            $successMessage = $this->getSubmissionAlreadyToSendMessage($submission);
-
-            $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
-                'description' => $successMessage,
-                'groupId' => 'default',
-            ]));
-        } catch (P1PioException $e) {
-            if ($e->getP1PioErrors()) {
-                $errorMessage = $this->getMandatoryDataErrorMessage($e->getP1PioErrors(), $submission);
-                $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
-                    'description' => $errorMessage,
-                    'groupId' => 'default',
-                ]));
-            }
-        }
+        $missingRequirements = OASwitchboardService::getMissingRequirements($submission);
+        $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
+            'description' => empty($missingRequirements)
+                ? $this->getSubmissionAlreadyToSendMessage($submission)
+                : $this->getMandatoryDataErrorMessage($missingRequirements, $submission),
+            'groupId' => 'default',
+        ]));
 
         return false;
     }
@@ -93,19 +99,15 @@ class Message
             ]);
         }
 
-        try {
-            $p1Pio = new P1Pio($submission);
-            $successMessage = $this->getSubmissionAlreadyToSendMessage($submission, false);
+        $missingRequirements = OASwitchboardService::getMissingRequirements($submission);
+        if (empty($missingRequirements)) {
             $smarty->assign([
-                'submissionIsAlreadySendMessage' => $successMessage,
+                'submissionIsAlreadySendMessage' => $this->getSubmissionAlreadyToSendMessage($submission, false),
             ]);
-        } catch (P1PioException $e) {
-            if ($e->getP1PioErrors()) {
-                $errorMessage = $this->getMandatoryDataErrorMessage($e->getP1PioErrors(), $submission, false);
-                $smarty->assign([
-                    'submissionRequirementsIsPending' => $errorMessage,
-                ]);
-            }
+        } else {
+            $smarty->assign([
+                'submissionRequirementsIsPending' => $this->getMandatoryDataErrorMessage($missingRequirements, $submission, false),
+            ]);
         }
 
         $output .= sprintf(

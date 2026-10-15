@@ -21,13 +21,18 @@ class OASwitchboardPlugin extends GenericPlugin
     public function register($category, $path, $mainContextId = null)
     {
         $success = parent::register($category, $path, $mainContextId);
-        if ($success && $this->getEnabled()) {
-            import('plugins.generic.OASwitchboard.classes.Message');
+        if (!$success) {
+            return false;
+        }
+
+        import('plugins.generic.OASwitchboard.classes.Message');
+        $message = new Message($this);
+        HookRegistry::register('Publication::publish', [$message, 'sendToOASwitchboard']);
+
+        if ($this->getEnabled()) {
             import('plugins.generic.OASwitchboard.classes.Resources');
-            $message = new Message($this);
             $resources = new Resources($this);
             HookRegistry::register('Template::Workflow::Publication', [$message, 'addSubmissionStatusToWorkflow']);
-            HookRegistry::register('Publication::publish', [$message, 'sendToOASwitchboard']);
             HookRegistry::register('Form::config::before', [$message, 'validateBeforePublicationEvent']);
             HookRegistry::register('TemplateManager::display', [$resources, 'addWorkflowNotificationsJavaScript']);
         }
