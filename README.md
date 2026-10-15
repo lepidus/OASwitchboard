@@ -63,7 +63,7 @@ The DOI Plugin must be active and properly configured in the journal.
 ### Publication Requirements
 
 * All authors of the article must have an **affiliation** set
-* The publication must have a **DOI associated** to it.
+* The publication must have a **DOI associated** to it before it is published.
 * The authors need to have **family name** besides the given name.
 
 It's recommended that at least one author of the article has a **ROR ID** associated with their affiliation (requires the ROR plugin), in order for the message to be sent to the associated affiliation. The ROR usage instructions for OJS are described in the [ROR plugin's README](https://github.com/withanage/ror?tab=readme-ov-file#user-documentation).
@@ -81,10 +81,13 @@ to provide that information for the article.
 
 * In the moment of the publication of an article, a P1-PIO Message will be sent to OASwitchboard via API, if all publication requirements are met.
   * In success, you should see a green notification.
+* A new message is sent every time an article is published: when a new version is published, when an unpublished article is published again, and when OJS publishes an article scheduled in an issue.
 
 ## What metadata fields are included in the message?
 
 The metadata retrieved from OJS and sent to OA Switchboard is listed below in the collapsible element.
+
+Every message gives the article type as `research-article` and the journal's publication model as `pure OA journal`, whatever the section or the journal's business model.
 
 <details>
 <summary>Click here to see the list </summary>
