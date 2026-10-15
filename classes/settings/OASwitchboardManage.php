@@ -26,9 +26,9 @@ class OASwitchboardManage
         switch ($request->getUserVar('verb')) {
             case 'settings':
                 $context = $request->getContext();
-                $form = new OASwitchboardSettingsForm($this->plugin, $context->getId());
+                $form = $this->createSettingsForm($context->getId());
                 $form->initData();
-                if ($request->getUserVar('save')) {
+                if ($request->getUserVar('save') && $form->canBeSaved()) {
                     $form->readInputData();
                     if ($form->validate() && $form->validateAPICredentials()) {
                         $form->execute();
@@ -41,7 +41,12 @@ class OASwitchboardManage
                 }
                 return new JSONMessage(true, $form->fetch($request));
             default:
-                return $this->plugin->manage($args, $request);
+                return new JSONMessage(false);
         }
+    }
+
+    protected function createSettingsForm(int $contextId): OASwitchboardSettingsForm
+    {
+        return new OASwitchboardSettingsForm($this->plugin, $contextId);
     }
 }

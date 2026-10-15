@@ -43,6 +43,9 @@ msgstr "Error al intentar enviar un mensaje a través de la API de OA Switchboar
 msgid "plugins.generic.OASwitchboard.serverError"
 msgstr "Error al enviar el mensaje. La API de OA Switchboard devolvió un error interno."
 
+msgid "plugins.generic.OASwitchboard.connectionError"
+msgstr "No fue posible conectarse a OA Switchboard. Inténtelo de nuevo más tarde."
+
 msgid "plugins.generic.OASwitchboard.rorRecommendation"
 msgstr "Se recomienda que al menos un autor tenga un ID ROR vinculado a su afiliación (requiere el plugin ROR) para enviar el mensaje a la institución del autor."
 
@@ -60,6 +63,12 @@ msgstr "El artículo debe tener un DOI asociado."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.issn"
 msgstr "La revista debe tener un ISSN asignado."
+
+msgid "plugins.generic.OASwitchboard.postRequirementsError.unchecked"
+msgstr "No fue posible verificar los requisitos debido a un error inesperado. Los detalles están en el registro de errores del servidor."
+
+msgid "plugins.generic.OASwitchboard.postRequirementsError"
+msgstr "La presentación no cumple con los requisitos mínimos para enviar el mensaje P1 al OA Switchboard."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.conclusionText"
 msgstr "Puede revisar estos metadatos o continuar con la publicación sin enviar el mensaje al OA Switchboard."

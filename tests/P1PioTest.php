@@ -3,6 +3,8 @@
 namespace APP\plugins\generic\OASwitchboard\tests;
 
 use PKP\core\Registry;
+use PKP\db\DAORegistry;
+use PKP\decision\Decision;
 use PKP\tests\PKPTestCase;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\plugins\generic\OASwitchboard\tests\helpers\P1PioExpectedTestData;
@@ -29,9 +31,15 @@ class P1PioTest extends PKPTestCase
         $this->P1Pio = ObjectFactory::createP1PioMock($this, $this->submission);
     }
 
+    protected function tearDown(): void
+    {
+        ObjectFactory::$creatableFundingDaos = [];
+        parent::tearDown();
+    }
+
     protected function getMockedDAOs(): array
     {
-        return [...parent::getMockedDAOs(), 'JournalDAO'];
+        return [...parent::getMockedDAOs(), 'JournalDAO', 'GenreDAO'];
     }
 
     protected function getMockedRegistryKeys(): array
@@ -117,6 +125,150 @@ class P1PioTest extends PKPTestCase
         $this->assertEquals('CC BY-NC-ND', $vor['license']);
     }
 
+    public function testArticleDatesShouldBeEmptyWhenUnknown()
+    {
+        $this->submission->getCurrentPublication()->setData('datePublished', null);
+        $this->submission->setData('dateSubmitted', null);
+
+        $dates = $this->P1Pio->getArticleData()['manuscript']['dates'];
+
+        $this->assertSame('', $dates['submission']);
+        $this->assertSame('', $dates['publication']);
+    }
+
+    public function testArticleShouldOmitManuscriptIdWhenTheGalleyFileNoLongerExists()
+    {
+        $message = new class ($this->submission) extends P1Pio {
+            public function getSubmissionDecisions(): array
+            {
+                return [];
+            }
+        };
+
+        $this->assertArrayNotHasKey('id', $message->getArticleData()['manuscript']);
+    }
+
+    public function testArticleShouldOmitManuscriptIdWhenTheJournalHasNoArticleTextGenre()
+    {
+        DAORegistry::registerDAO('GenreDAO', new class () {
+            public function getByKey($key, $contextId = null)
+            {
+                return null;
+            }
+        });
+
+        $articleData = ObjectFactory::createP1PioMock($this, $this->submission)->getArticleData();
+
+        $this->assertArrayNotHasKey('id', $articleData['manuscript']);
+    }
+
+    public function testAcceptanceDateShouldComeFromAnAcceptAndSkipReviewDecision()
+    {
+        $message = ObjectFactory::createP1PioMock($this, $this->submission, [
+            ObjectFactory::buildDecision(Decision::SKIP_EXTERNAL_REVIEW, '2021-02-10 10:00:00', 1),
+        ]);
+
+        $this->assertSame('2021-02-10', $message->getArticleData()['manuscript']['dates']['acceptance']);
+    }
+
+    public function testAcceptanceDateShouldBeTheLatestAcceptance()
+    {
+        $message = ObjectFactory::createP1PioMock($this, $this->submission, [
+            ObjectFactory::buildDecision(Decision::ACCEPT, '2021-02-01 10:00:00'),
+            ObjectFactory::buildDecision(Decision::BACK_FROM_COPYEDITING, '2021-02-05 10:00:00', 4),
+            ObjectFactory::buildDecision(Decision::ACCEPT, '2021-02-20 10:00:00'),
+        ]);
+
+        $this->assertSame('2021-02-20', $message->getArticleData()['manuscript']['dates']['acceptance']);
+    }
+
+    public function testAcceptanceDateShouldBeEmptyWithoutAnAcceptance()
+    {
+        $message = ObjectFactory::createP1PioMock($this, $this->submission, [
+            ObjectFactory::buildDecision(Decision::EXTERNAL_REVIEW, '2021-01-15 10:00:00', 1),
+        ]);
+
+        $this->assertSame('', $message->getArticleData()['manuscript']['dates']['acceptance']);
+    }
+
+    public function testArticleGrantsShouldSkipBlankAndRepeatedAwardNumbers()
+    {
+        ObjectFactory::registerStubFundingPlugin([
+            ['id' => 1, 'name' => 'FAPESP', 'identification' => 'https://doi.org/10.13039/501100001807', 'awardNumbers' => [10 => '2021/12345-6', 11 => '  ', 12 => '']],
+            ['id' => 2, 'name' => 'CNPq', 'identification' => 'https://doi.org/10.13039/501100003593', 'awardNumbers' => [13 => ' 2021/12345-6 ']],
+        ]);
+
+        $this->assertEquals([['id' => '2021/12345-6']], $this->P1Pio->getArticleData()['grants']);
+    }
+
+    public function testArticleFundersShouldSkipFundersWithoutNameOrIdentification()
+    {
+        ObjectFactory::registerStubFundingPlugin([
+            ['id' => 1, 'name' => '', 'identification' => '', 'awardNumbers' => [10 => 'ORPHAN-1']],
+            ['id' => 2, 'name' => 'CNPq', 'identification' => '', 'awardNumbers' => []],
+        ]);
+
+        $articleData = $this->P1Pio->getArticleData();
+
+        $this->assertEquals([['name' => 'CNPq', 'fundref' => '']], $articleData['funders']);
+        $this->assertArrayNotHasKey('grants', $articleData);
+    }
+
+    public function testArticleShouldReadTheFundersOnlyOnce()
+    {
+        $funderDao = DAORegistry::getDAO('FunderDAO');
+        $funderDao->calls = 0;
+
+        $this->P1Pio->getArticleData();
+
+        $this->assertSame(1, $funderDao->calls);
+    }
+
+    public function testArticleShouldOmitFundersAndGrantsWhenFundingPluginIsEnabledOnlyForAnotherJournal()
+    {
+        ObjectFactory::registerStubFundingPlugin([[
+            'id' => 1,
+            'name' => 'Universidade Federal de Santa Catarina',
+            'identification' => 'http://dx.doi.org/10.13039/501100007082',
+            'awardNumbers' => [10 => '2021/12345-6'],
+        ]], $enabledContextId = 2);
+
+        $articleData = $this->P1Pio->getArticleData();
+
+        $this->assertArrayNotHasKey('funders', $articleData);
+        $this->assertArrayNotHasKey('grants', $articleData);
+    }
+
+    public function testArticleShouldIncludeFundersAndGrantsWhenFundingPluginWasLoadedWithoutItsDaos()
+    {
+        $fundingDaos = ObjectFactory::createStubFundingDaos([[
+            'id' => 1,
+            'name' => 'Universidade Federal de Santa Catarina',
+            'identification' => 'http://dx.doi.org/10.13039/501100007082',
+            'awardNumbers' => [10 => '2021/12345-6'],
+        ]]);
+        $daos = & DAORegistry::getDAOs();
+        unset($daos['FunderDAO'], $daos['FunderAwardDAO']);
+        ObjectFactory::$creatableFundingDaos = $fundingDaos;
+
+        $articleData = $this->P1Pio->getArticleData();
+
+        $this->assertEquals('Universidade Federal de Santa Catarina', $articleData['funders'][0]['name']);
+        $this->assertEquals([['id' => '2021/12345-6']], $articleData['grants']);
+    }
+
+    public function testFundingDaosShouldNotBeHalfRegisteredWhenOneCannotBeCreated()
+    {
+        $daos = & DAORegistry::getDAOs();
+        unset($daos['FunderDAO'], $daos['FunderAwardDAO']);
+        ObjectFactory::$creatableFundingDaos = ['FunderDAO' => ObjectFactory::createStubFundingDaos([])['FunderDAO']];
+
+        $articleData = $this->P1Pio->getArticleData();
+
+        $this->assertArrayNotHasKey('funders', $articleData);
+        $this->assertArrayNotHasKey('FunderDAO', DAORegistry::getDAOs());
+    }
+
     public function testArticleGrantsShouldListAwardNumbersOfAllFunders()
     {
         ObjectFactory::registerStubFundingPlugin([
@@ -164,7 +316,7 @@ class P1PioTest extends PKPTestCase
             'name' => 'Universidade Federal de Santa Catarina',
             'identification' => 'http://dx.doi.org/10.13039/501100007082',
             'awardNumbers' => [10 => '2021/12345-6'],
-        ]], $enabled = false);
+        ]], $enabledContextId = null);
 
         $articleData = $this->P1Pio->getArticleData();
 

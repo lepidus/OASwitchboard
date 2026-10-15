@@ -5,12 +5,12 @@ namespace APP\plugins\generic\OASwitchboard\classes;
 use APP\core\Application;
 use APP\facades\Repo;
 use APP\notification\NotificationManager;
-use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
-use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\submission\Submission;
+use PKP\components\forms\FieldHTML;
 use PKP\core\Core;
 use PKP\log\event\PKPSubmissionEventLogEntry;
 use PKP\notification\PKPNotification;
+use PKP\observers\events\PublicationPublished;
 use PKP\security\Validation;
 
 class Message
@@ -22,29 +22,44 @@ class Message
         $this->plugin = $plugin;
     }
 
-    public function sendToOASwitchboard($hookName, $args)
+    public function handlePublicationPublished(PublicationPublished $event): void
     {
-        $publication = & $args[0];
-        $submission = & $args[2];
-        $contextId = Application::get()->getRequest()->getContext()->getId();
-        $request = Application::get()->getRequest();
-        $userId = $request->getUser()->getId();
+        if ($event->publication->getData('status') !== Submission::STATUS_PUBLISHED) {
+            return;
+        }
+
+        $contextId = (int) $event->submission->getData('contextId');
+        if (!$this->plugin->getEnabled($contextId)) {
+            return;
+        }
 
         try {
-            if ($publication->getData('status') === Submission::STATUS_PUBLISHED) {
-                $OASwitchboard = new OASwitchboardService($this->plugin, $contextId, $submission);
-                $OASwitchboard->sendP1PioMessage();
-                $keyMessage = 'plugins.generic.OASwitchboard.sendMessageWithSuccess';
-                $this->sendNotification(
-                    $userId,
-                    __($keyMessage),
-                    PKPNotification::NOTIFICATION_TYPE_SUCCESS
-                );
-                $this->registerSubmissionEventLog($request, $submission, $keyMessage);
-            }
-        } catch (\Exception $e) {
-            error_log('OASwitchboard message delivery failed');
+            $submission = $this->getSubmission($event->submission->getId());
+            $this->createService($contextId, $submission)->sendP1PioMessage();
+            $this->reportSuccess($submission);
+        } catch (\Throwable $exception) {
+            error_log('OASwitchboard message delivery failed for submission ' . $event->submission->getId() . ': ' . $exception->getMessage());
         }
+    }
+
+    protected function getSubmission(int $submissionId): Submission
+    {
+        return Repo::submission()->get($submissionId);
+    }
+
+    protected function createService(int $contextId, Submission $submission): OASwitchboardService
+    {
+        return new OASwitchboardService($this->plugin, $contextId, $submission);
+    }
+
+    protected function reportSuccess(Submission $submission): void
+    {
+        $keyMessage = 'plugins.generic.OASwitchboard.sendMessageWithSuccess';
+        $userId = Validation::loggedInAs() ?? Application::get()->getRequest()->getUser()?->getId();
+        if ($userId) {
+            $this->sendNotification($userId, __($keyMessage), PKPNotification::NOTIFICATION_TYPE_SUCCESS);
+        }
+        $this->registerSubmissionEventLog($userId, $submission, $keyMessage);
     }
 
     public function validateBeforePublicationEvent($hookName, $form)
@@ -53,39 +68,33 @@ class Message
             return;
         }
 
-        $contextId = Application::get()->getRequest()->getContext()->getId();
+        $context = Application::get()->getRequest()->getContext();
         $submission = Repo::submission()->get($form->publication->getData('submissionId'));
 
         try {
-            OASwitchboardService::validatePluginIsConfigured($this->plugin, $contextId);
+            OASwitchboardService::validatePluginIsConfigured($this->plugin, $context->getId());
         } catch (\Exception $e) {
-            $message = '<div class="pkpNotification pkpNotification--information">' . $e->getMessage() . '</div>';
-            $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
-                'description' => $message,
-                'groupId' => 'default',
-            ]));
+            $this->addPublishNotice($form, '<div class="pkpNotification pkpNotification--information">' . $e->getMessage() . '</div>');
             return false;
         }
 
-        try {
-            $p1Pio = new P1Pio($submission);
-            $successMessage = $this->getSubmissionAlreadyToSendMessage($submission);
-
-            $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
-                'description' => $successMessage,
-                'groupId' => 'default',
-            ]));
-        } catch (P1PioException $e) {
-            if ($e->getP1PioErrors()) {
-                $errorMessage = $this->getMandatoryDataErrorMessage($e->getP1PioErrors(), $submission);
-                $form->addField(new \PKP\components\forms\FieldHTML('registerNotice', [
-                    'description' => $errorMessage,
-                    'groupId' => 'default',
-                ]));
-            }
-        }
+        $missingRequirements = OASwitchboardService::getMissingRequirements($submission, $context);
+        $this->addPublishNotice(
+            $form,
+            empty($missingRequirements)
+                ? $this->getSubmissionAlreadyToSendMessage($submission)
+                : $this->getMandatoryDataErrorMessage($missingRequirements, $submission)
+        );
 
         return false;
+    }
+
+    private function addPublishNotice($form, string $description): void
+    {
+        $form->addField(new FieldHTML('registerNotice', [
+            'description' => $description,
+            'groupId' => 'default',
+        ]));
     }
 
     public function addSubmissionStatusToWorkflow($hookName, $params)
@@ -95,10 +104,10 @@ class Message
         $request = Application::get()->getRequest();
 
         $submission = $smarty->getTemplateVars('submission');
-        $contextId = $request->getContext()->getId();
+        $context = $request->getContext();
 
         try {
-            OASwitchboardService::validatePluginIsConfigured($this->plugin, $contextId);
+            OASwitchboardService::validatePluginIsConfigured($this->plugin, $context->getId());
         } catch (\Exception $e) {
             $message = '<div class="pkpNotification pkpNotification--information">' . $e->getMessage() . '</div>';
             $smarty->assign([
@@ -106,19 +115,15 @@ class Message
             ]);
         }
 
-        try {
-            $p1Pio = new P1Pio($submission);
-            $successMessage = $this->getSubmissionAlreadyToSendMessage($submission, false);
+        $missingRequirements = OASwitchboardService::getMissingRequirements($submission, $context);
+        if (empty($missingRequirements)) {
             $smarty->assign([
-                'submissionIsAlreadySendMessage' => $successMessage,
+                'submissionIsAlreadySendMessage' => $this->getSubmissionAlreadyToSendMessage($submission, false),
             ]);
-        } catch (P1PioException $e) {
-            if ($e->getP1PioErrors()) {
-                $errorMessage = $this->getMandatoryDataErrorMessage($e->getP1PioErrors(), $submission, false);
-                $smarty->assign([
-                    'submissionRequirementsIsPending' => $errorMessage,
-                ]);
-            }
+        } else {
+            $smarty->assign([
+                'submissionRequirementsIsPending' => $this->getMandatoryDataErrorMessage($missingRequirements, $submission, false),
+            ]);
         }
 
         $output .= sprintf(
@@ -128,13 +133,13 @@ class Message
         );
     }
 
-    private function registerSubmissionEventLog($request, $submission, $error)
+    private function registerSubmissionEventLog(?int $userId, $submission, $error)
     {
         $eventLog = Repo::eventLog()->newDataObject([
             'assocType' => Application::ASSOC_TYPE_SUBMISSION,
             'assocId' => $submission->getId(),
-            'eventType' => PKPSubmissionEventLogEntry::SUBMISSION_LOG_CREATE_VERSION,
-            'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
+            'eventType' => PKPSubmissionEventLogEntry::SUBMISSION_LOG_METADATA_PUBLISH,
+            'userId' => $userId,
             'message' => $error,
             'isTranslated' => false,
             'dateLogged' => Core::getCurrentDate(),

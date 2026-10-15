@@ -23,7 +23,7 @@ class APIKeyEncryption
 
     private function getSecretFromConfig(): string
     {
-        $secret = Config::getVar('security', 'api_key_secret');
+        $secret = (string) Config::getVar('security', 'api_key_secret');
         if ($secret === "") {
             throw new Exception("OASwitchboard Plugin - A secret must be set in the config file ('api_key_secret') so that keys can be encrypted and decrypted");
         }
