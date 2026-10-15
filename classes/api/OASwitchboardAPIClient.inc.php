@@ -2,7 +2,10 @@
 
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\TransferException;
+
+import('plugins.generic.OASwitchboard.classes.exceptions.ConnectionFailedException');
 
 class OASwitchboardAPIClient
 {
@@ -75,27 +78,28 @@ class OASwitchboardAPIClient
             if ($statusCode < 200 || $statusCode > 299) {
                 $this->logResponseFailure($this->getOperationName($endpoint), $endpoint, $response);
                 if ($statusCode >= 400 && $statusCode <= 499) {
-                    throw new Exception(__('plugins.generic.OASwitchboard.postRequirements'));
+                    throw new OASwitchboardException(__('plugins.generic.OASwitchboard.postRequirements'));
                 }
-                throw new Exception(__('plugins.generic.OASwitchboard.serverError'));
+                throw new OASwitchboardException(__('plugins.generic.OASwitchboard.serverError'));
             }
 
             return $response;
         } catch (ServerException $e) {
             $this->logRequestFailure($this->getOperationName($endpoint), $endpoint, $e);
-            throw new Exception(
+            throw new OASwitchboardException(
                 __('plugins.generic.OASwitchboard.serverError')
             );
         } catch (ClientException $e) {
             $this->logRequestFailure($this->getOperationName($endpoint), $endpoint, $e);
-            throw new Exception(
+            throw new OASwitchboardException(
                 __('plugins.generic.OASwitchboard.postRequirements')
             );
         } catch (TransferException $e) {
             $this->logRequestFailure($this->getOperationName($endpoint), $endpoint, $e);
-            throw new Exception(
-                __('plugins.generic.OASwitchboard.serverError')
-            );
+            if ($e instanceof RequestException && $e->hasResponse()) {
+                throw new OASwitchboardException(__('plugins.generic.OASwitchboard.serverError'));
+            }
+            throw new ConnectionFailedException(__('plugins.generic.OASwitchboard.connectionError'));
         }
     }
 
@@ -105,12 +109,12 @@ class OASwitchboardAPIClient
             $responseBody = $this->readAuthorizationResponse($response->getBody());
         } catch (Throwable $exception) {
             $this->logResponseFailure('getAuthorization', self::API_AUTHORIZATION_ENDPOINT, $response);
-            throw new Exception(__('plugins.generic.OASwitchboard.serverError'));
+            throw new OASwitchboardException(__('plugins.generic.OASwitchboard.serverError'));
         }
 
         if (strlen($responseBody) > self::MAX_AUTHORIZATION_RESPONSE_BYTES) {
             $this->logResponseFailure('getAuthorization', self::API_AUTHORIZATION_ENDPOINT, $response);
-            throw new Exception(__('plugins.generic.OASwitchboard.serverError'));
+            throw new OASwitchboardException(__('plugins.generic.OASwitchboard.serverError'));
         }
 
         $responseData = json_decode($responseBody, true);
@@ -122,7 +126,7 @@ class OASwitchboardAPIClient
             $responseData['token'] === ''
         ) {
             $this->logResponseFailure('getAuthorization', self::API_AUTHORIZATION_ENDPOINT, $response);
-            throw new Exception(__('plugins.generic.OASwitchboard.serverError'));
+            throw new OASwitchboardException(__('plugins.generic.OASwitchboard.serverError'));
         }
 
         return $responseData['token'];
@@ -165,9 +169,21 @@ class OASwitchboardAPIClient
             if ($correlationId !== null) {
                 $logContext[] = 'correlationId=' . $correlationId;
             }
+        } else {
+            $logContext[] = 'exception=' . (new ReflectionClass($exception))->getShortName();
+            $logContext[] = 'error=' . $this->describeTransferError($exception);
         }
 
         $this->writeLog('OASwitchboard API request failed: ' . implode(' ', $logContext));
+    }
+
+    private function describeTransferError($exception): string
+    {
+        $message = $exception->getMessage();
+        if (method_exists($exception, 'getRequest')) {
+            $message = str_replace((string) $exception->getRequest()->getUri(), '[request uri]', $message);
+        }
+        return $message;
     }
 
     private function logResponseFailure(string $operation, string $endpoint, $response): void

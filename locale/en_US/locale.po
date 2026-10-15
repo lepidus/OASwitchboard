@@ -43,6 +43,9 @@ msgstr "Error while attempting to send message via OA Switchboard API. More info
 msgid "plugins.generic.OASwitchboard.serverError"
 msgstr "Error sending the message. The OA Switchboard API returned an internal server error."
 
+msgid "plugins.generic.OASwitchboard.connectionError"
+msgstr "Could not connect to OA Switchboard. Please try again later."
+
 msgid "plugins.generic.OASwitchboard.rorRecommendation"
 msgstr "It is recommended that at least one author has a ROR ID linked to their affiliation (requires the ROR plugin) to send the message to the author's institution."
 
