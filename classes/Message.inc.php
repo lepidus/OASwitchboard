@@ -5,6 +5,7 @@ import('plugins.generic.OASwitchboard.classes.OASwitchboardService');
 class Message
 {
     private $plugin;
+    private $contextsWithIdentifierPlugins = [];
 
     public function __construct($plugin)
     {
@@ -37,8 +38,28 @@ class Message
 
     protected function getSubmissionWithPublicationIdentifiers($submission, $contextId)
     {
+        if ($this->publicationSchemaHasIdentifiers() || in_array($contextId, $this->contextsWithIdentifierPlugins, true)) {
+            return $submission;
+        }
+
+        $this->contextsWithIdentifierPlugins[] = $contextId;
+        $this->loadPublicationIdentifierPlugins($contextId);
+        return $this->reloadSubmission($submission);
+    }
+
+    protected function publicationSchemaHasIdentifiers(): bool
+    {
+        return isset(Services::get('schema')->get(SCHEMA_PUBLICATION)->properties->{'pub-id::doi'});
+    }
+
+    protected function loadPublicationIdentifierPlugins($contextId): void
+    {
         PluginRegistry::loadCategory('pubIds', true, $contextId);
         Services::get('schema')->get(SCHEMA_PUBLICATION, true);
+    }
+
+    protected function reloadSubmission($submission)
+    {
         return Services::get('submission')->get($submission->getId());
     }
 
