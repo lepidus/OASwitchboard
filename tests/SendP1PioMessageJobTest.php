@@ -3,6 +3,8 @@
 namespace APP\plugins\generic\OASwitchboard\tests;
 
 use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\OASwitchboardException;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\UnconfirmedDeliveryException;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 use APP\plugins\generic\OASwitchboard\classes\SendStatus;
@@ -10,6 +12,7 @@ use APP\plugins\generic\OASwitchboard\jobs\SendP1PioMessageJob;
 use APP\submission\Repository as SubmissionRepository;
 use APP\submission\Submission;
 use ArrayObject;
+use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -19,26 +22,35 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use PKP\log\event\EventLogEntry;
 use PKP\log\event\Repository as EventLogRepository;
-use PKP\tests\PKPTestCase;
+use PKP\tests\DatabaseTestCase;
 
-class SendP1PioMessageJobTest extends PKPTestCase
+class SendP1PioMessageJobTest extends DatabaseTestCase
 {
-    private const SUBMISSION_ID = 456;
     private const CONTEXT_ID = 1;
 
+    private int $submissionId;
     private $submission;
-    private $editedParams;
     private $registeredEventLogEntry;
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->submissionId = DB::table('submissions')->value('submission_id');
         $this->submission = new Submission();
-        $this->submission->setId(self::SUBMISSION_ID);
-        $this->editedParams = null;
+        $this->submission->setId($this->submissionId);
         $this->registeredEventLogEntry = null;
         $this->registerSubmissionRepositoryMock();
         $this->registerEventLogRepositoryMock();
+    }
+
+    protected function getAffectedTables()
+    {
+        return ['submission_settings'];
+    }
+
+    private function recordedSendStatus(): ?array
+    {
+        return SendStatus::read($this->submission);
     }
 
     protected function getMockedContainerKeys(): array
@@ -51,10 +63,6 @@ class SendP1PioMessageJobTest extends PKPTestCase
         $submissionRepository = $this->createMock(SubmissionRepository::class);
         $submissionRepository->method('get')
             ->willReturn($this->submission);
-        $submissionRepository->method('edit')
-            ->willReturnCallback(function ($submission, $params) {
-                $this->editedParams = $params;
-            });
         app()->instance(SubmissionRepository::class, $submissionRepository);
     }
 
@@ -77,7 +85,7 @@ class SendP1PioMessageJobTest extends PKPTestCase
 
     private function createJobWithService(OASwitchboardService $service, ?int $userId = null): SendP1PioMessageJob
     {
-        return new class (self::SUBMISSION_ID, self::CONTEXT_ID, $service, $userId) extends SendP1PioMessageJob {
+        return new class ($this->submissionId, self::CONTEXT_ID, $service, $userId) extends SendP1PioMessageJob {
             private $serviceForTests;
 
             public function __construct(int $submissionId, int $contextId, OASwitchboardService $serviceForTests, ?int $userId)
@@ -100,7 +108,40 @@ class SendP1PioMessageJobTest extends PKPTestCase
             {
                 return true;
             }
+
+            public function fail($exception = null)
+            {
+                $this->failedWith = $exception;
+                $this->failed($exception);
+            }
+
+            public $failedWith = null;
         };
+    }
+
+    public function testShouldFailWithoutRetryingWhenDeliveryIsUnconfirmed()
+    {
+        $service = $this->createMock(OASwitchboardService::class);
+        $service->expects($this->once())
+            ->method('sendP1PioMessage')
+            ->willThrowException(new UnconfirmedDeliveryException('delivery not confirmed'));
+        $job = $this->createJobWithService($service);
+
+        $job->handle();
+
+        $this->assertInstanceOf(UnconfirmedDeliveryException::class, $job->failedWith);
+        $this->assertSame('delivery not confirmed', $this->recordedSendStatus()['error']);
+    }
+
+    public function testShouldRecordThePluginErrorMessageWhenTheJobFails()
+    {
+        $job = $this->createJobWithService($this->createMock(OASwitchboardService::class));
+
+        $job->failed(new OASwitchboardException('Could not connect to OA Switchboard.'));
+
+        $sendStatus = $this->recordedSendStatus();
+        $this->assertSame(SendStatus::STATUS_FAILED, $sendStatus['status']);
+        $this->assertSame('Could not connect to OA Switchboard.', $sendStatus['error']);
     }
 
     public function testShouldSendMessageAndRecordSentStatusOnSuccess()
@@ -112,36 +153,38 @@ class SendP1PioMessageJobTest extends PKPTestCase
         $job = $this->createJobWithService($service);
         $job->handle();
 
-        $this->assertSame(SendStatus::STATUS_SENT, $this->editedParams[SendStatus::SETTING_STATUS]);
-        $this->assertNotEmpty($this->editedParams[SendStatus::SETTING_UPDATED_AT]);
-        $this->assertNull($this->editedParams[SendStatus::SETTING_ERROR]);
+        $sendStatus = $this->recordedSendStatus();
+        $this->assertSame(SendStatus::STATUS_SENT, $sendStatus['status']);
+        $this->assertNotEmpty($sendStatus['updatedAt']);
+        $this->assertNull($sendStatus['error']);
     }
 
     public function testShouldBeUniquePerSubmissionToAvoidDuplicateDispatch()
     {
-        $job = new SendP1PioMessageJob(self::SUBMISSION_ID, self::CONTEXT_ID);
+        $job = new SendP1PioMessageJob($this->submissionId, self::CONTEXT_ID);
 
         $this->assertInstanceOf(ShouldBeUnique::class, $job);
-        $this->assertSame((string) self::SUBMISSION_ID, $job->uniqueId());
+        $this->assertSame((string) $this->submissionId, $job->uniqueId());
+        $this->assertSame(SendStatus::STALE_PENDING_SECONDS, $job->uniqueFor);
     }
 
     public function testShouldSerializeConcurrentSendsForTheSameSubmission()
     {
-        $job = new SendP1PioMessageJob(self::SUBMISSION_ID, self::CONTEXT_ID);
+        $job = new SendP1PioMessageJob($this->submissionId, self::CONTEXT_ID);
 
         $middleware = $job->middleware();
 
         $this->assertCount(1, $middleware);
         $overlapping = $middleware[0];
         $this->assertInstanceOf(WithoutOverlapping::class, $overlapping);
-        $this->assertSame((string) self::SUBMISSION_ID, $overlapping->key);
+        $this->assertSame((string) $this->submissionId, $overlapping->key);
         $this->assertNull($overlapping->releaseAfter);
         $this->assertSame(90, $overlapping->expiresAfter);
     }
 
     public function testShouldSkipSendingWhenSubmissionWasAlreadySent()
     {
-        $this->submission->setData(SendStatus::SETTING_STATUS, SendStatus::STATUS_SENT);
+        SendStatus::recordSent($this->submission);
 
         $service = $this->createMock(OASwitchboardService::class);
         $service->expects($this->never())
@@ -150,17 +193,16 @@ class SendP1PioMessageJobTest extends PKPTestCase
         $job = $this->createJobWithService($service);
         $job->handle();
 
-        $this->assertNull($this->editedParams);
         $this->assertNull($this->registeredEventLogEntry);
     }
 
-    public function testShouldNotSendWhenPluginIsDisabled()
+    public function testShouldRecordFailureInsteadOfSendingWhenPluginIsDisabled()
     {
         $service = $this->createMock(OASwitchboardService::class);
         $service->expects($this->never())
             ->method('sendP1PioMessage');
 
-        $job = new class (self::SUBMISSION_ID, self::CONTEXT_ID, $service) extends SendP1PioMessageJob {
+        $job = new class ($this->submissionId, self::CONTEXT_ID, $service) extends SendP1PioMessageJob {
             private $serviceForTests;
 
             public function __construct(int $submissionId, int $contextId, OASwitchboardService $serviceForTests)
@@ -174,6 +216,11 @@ class SendP1PioMessageJobTest extends PKPTestCase
                 return $this->serviceForTests;
             }
 
+            protected function ensurePluginIsLoaded()
+            {
+                return null;
+            }
+
             protected function isPluginEnabled(): bool
             {
                 return false;
@@ -182,7 +229,9 @@ class SendP1PioMessageJobTest extends PKPTestCase
 
         $job->handle();
 
-        $this->assertNull($this->editedParams);
+        $sendStatus = $this->recordedSendStatus();
+        $this->assertSame(SendStatus::STATUS_FAILED, $sendStatus['status']);
+        $this->assertSame('##plugins.generic.OASwitchboard.sendStatus.pluginDisabled##', $sendStatus['error']);
         $this->assertNull($this->registeredEventLogEntry);
     }
 
@@ -198,7 +247,7 @@ class SendP1PioMessageJobTest extends PKPTestCase
             'plugins.generic.OASwitchboard.sendMessageWithSuccess',
             $this->registeredEventLogEntry->getData('message')
         );
-        $this->assertSame(self::SUBMISSION_ID, $this->registeredEventLogEntry->getData('assocId'));
+        $this->assertSame($this->submissionId, $this->registeredEventLogEntry->getData('assocId'));
         $this->assertNull($this->registeredEventLogEntry->getData('userId'));
     }
 
@@ -224,7 +273,7 @@ class SendP1PioMessageJobTest extends PKPTestCase
         try {
             $job->handle();
         } finally {
-            $this->assertNull($this->editedParams);
+            $this->assertNull($this->recordedSendStatus());
         }
     }
 
@@ -277,8 +326,7 @@ class SendP1PioMessageJobTest extends PKPTestCase
 
         $this->assertCount(1, $requestHistory);
         $this->assertSame(1, count($mockHandler));
-        $this->assertNull($this->editedParams);
-        $this->assertNotSame(SendStatus::STATUS_SENT, $this->submission->getData(SendStatus::SETTING_STATUS));
+        $this->assertNull($this->recordedSendStatus());
         $this->assertCount(1, $logMessages);
         $this->assertStringContainsString('status=302', $logMessages[0]);
         $this->assertStringNotContainsString($tokenMarker, $logMessages[0]);
@@ -295,12 +343,10 @@ class SendP1PioMessageJobTest extends PKPTestCase
 
         $job->failed(new \Exception('OA Switchboard API is unavailable: ' . $secretMarker));
 
-        $this->assertSame(SendStatus::STATUS_FAILED, $this->editedParams[SendStatus::SETTING_STATUS]);
-        $this->assertSame(
-            '##plugins.generic.OASwitchboard.serverError##',
-            $this->editedParams[SendStatus::SETTING_ERROR]
-        );
-        $this->assertStringNotContainsString($secretMarker, $this->editedParams[SendStatus::SETTING_ERROR]);
+        $sendStatus = $this->recordedSendStatus();
+        $this->assertSame(SendStatus::STATUS_FAILED, $sendStatus['status']);
+        $this->assertSame('##plugins.generic.OASwitchboard.serverError##', $sendStatus['error']);
+        $this->assertStringNotContainsString($secretMarker, $sendStatus['error']);
         $this->assertNotNull($this->registeredEventLogEntry);
         $this->assertSame(
             'plugins.generic.OASwitchboard.sendMessageWithError',

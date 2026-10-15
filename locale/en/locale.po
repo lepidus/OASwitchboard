@@ -46,6 +46,12 @@ msgstr "Error while attempting to send message via OA Switchboard API. More info
 msgid "plugins.generic.OASwitchboard.serverError"
 msgstr "Error sending the message. The OA Switchboard API returned an internal server error."
 
+msgid "plugins.generic.OASwitchboard.connectionError"
+msgstr "Could not connect to OA Switchboard. Please try again later."
+
+msgid "plugins.generic.OASwitchboard.unconfirmedDelivery"
+msgstr "The connection to OA Switchboard was interrupted after the message was sent, so it is not known whether it arrived. Check with OA Switchboard before trying again."
+
 msgid "plugins.generic.OASwitchboard.rorRecommendation"
 msgstr "It is recommended that at least one author has a ROR ID linked to their affiliation to send the message to the author's institution."
 
@@ -66,6 +72,9 @@ msgstr "The article must have an associated DOI."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.issn"
 msgstr "The journal must have an assigned ISSN."
+
+msgid "plugins.generic.OASwitchboard.postRequirementsError.unchecked"
+msgstr "The requirements could not be checked because of an unexpected error. The details are in the server error log."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.conclusionText"
 msgstr "You may review these metadata, or proceed with the publication without sending the message to the OA Switchboard."
@@ -97,8 +106,17 @@ msgstr "Last update: {$date}"
 msgid "plugins.generic.OASwitchboard.sendStatus.retry"
 msgstr "Try again"
 
+msgid "plugins.generic.OASwitchboard.sendStatus.neverSent"
+msgstr "This article was published without a message being sent to the OA Switchboard."
+
+msgid "plugins.generic.OASwitchboard.sendStatus.sendNow"
+msgstr "Send now"
+
+msgid "plugins.generic.OASwitchboard.sendStatus.pluginDisabled"
+msgstr "The OA Switchboard plugin is disabled for this journal, so the message was not sent."
+
 msgid "plugins.generic.OASwitchboard.resend.notPublished"
 msgstr "The P1 message can only be sent for a published submission."
 
 msgid "plugins.generic.OASwitchboard.resend.notFailed"
-msgstr "The P1 message can only be retried after a failed send."
+msgstr "The P1 message can only be sent when it was not sent yet, after a failed send, or when a send has been waiting for more than an hour."

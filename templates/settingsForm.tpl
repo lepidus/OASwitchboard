@@ -22,8 +22,8 @@
             </div>
         {/if}
         <div id="description">
-        {if $hasCredentials}
-            <p>{translate key="plugins.generic.OASwitchboard.settings.description.hasCredentials" username=$username|escape}</p>
+        {if $storedUsername}
+            <p>{translate key="plugins.generic.OASwitchboard.settings.description.hasCredentials" username=$storedUsername|escape}</p>
         {else}
             <p>{translate key="plugins.generic.OASwitchboard.settings.description"}</p>
         {/if}
@@ -32,7 +32,7 @@
 
         {fbvFormArea id="authForm"}
             {fbvFormSection label="plugins.generic.OASwitchboard.settings.username" required=true}
-                {fbvElement type="text" id="OASUsername" value=$username|escape size=$fbvStyles.size.MEDIUM}
+                {fbvElement type="text" id="OASUsername" value=$OASUsername|escape size=$fbvStyles.size.MEDIUM}
             {/fbvFormSection}
 
             {fbvFormSection label="plugins.generic.OASwitchboard.settings.password" required=true}

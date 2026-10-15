@@ -15,6 +15,9 @@ namespace APP\plugins\generic\OASwitchboard\jobs;
 
 use APP\core\Application;
 use APP\facades\Repo;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\OASwitchboardException;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\UnconfirmedDeliveryException;
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 use APP\plugins\generic\OASwitchboard\classes\SendStatus;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -27,6 +30,8 @@ use PKP\plugins\PluginRegistry;
 class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
 {
     private const LOCK_EXPIRES_AFTER_SECONDS = 90;
+
+    public int $uniqueFor = SendStatus::STALE_PENDING_SECONDS;
 
     protected int $submissionId;
     protected int $contextId;
@@ -71,6 +76,7 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
         }
 
         if (!$this->isPluginEnabled()) {
+            SendStatus::recordFailure($submission, __('plugins.generic.OASwitchboard.sendStatus.pluginDisabled'));
             return;
         }
 
@@ -79,7 +85,12 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
         }
 
         $service = $this->createOASwitchboardService($submission);
-        $service->sendP1PioMessage();
+        try {
+            $service->sendP1PioMessage();
+        } catch (UnconfirmedDeliveryException $exception) {
+            $this->fail($exception);
+            return;
+        }
         SendStatus::recordSent($submission);
         $this->registerSubmissionEventLog($submission, 'plugins.generic.OASwitchboard.sendMessageWithSuccess');
     }
@@ -92,14 +103,22 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
         }
 
         $this->ensurePluginIsLoaded();
-        SendStatus::recordFailure($submission, __('plugins.generic.OASwitchboard.serverError'));
+        SendStatus::recordFailure($submission, $this->describeFailure($exception));
         $this->registerSubmissionEventLog($submission, 'plugins.generic.OASwitchboard.sendMessageWithError');
+    }
+
+    private function describeFailure(?\Throwable $exception): string
+    {
+        if ($exception instanceof OASwitchboardException || $exception instanceof P1PioException) {
+            return $exception->getMessage();
+        }
+        return __('plugins.generic.OASwitchboard.serverError');
     }
 
     // Guards against duplicate deliveries when requeuing multiple failed jobs.
     private function wasAlreadySent($submission): bool
     {
-        $sendStatus = SendStatus::readFromSubmission($submission);
+        $sendStatus = SendStatus::read($submission);
         return ($sendStatus['status'] ?? null) === SendStatus::STATUS_SENT;
     }
 
@@ -108,7 +127,7 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
         $eventLog = Repo::eventLog()->newDataObject([
             'assocType' => Application::ASSOC_TYPE_SUBMISSION,
             'assocId' => $submission->getId(),
-            'eventType' => PKPSubmissionEventLogEntry::SUBMISSION_LOG_CREATE_VERSION,
+            'eventType' => PKPSubmissionEventLogEntry::SUBMISSION_LOG_METADATA_PUBLISH,
             'userId' => $this->userId,
             'message' => $message,
             'isTranslated' => false,
@@ -122,10 +141,6 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
         return new OASwitchboardService($this->ensurePluginIsLoaded(), $this->contextId, $submission);
     }
 
-    /**
-     * In a queue worker the plugin may not be registered yet; loading it also
-     * registers the submission schema hook that send status recording relies on.
-     */
     protected function ensurePluginIsLoaded()
     {
         return PluginRegistry::getPlugin('generic', 'oaswitchboardplugin')

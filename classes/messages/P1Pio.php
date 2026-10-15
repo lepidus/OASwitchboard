@@ -18,7 +18,8 @@ class P1Pio
     private const ARTICLE_TYPE = 'research-article';
     private const DOI_BASE_URL = 'https://doi.org/';
     private const OPEN_ACCESS_POLICY = 'pure OA journal';
-    private const STAGE_ID_ACCEPTED = 3;
+
+    public const REQUIREMENT_DOI = 'plugins.generic.OASwitchboard.postRequirementsError.doi';
 
     public function __construct(Submission $submission)
     {
@@ -98,9 +99,9 @@ class P1Pio
             'submissionId' => (string) $this->submission->getId(),
             'manuscript' => [
                 'dates' => [
-                    'submission' => (string) date('Y-m-d', strtotime($this->submission->getData('dateSubmitted'))),
-                    'acceptance' => (string) $this->getAcceptanceDate(),
-                    'publication' => (string) date('Y-m-d', strtotime($this->submission->getData('datePublished')))
+                    'submission' => $this->formatDate($this->submission->getData('dateSubmitted')),
+                    'acceptance' => $this->getAcceptanceDate(),
+                    'publication' => $this->formatDate($publication->getData('datePublished'))
                 ]
             ]
         ];
@@ -110,45 +111,48 @@ class P1Pio
             $articleData['manuscript']['id'] = (string) $fileId;
         }
 
-        $funders = $this->getFundersData();
-        if (!empty($funders)) {
-            $articleData['funders'] = $funders;
+        $funders = $this->getSubmissionFunders();
+        $fundersData = $this->getFundersData($funders);
+        if (!empty($fundersData)) {
+            $articleData['funders'] = $fundersData;
         }
 
-        $grants = $this->getGrantsData();
-        if (!empty($grants)) {
-            $articleData['grants'] = $grants;
+        $grantsData = $this->getGrantsData($funders);
+        if (!empty($grantsData)) {
+            $articleData['grants'] = $grantsData;
         }
         return $articleData;
     }
 
-    public function getFundersData(): array
+    private function getFundersData(array $funders): array
     {
         $fundersData = [];
-        foreach ($this->getSubmissionFunders() as $funder) {
+        foreach ($funders as $funder) {
             $fundersData[] = [
-                'name' => (string) $funder->getFunderName(),
-                'fundref' => (string) $funder->getFunderIdentification()
+                'name' => trim((string) $funder->getFunderName()),
+                'fundref' => trim((string) $funder->getFunderIdentification())
             ];
         }
         return $fundersData;
     }
 
-    public function getGrantsData(): array
+    private function getGrantsData(array $funders): array
     {
-        $grantsData = [];
-        $funders = $this->getSubmissionFunders();
         if (empty($funders)) {
-            return $grantsData;
+            return [];
         }
 
+        $awardNumbers = [];
         $funderAwardDao = DAORegistry::getDAO('FunderAwardDAO');
         foreach ($funders as $funder) {
             foreach ($funderAwardDao->getFunderAwardNumbersByFunderId($funder->getId()) as $awardNumber) {
-                $grantsData[] = ['id' => (string) $awardNumber];
+                $awardNumber = trim((string) $awardNumber);
+                if ($awardNumber !== '') {
+                    $awardNumbers[$awardNumber] = ['id' => $awardNumber];
+                }
             }
         }
-        return $grantsData;
+        return array_values($awardNumbers);
     }
 
     private function getSubmissionFunders(): array
@@ -166,7 +170,9 @@ class P1Pio
         $submissionFunders = [];
         $funders = DAORegistry::getDAO('FunderDAO')->getBySubmissionId($this->submission->getId());
         while ($funder = $funders->next()) {
-            $submissionFunders[] = $funder;
+            if (trim((string) $funder->getFunderName()) !== '' || trim((string) $funder->getFunderIdentification()) !== '') {
+                $submissionFunders[] = $funder;
+            }
         }
         return $submissionFunders;
     }
@@ -177,15 +183,19 @@ class P1Pio
      */
     private function registerMissingFundingDaos(): bool
     {
-        $daos = DAORegistry::getDAOs();
+        $registeredDaos = DAORegistry::getDAOs();
+        $missingDaos = [];
         foreach (['FunderDAO', 'FunderAwardDAO'] as $daoName) {
-            if (isset($daos[$daoName])) {
+            if (isset($registeredDaos[$daoName])) {
                 continue;
             }
-            $dao = $this->createFundingDao($daoName);
-            if (is_null($dao)) {
+            $missingDaos[$daoName] = $this->createFundingDao($daoName);
+            if (is_null($missingDaos[$daoName])) {
                 return false;
             }
+        }
+
+        foreach ($missingDaos as $daoName => $dao) {
             DAORegistry::registerDAO($daoName, $dao);
         }
         return true;
@@ -197,19 +207,23 @@ class P1Pio
         return class_exists($daoClass) ? new $daoClass() : null;
     }
 
-    private function getAcceptanceDate(): ?string
+    private function formatDate(?string $date): string
     {
-        $editorialDecision = $this->getSubmissionDecisions();
+        return empty($date) ? '' : date('Y-m-d', strtotime($date));
+    }
 
-        foreach ($editorialDecision as $decision) {
-            if (
-                $decision->getData('stageId') === self::STAGE_ID_ACCEPTED &&
-                $decision->getData('decision') === Decision::ACCEPT
-            ) {
-                return date('Y-m-d', strtotime($decision->getData('dateDecided')));
+    private function getAcceptanceDate(): string
+    {
+        $latestAcceptance = null;
+        foreach ($this->getSubmissionDecisions() as $decision) {
+            if (!in_array($decision->getData('decision'), [Decision::ACCEPT, Decision::SKIP_EXTERNAL_REVIEW], true)) {
+                continue;
+            }
+            if (is_null($latestAcceptance) || strtotime($decision->getData('dateDecided')) >= strtotime($latestAcceptance)) {
+                $latestAcceptance = $decision->getData('dateDecided');
             }
         }
-        return null;
+        return $this->formatDate($latestAcceptance);
     }
 
     public function getSubmissionDecisions(): array
@@ -240,20 +254,25 @@ class P1Pio
         }
     }
 
-    private function getArticleTextGenreId(): int
+    private function getArticleTextGenreId(): ?int
     {
         return DAORegistry::getDAO('GenreDAO')
             ->getByKey('SUBMISSION', $this->submission->getData('contextId'))
-            ->getId();
+            ?->getId();
     }
 
     private function getArticleTextGalleys(): array
     {
+        $articleTextGenreId = $this->getArticleTextGenreId();
+        if (is_null($articleTextGenreId)) {
+            return [];
+        }
+
         $articleTextGalleys = [];
         foreach ($this->submission->getGalleys() as $galley) {
             $submissionFileId = $galley->getData('submissionFileId');
             $genreId = $submissionFileId ? $this->getGenreIdOfSubmissionFile($submissionFileId) : null;
-            if ($genreId === $this->getArticleTextGenreId()) {
+            if ($genreId === $articleTextGenreId) {
                 $articleTextGalleys[] = $galley;
             }
         }
@@ -262,7 +281,7 @@ class P1Pio
 
     public function getGenreIdOfSubmissionFile($submissionFileId)
     {
-        return Repo::submissionFile()->get($submissionFileId)->getData('genreId');
+        return Repo::submissionFile()->get($submissionFileId)?->getData('genreId');
     }
 
     public function getJournalData(): array
@@ -300,11 +319,9 @@ class P1Pio
     {
         $missingDataMessages = [];
 
-        $message = $this->getContent();
-        $header = $message['header'];
-        $data = $message['data'];
+        $data = $this->getContent()['data'];
 
-        foreach ($data['authors'] as $key => $author) {
+        foreach ($data['authors'] as $author) {
             if (empty($author['lastName'])) {
                 $missingDataMessages[] = 'plugins.generic.OASwitchboard.postRequirementsError.familyName';
             }
@@ -313,7 +330,7 @@ class P1Pio
             }
         }
         if (empty($data['article']['doi'])) {
-            $missingDataMessages[] = 'plugins.generic.OASwitchboard.postRequirementsError.doi';
+            $missingDataMessages[] = self::REQUIREMENT_DOI;
         }
         if (empty($data['journal']['id'])) {
             $missingDataMessages[] = 'plugins.generic.OASwitchboard.postRequirementsError.issn';

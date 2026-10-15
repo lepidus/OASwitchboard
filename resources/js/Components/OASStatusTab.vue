@@ -44,23 +44,23 @@
                         </div>
                     </pkp-notification>
 
-                    <pkp-button-row
-                        v-if="sendStatus.status === 'failed'"
-                        class="oas-status__actions"
-                    >
-                        <pkp-button
-                            is-warnable
-                            :is-disabled="isResending"
-                            @click="resendMessage"
-                        >
-                            {{ t('plugins.generic.OASwitchboard.sendStatus.retry') }}
-                        </pkp-button>
-                    </pkp-button-row>
                 </template>
 
                 <template v-else>
                     <pkp-notification
-                        v-if="status.readyToSend"
+                        v-if="status.isPublished && status.readyToSend"
+                        type="information"
+                    >
+                        <div class="oas-status__row">
+                            <pkp-icon class="oas-status__icon oas-status__icon--information" icon="Help" />
+                            <p class="oas-status__headline">
+                                {{ t('plugins.generic.OASwitchboard.sendStatus.neverSent') }}
+                            </p>
+                        </div>
+                    </pkp-notification>
+
+                    <pkp-notification
+                        v-else-if="status.readyToSend"
                         :type="status.hasRor ? 'success' : 'information'"
                     >
                         <div class="oas-status__row">
@@ -104,6 +104,23 @@
                         </div>
                     </pkp-notification>
                 </template>
+
+                <pkp-button-row
+                    v-if="status.canRetry && (sendStatus || status.readyToSend)"
+                    class="oas-status__actions"
+                >
+                    <pkp-button
+                        is-warnable
+                        :is-disabled="isResending"
+                        @click="resendMessage"
+                    >
+                        {{
+                            sendStatus
+                                ? t('plugins.generic.OASwitchboard.sendStatus.retry')
+                                : t('plugins.generic.OASwitchboard.sendStatus.sendNow')
+                        }}
+                    </pkp-button>
+                </pkp-button-row>
             </template>
         </template>
     </div>
@@ -124,6 +141,7 @@ tk('plugins.generic.OASwitchboard.postRequirementsError.affiliation');
 tk('plugins.generic.OASwitchboard.postRequirementsError.doi');
 tk('plugins.generic.OASwitchboard.postRequirementsError.familyName');
 tk('plugins.generic.OASwitchboard.postRequirementsError.issn');
+tk('plugins.generic.OASwitchboard.postRequirementsError.unchecked');
 
 // Keys resolved dynamically from the send status returned by the API.
 tk('plugins.generic.OASwitchboard.sendStatus.pending');
@@ -132,6 +150,7 @@ tk('plugins.generic.OASwitchboard.sendMessageWithSuccess');
 tk('plugins.generic.OASwitchboard.sendMessageWithError');
 
 const SEND_STATUS_POLL_INTERVAL = 5000;
+const SEND_STATUS_POLL_LIMIT = 60;
 
 const props = defineProps({
     submission: {type: Object, required: true},
@@ -206,24 +225,34 @@ watch(
 );
 
 let sendStatusPollTimer = null;
+let sendStatusPollCount = 0;
 
 function stopSendStatusPolling() {
     if (sendStatusPollTimer) {
         clearInterval(sendStatusPollTimer);
         sendStatusPollTimer = null;
     }
+    sendStatusPollCount = 0;
+}
+
+function pollSendStatus() {
+    sendStatusPollCount++;
+    if (sendStatusPollCount > SEND_STATUS_POLL_LIMIT) {
+        stopSendStatusPolling();
+        return;
+    }
+    fetchStatus();
 }
 
 watch(
-    () => sendStatus.value?.status,
-    (currentStatus) => {
-        if (currentStatus === 'pending') {
-            sendStatusPollTimer ??= setInterval(
-                fetchStatus,
+    () => `${sendStatus.value?.status}|${sendStatus.value?.updatedAt}`,
+    () => {
+        stopSendStatusPolling();
+        if (sendStatus.value?.status === 'pending') {
+            sendStatusPollTimer = setInterval(
+                pollSendStatus,
                 SEND_STATUS_POLL_INTERVAL,
             );
-        } else {
-            stopSendStatusPolling();
         }
     },
 );

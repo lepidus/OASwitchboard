@@ -4,9 +4,7 @@ namespace APP\plugins\generic\OASwitchboard\classes\api;
 
 use APP\core\Application;
 use APP\facades\Repo;
-use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use APP\plugins\generic\OASwitchboard\classes\Message;
-use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 use APP\plugins\generic\OASwitchboard\classes\SendStatus;
 use APP\submission\Submission;
@@ -39,7 +37,7 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
         $apiHandler->addRoute(
             'GET',
             '{submissionId}/oaSwitchboardStatus',
-            fn (IlluminateRequest $request) => $this->getStatus((int) $request->route('submissionId')),
+            $this->getOASwitchboardStatus(...),
             'oaSwitchboard.status',
             [
                 Role::ROLE_ID_SITE_ADMIN,
@@ -54,7 +52,7 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
         $apiHandler->addRoute(
             'POST',
             '{submissionId}/oaSwitchboardResend',
-            fn (IlluminateRequest $request) => $this->resend((int) $request->route('submissionId')),
+            $this->resendOASwitchboardMessage(...),
             'oaSwitchboard.resend',
             [
                 Role::ROLE_ID_SITE_ADMIN,
@@ -89,6 +87,16 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
         return $submission->getData('status') === Submission::STATUS_PUBLISHED;
     }
 
+    protected function currentUserCanResend(int $contextId): bool
+    {
+        $user = Application::get()->getRequest()->getUser();
+        return $user
+            && (
+                $user->hasRole([Role::ROLE_ID_MANAGER, Role::ROLE_ID_SUB_EDITOR], $contextId)
+                || $user->hasRole([Role::ROLE_ID_SITE_ADMIN], Application::SITE_CONTEXT_ID)
+            );
+    }
+
     private function submissionNotFound(): JsonResponse
     {
         return response()->json(
@@ -97,8 +105,9 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
         );
     }
 
-    private function resend(int $submissionId): JsonResponse
+    private function resendOASwitchboardMessage(IlluminateRequest $illuminateRequest): JsonResponse
     {
+        $submissionId = (int) $illuminateRequest->route('submissionId');
         $contextId = $this->getRequestContextId();
         $submission = $this->getSubmissionInContext($submissionId, $contextId);
         if (!$submission) {
@@ -119,8 +128,15 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
             );
         }
 
+        if (!empty(OASwitchboardService::getMissingRequirements($submission, Application::get()->getRequest()->getContext()))) {
+            return response()->json(
+                ['error' => __('plugins.generic.OASwitchboard.postRequirementsError')],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
         try {
-            $wasScheduled = (new Message($this->plugin))->retryFailedSendToOASwitchboard($submission);
+            $wasScheduled = (new Message($this->plugin))->retrySendToOASwitchboard($submission);
             if (!$wasScheduled) {
                 return response()->json(
                     ['error' => __('plugins.generic.OASwitchboard.resend.notFailed')],
@@ -135,13 +151,14 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
         }
 
         return response()->json(
-            ['sendStatus' => SendStatus::readFromSubmission($submission)],
+            ['sendStatus' => SendStatus::read($submission)],
             Response::HTTP_OK
         );
     }
 
-    private function getStatus(int $submissionId): JsonResponse
+    private function getOASwitchboardStatus(IlluminateRequest $illuminateRequest): JsonResponse
     {
+        $submissionId = (int) $illuminateRequest->route('submissionId');
         $contextId = $this->getRequestContextId();
         $submission = $this->getSubmissionInContext($submissionId, $contextId);
         if (!$submission) {
@@ -160,19 +177,22 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
             'readyToSend' => false,
             'missingFields' => [],
             'hasRor' => OASwitchboardService::isRorAssociated($submission),
-            'sendStatus' => SendStatus::readFromSubmission($submission),
+            'sendStatus' => SendStatus::read($submission),
+            'isPublished' => $this->isPublished($submission),
+            'canRetry' => $this->isPublished($submission)
+                && $this->currentUserCanResend($contextId)
+                && SendStatus::canRetry($submission),
         ];
 
         if (!$pluginConfigured) {
             return response()->json($payload, Response::HTTP_OK);
         }
 
-        try {
-            new P1Pio($submission);
-            $payload['readyToSend'] = true;
-        } catch (P1PioException $e) {
-            $payload['missingFields'] = array_values(array_unique($e->getP1PioErrors() ?? []));
-        }
+        $payload['missingFields'] = OASwitchboardService::getMissingRequirements(
+            $submission,
+            Application::get()->getRequest()->getContext()
+        );
+        $payload['readyToSend'] = empty($payload['missingFields']);
 
         return response()->json($payload, Response::HTTP_OK);
     }

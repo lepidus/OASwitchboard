@@ -6,8 +6,10 @@ use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardStatusController;
 use APP\submission\Repository as SubmissionRepository;
 use APP\submission\Submission;
 use PKP\core\PKPRequest;
+use PKP\handler\APIHandler;
 use PKP\security\authorization\SubmissionAccessPolicy;
 use PKP\tests\PKPTestCase;
+use ReflectionFunction;
 
 class OASwitchboardStatusControllerTest extends PKPTestCase
 {
@@ -83,6 +85,26 @@ class OASwitchboardStatusControllerTest extends PKPTestCase
         $submission->setData('status', Submission::STATUS_QUEUED);
 
         $this->assertFalse($this->createController()->exposedIsPublished($submission));
+    }
+
+    public function testRoutesShouldHaveDistinctCallbackNamesForTheRoleMap()
+    {
+        $callbackNames = [];
+        $apiHandler = $this->createMock(APIHandler::class);
+        $apiHandler->method('addRoute')
+            ->willReturnCallback(function ($method, $uri, $callback, $name) use (&$callbackNames) {
+                $callbackNames[$name] = (new ReflectionFunction($callback))->getName();
+            });
+
+        $this->createController()->addRoute('APIHandler::endpoints::_submissions', null, $apiHandler);
+
+        $this->assertSame(
+            [
+                'oaSwitchboard.status' => 'getOASwitchboardStatus',
+                'oaSwitchboard.resend' => 'resendOASwitchboardMessage',
+            ],
+            $callbackNames
+        );
     }
 
     public function testShouldProvideSubmissionAccessPolicyForCustomRoutes()

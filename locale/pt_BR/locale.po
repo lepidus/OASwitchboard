@@ -44,6 +44,12 @@ msgstr "Erro ao tentar enviar mensagem via API OA Switchboard. Pode-se obter mai
 msgid "plugins.generic.OASwitchboard.serverError"
 msgstr "Erro ao enviar a mensagem. A API do OA Switchboard retornou um erro interno."
 
+msgid "plugins.generic.OASwitchboard.connectionError"
+msgstr "Não foi possível conectar ao OA Switchboard. Tente novamente mais tarde."
+
+msgid "plugins.generic.OASwitchboard.unconfirmedDelivery"
+msgstr "A conexão com o OA Switchboard foi interrompida depois do envio da mensagem, então não se sabe se ela chegou. Confirme com o OA Switchboard antes de tentar novamente."
+
 msgid "plugins.generic.OASwitchboard.rorRecommendation"
 msgstr "É recomendado que pelo menos um autor tenha um ID ROR vinculado à sua afiliação para que a mensagem seja enviada à instituição do autor."
 
@@ -64,6 +70,9 @@ msgstr "O artigo precisa ter um DOI associado."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.issn"
 msgstr "A revista precisa ter um ISSN atribuído."
+
+msgid "plugins.generic.OASwitchboard.postRequirementsError.unchecked"
+msgstr "Não foi possível verificar os requisitos por causa de um erro inesperado. Os detalhes estão no log de erros do servidor."
 
 msgid "plugins.generic.OASwitchboard.postRequirementsError.conclusionText"
 msgstr "Você pode rever estes metadados, ou continuar com a publicação sem o envio da mensagem para o OA Switchboard."
@@ -95,8 +104,17 @@ msgstr "Última atualização: {$date}"
 msgid "plugins.generic.OASwitchboard.sendStatus.retry"
 msgstr "Tentar novamente"
 
+msgid "plugins.generic.OASwitchboard.sendStatus.neverSent"
+msgstr "Este artigo foi publicado sem que uma mensagem fosse enviada ao OA Switchboard."
+
+msgid "plugins.generic.OASwitchboard.sendStatus.sendNow"
+msgstr "Enviar agora"
+
+msgid "plugins.generic.OASwitchboard.sendStatus.pluginDisabled"
+msgstr "O plugin OA Switchboard está desabilitado para esta revista, por isso a mensagem não foi enviada."
+
 msgid "plugins.generic.OASwitchboard.resend.notPublished"
 msgstr "A mensagem P1 só pode ser enviada para uma submissão publicada."
 
 msgid "plugins.generic.OASwitchboard.resend.notFailed"
-msgstr "A mensagem P1 só pode ser reenviada depois de uma falha no envio."
+msgstr "A mensagem P1 só pode ser enviada se ainda não foi enviada, após uma falha no envio, ou quando um envio está aguardando há mais de uma hora."
