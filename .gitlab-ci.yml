@@ -11,8 +11,6 @@ include:
 
 .unit_test_template:
   before_script:
-    - rm -rf lib/APIKeyEncryption
-    - git submodule update --init --depth 1
     # Salt used to encrypt the credentials in the test installation. It is not a
     # secret: it exists so that the encryption has a key, and is public on purpose.
     - TEST_API_KEY_SECRET=$(printf 'ci_test_salt' | base64)
@@ -20,8 +18,6 @@ include:
 
 .integration_tests_template:
   before_script:
-    - rm -rf lib/APIKeyEncryption
-    - git submodule update --init --depth 1
     - export CYPRESS_OASPassword="$(echo $CYPRESS_OASPassword | base64 -d)"
     # Salt used to encrypt the credentials in the test installation. It is not a
     # secret: it exists so that the encryption has a key, and is public on purpose.

@@ -4,9 +4,11 @@ import('lib.pkp.tests.PKPTestCase');
 import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIClient');
 import('plugins.generic.OASwitchboard.tests.helpers.ClientInterfaceForTests');
 import('plugins.generic.OASwitchboard.classes.messages.P1Pio');
+import('plugins.generic.OASwitchboard.classes.exceptions.ConnectionFailedException');
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -478,5 +480,46 @@ class OASwitchboardAPIClientTest extends PKPTestCase
             'https://api.oaswitchboard.org/v2/message',
             (string) $requestHistory[0]['request']->getUri()
         );
+    }
+
+    private function createApiClientFailingWith(Throwable $exception)
+    {
+        $httpClientMock = $this->createMock(ClientInterfaceForTests::class);
+        $httpClientMock->method('request')->willThrowException($exception);
+        return new OASwitchboardAPIClient($httpClientMock);
+    }
+
+    public function testConnectionFailureShouldBeReportedAsSuch()
+    {
+        $apiClient = $this->createApiClientFailingWith(new ConnectException(
+            'cURL error 7',
+            new Request('POST', 'https://api.oaswitchboard.org/v2/message')
+        ));
+
+        $this->expectException(ConnectionFailedException::class);
+        $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
+    }
+
+    public function testRequestFailureWithoutResponseShouldBeReportedAsAConnectionFailure()
+    {
+        $apiClient = $this->createApiClientFailingWith(new RequestException(
+            'cURL error 56',
+            new Request('POST', 'https://api.oaswitchboard.org/v2/authorize')
+        ));
+
+        $this->expectException(ConnectionFailedException::class);
+        $apiClient->getAuthorization('user@example.com', 'password');
+    }
+
+    public function testApiErrorsShouldBeReportedAsPluginExceptions()
+    {
+        $apiClient = $this->createApiClientFailingWith(new ServerException(
+            'Server error',
+            new Request('POST', 'https://api.oaswitchboard.org/v2/message'),
+            new Response(500)
+        ));
+
+        $this->expectException(OASwitchboardException::class);
+        $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
     }
 }

@@ -1,8 +1,9 @@
 <?php
 
 import('lib.pkp.classes.form.Form');
-import('plugins.generic.OASwitchboard.lib.APIKeyEncryption.APIKeyEncryption');
+import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIKeyEncryption');
 import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIClient');
+import('plugins.generic.OASwitchboard.classes.exceptions.ConnectionFailedException');
 import('plugins.generic.OASwitchboard.classes.OASwitchboardService');
 
 class OASwitchboardSettingsForm extends Form
@@ -15,7 +16,7 @@ class OASwitchboardSettingsForm extends Form
     {
         $this->plugin = $plugin;
         $this->contextId = $contextId;
-        $this->apiKeyEncryption = new APIKeyEncryption();
+        $this->apiKeyEncryption = new OASwitchboardAPIKeyEncryption();
         $this->addFormValidators();
 
         $template = $this->apiKeyEncryption->secretConfigExists() ? 'settingsForm.tpl' : 'missingSecretConfigWarning.tpl';
@@ -32,7 +33,7 @@ class OASwitchboardSettingsForm extends Form
         $this->addCheck(new FormValidatorCSRF($this));
     }
 
-    private function authenticationFailNotification(): void
+    protected function notifyCredentialsFailure(string $message): void
     {
         $request = Application::get()->getRequest();
         $user = $request->getUser();
@@ -41,8 +42,18 @@ class OASwitchboardSettingsForm extends Form
         $notificationManager->createTrivialNotification(
             $user->getId(),
             NOTIFICATION_TYPE_ERROR,
-            array('contents' => __('plugins.generic.OASwitchboard.settings.apiAuthenticatorFailed'))
+            array('contents' => $message)
         );
+    }
+
+    protected function createAPIClient()
+    {
+        return new OASwitchboardAPIClient(Application::get()->getHttpClient());
+    }
+
+    public function canBeSaved(): bool
+    {
+        return $this->apiKeyEncryption->secretConfigExists();
     }
 
     public function fetch($request, $template = null, $display = false)
@@ -50,7 +61,7 @@ class OASwitchboardSettingsForm extends Form
         $templateMgr = TemplateManager::getManager($request);
         $templateMgr->assign('pluginName', $this->plugin->getName());
         $templateMgr->assign(
-            'hasCredentials',
+            'storedUsername',
             $this->plugin->getSetting($this->contextId, 'username')
         );
         $templateMgr->assign(
@@ -76,7 +87,7 @@ class OASwitchboardSettingsForm extends Form
 
     public function initData(): void
     {
-        $this->setData('username', $this->plugin->getSetting($this->contextId, 'username'));
+        $this->setData('OASUsername', $this->plugin->getSetting($this->contextId, 'username'));
     }
 
     public function validateAPICredentials(): bool
@@ -84,17 +95,14 @@ class OASwitchboardSettingsForm extends Form
         $username = $this->getData('OASUsername');
         $password = $this->getData('OASPassword');
 
-        $httpClient = Application::get()->getHttpClient();
-        $APIClient = new OASwitchboardAPIClient($httpClient);
-
         try {
-            $APIClient->getAuthorization(
-                $username,
-                $password
-            );
+            $this->createAPIClient()->getAuthorization($username, $password);
             return true;
+        } catch (ConnectionFailedException $e) {
+            $this->notifyCredentialsFailure($e->getMessage());
+            return false;
         } catch (Exception $e) {
-            $this->authenticationFailNotification();
+            $this->notifyCredentialsFailure(__('plugins.generic.OASwitchboard.settings.apiAuthenticatorFailed'));
             return false;
         }
     }
