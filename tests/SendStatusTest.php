@@ -103,14 +103,22 @@ class SendStatusTest extends DatabaseTestCase
         $this->assertSame(SendStatus::STATUS_SENT, SendStatus::read($this->submission)['status']);
     }
 
-    public function testShouldAllowRetryOnlyForFailedOrStalePendingSends()
+    public function testShouldAllowSendingWhenNoSendWasRecorded()
     {
+        $this->assertTrue(SendStatus::canRetry($this->submission));
+        $this->assertTrue(SendStatus::transitionToPending($this->submission));
+        $this->assertSame(SendStatus::STATUS_PENDING, $this->storedStatus());
+        $this->assertFalse(SendStatus::transitionToPending($this->submission));
+    }
+
+    public function testShouldAllowRetryOnlyForUnsentFailedOrStalePendingSends()
+    {
+
+        $this->storeSettings([SendStatus::SETTING_STATUS => SendStatus::STATUS_SENT, SendStatus::SETTING_UPDATED_AT => $this->hoursAgo(5)]);
         $this->assertFalse(SendStatus::canRetry($this->submission));
 
-        foreach ([SendStatus::STATUS_SENT, SendStatus::STATUS_NOT_SENT] as $status) {
-            $this->storeSettings([SendStatus::SETTING_STATUS => $status, SendStatus::SETTING_UPDATED_AT => $this->hoursAgo(5)]);
-            $this->assertFalse(SendStatus::canRetry($this->submission), $status);
-        }
+        $this->storeSettings([SendStatus::SETTING_STATUS => SendStatus::STATUS_NOT_SENT, SendStatus::SETTING_UPDATED_AT => $this->hoursAgo(0)]);
+        $this->assertTrue(SendStatus::canRetry($this->submission));
 
         $this->storeSettings([SendStatus::SETTING_STATUS => SendStatus::STATUS_PENDING, SendStatus::SETTING_UPDATED_AT => $this->hoursAgo(0)]);
         $this->assertFalse(SendStatus::canRetry($this->submission));

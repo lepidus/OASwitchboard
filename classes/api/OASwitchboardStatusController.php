@@ -87,6 +87,16 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
         return $submission->getData('status') === Submission::STATUS_PUBLISHED;
     }
 
+    protected function currentUserCanResend(int $contextId): bool
+    {
+        $user = Application::get()->getRequest()->getUser();
+        return $user
+            && (
+                $user->hasRole([Role::ROLE_ID_MANAGER, Role::ROLE_ID_SUB_EDITOR], $contextId)
+                || $user->hasRole([Role::ROLE_ID_SITE_ADMIN], Application::SITE_CONTEXT_ID)
+            );
+    }
+
     private function submissionNotFound(): JsonResponse
     {
         return response()->json(
@@ -114,6 +124,13 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
         if (!SendStatus::canRetry($submission)) {
             return response()->json(
                 ['error' => __('plugins.generic.OASwitchboard.resend.notFailed')],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        if (!empty(OASwitchboardService::getMissingRequirements($submission, Application::get()->getRequest()->getContext()))) {
+            return response()->json(
+                ['error' => __('plugins.generic.OASwitchboard.postRequirementsError')],
                 Response::HTTP_BAD_REQUEST
             );
         }
@@ -161,7 +178,10 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
             'missingFields' => [],
             'hasRor' => OASwitchboardService::isRorAssociated($submission),
             'sendStatus' => SendStatus::read($submission),
-            'canRetry' => SendStatus::canRetry($submission),
+            'isPublished' => $this->isPublished($submission),
+            'canRetry' => $this->isPublished($submission)
+                && $this->currentUserCanResend($contextId)
+                && SendStatus::canRetry($submission),
         ];
 
         if (!$pluginConfigured) {

@@ -106,6 +106,12 @@ msgstr "Última actualización: {$date}"
 msgid "plugins.generic.OASwitchboard.sendStatus.retry"
 msgstr "Intentar de nuevo"
 
+msgid "plugins.generic.OASwitchboard.sendStatus.neverSent"
+msgstr "Este artículo se publicó sin que se enviara un mensaje a OA Switchboard."
+
+msgid "plugins.generic.OASwitchboard.sendStatus.sendNow"
+msgstr "Enviar ahora"
+
 msgid "plugins.generic.OASwitchboard.sendStatus.pluginDisabled"
 msgstr "El plugin OA Switchboard está deshabilitado para esta revista, por lo que el mensaje no se envió."
 
@@ -113,4 +119,4 @@ msgid "plugins.generic.OASwitchboard.resend.notPublished"
 msgstr "El mensaje P1 solo puede enviarse para un envío publicado."
 
 msgid "plugins.generic.OASwitchboard.resend.notFailed"
-msgstr "El mensaje P1 solo puede reenviarse tras un envío fallido, o cuando un envío lleva más de una hora en espera."
+msgstr "El mensaje P1 solo puede enviarse si todavía no se envió, tras un envío fallido, o cuando un envío lleva más de una hora en espera."

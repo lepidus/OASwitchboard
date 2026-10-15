@@ -75,7 +75,9 @@ Everything happens in the **OA Switchboard** tab of a submission.
 | **Sent** | The OA Switchboard received the message. |
 | **Queued** | The message is on its way. If it stays queued for more than an hour, a **Try again** button appears. |
 | **Failed** | Something went wrong. The reason is shown, with a **Try again** button. |
-| **Not sent** | The article did not meet the requirements when it was published. |
+| **Not sent** | The article did not meet the requirements when it was published. Once the metadata is complete, use **Try again**. |
+
+If an article was published without any message, for example before the plugin was configured, journal managers and section editors can send it with **Send now**.
 
 <img src="docs/images/workflow-tab-sent.png" width="700" alt="OA Switchboard tab confirming the P1 message was successfully sent, with the date of the last update.">
 

@@ -44,23 +44,23 @@
                         </div>
                     </pkp-notification>
 
-                    <pkp-button-row
-                        v-if="status.canRetry"
-                        class="oas-status__actions"
-                    >
-                        <pkp-button
-                            is-warnable
-                            :is-disabled="isResending"
-                            @click="resendMessage"
-                        >
-                            {{ t('plugins.generic.OASwitchboard.sendStatus.retry') }}
-                        </pkp-button>
-                    </pkp-button-row>
                 </template>
 
                 <template v-else>
                     <pkp-notification
-                        v-if="status.readyToSend"
+                        v-if="status.isPublished && status.readyToSend"
+                        type="information"
+                    >
+                        <div class="oas-status__row">
+                            <pkp-icon class="oas-status__icon oas-status__icon--information" icon="Help" />
+                            <p class="oas-status__headline">
+                                {{ t('plugins.generic.OASwitchboard.sendStatus.neverSent') }}
+                            </p>
+                        </div>
+                    </pkp-notification>
+
+                    <pkp-notification
+                        v-else-if="status.readyToSend"
                         :type="status.hasRor ? 'success' : 'information'"
                     >
                         <div class="oas-status__row">
@@ -104,6 +104,23 @@
                         </div>
                     </pkp-notification>
                 </template>
+
+                <pkp-button-row
+                    v-if="status.canRetry && (sendStatus || status.readyToSend)"
+                    class="oas-status__actions"
+                >
+                    <pkp-button
+                        is-warnable
+                        :is-disabled="isResending"
+                        @click="resendMessage"
+                    >
+                        {{
+                            sendStatus
+                                ? t('plugins.generic.OASwitchboard.sendStatus.retry')
+                                : t('plugins.generic.OASwitchboard.sendStatus.sendNow')
+                        }}
+                    </pkp-button>
+                </pkp-button-row>
             </template>
         </template>
     </div>

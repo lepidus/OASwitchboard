@@ -87,7 +87,7 @@ class SendStatus
     private static function isRetryable(array $settings): bool
     {
         $status = $settings[self::SETTING_STATUS] ?? null;
-        if ($status === self::STATUS_FAILED) {
+        if ($status === null || $status === self::STATUS_FAILED || $status === self::STATUS_NOT_SENT) {
             return true;
         }
 

@@ -75,7 +75,9 @@ Todo ocurre en la pestaña **OA Switchboard** del envío.
 | **Enviado** | OA Switchboard recibió el mensaje. |
 | **En cola** | El mensaje está en camino. Si sigue en cola más de una hora, aparece el botón **Intentar de nuevo**. |
 | **Falló** | Algo salió mal. Se muestra el motivo, junto con el botón **Intentar de nuevo**. |
-| **No enviado** | El artículo no cumplía los requisitos cuando se publicó. |
+| **No enviado** | El artículo no cumplía los requisitos cuando se publicó. Una vez completados los metadatos, utilice **Intentar de nuevo**. |
+
+Si un artículo se publicó sin ningún mensaje, por ejemplo antes de configurar el módulo, los gestores de la revista y los editores de sección pueden enviarlo con **Enviar ahora**.
 
 <img src="images/workflow-tab-sent.png" width="700" alt="Pestaña OA Switchboard confirmando que el mensaje P1 se envió correctamente, con la fecha de la última actualización.">
 

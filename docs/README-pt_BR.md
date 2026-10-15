@@ -75,7 +75,9 @@ Tudo acontece na aba **OA Switchboard** da submissão.
 | **Enviada** | O OA Switchboard recebeu a mensagem. |
 | **Na fila** | A mensagem está a caminho. Se continuar na fila por mais de uma hora, aparece o botão **Tentar novamente**. |
 | **Falhou** | Algo deu errado. O motivo é exibido, junto com o botão **Tentar novamente**. |
-| **Não enviada** | O artigo não cumpria os requisitos quando foi publicado. |
+| **Não enviada** | O artigo não cumpria os requisitos quando foi publicado. Depois de completar os metadados, use **Tentar novamente**. |
+
+Se um artigo foi publicado sem nenhuma mensagem, por exemplo antes de o plugin ser configurado, gerentes da revista e editores de seção podem enviá-la com **Enviar agora**.
 
 <img src="images/workflow-tab-sent.png" width="700" alt="Aba OA Switchboard confirmando que a mensagem P1 foi enviada com sucesso, com a data da última atualização.">
 
