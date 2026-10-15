@@ -3,6 +3,7 @@
 namespace APP\plugins\generic\OASwitchboard\tests;
 
 use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardAPIClient;
+use APP\plugins\generic\OASwitchboard\classes\exceptions\ConnectionFailedException;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\OASwitchboardException;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\UnconfirmedDeliveryException;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
@@ -511,7 +512,7 @@ class OASwitchboardAPIClientTest extends PKPTestCase
                 $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
                 $this->fail('Expected the message to fail');
             } catch (OASwitchboardException $exception) {
-                $this->assertNotInstanceOf(UnconfirmedDeliveryException::class, $exception, (string) $curlErrorNumber);
+                $this->assertInstanceOf(ConnectionFailedException::class, $exception, (string) $curlErrorNumber);
                 $this->assertSame('##plugins.generic.OASwitchboard.connectionError##', $exception->getMessage());
             }
         }
@@ -548,7 +549,7 @@ class OASwitchboardAPIClientTest extends PKPTestCase
             $apiClient->getAuthorization('user@example.com', 'password');
             $this->fail('Expected the authorization to fail');
         } catch (OASwitchboardException $exception) {
-            $this->assertNotInstanceOf(UnconfirmedDeliveryException::class, $exception);
+            $this->assertInstanceOf(ConnectionFailedException::class, $exception);
             $this->assertSame('##plugins.generic.OASwitchboard.connectionError##', $exception->getMessage());
         }
     }

@@ -2,6 +2,7 @@
 
 namespace APP\plugins\generic\OASwitchboard\classes\api;
 
+use APP\plugins\generic\OASwitchboard\classes\exceptions\ConnectionFailedException;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\OASwitchboardException;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\UnconfirmedDeliveryException;
 use APP\plugins\generic\OASwitchboard\classes\messages\P1Pio;
@@ -98,7 +99,7 @@ class OASwitchboardAPIClient
             if ($endpoint === self::API_SEND_MESSAGE_ENDPOINT && !$this->failedBeforeReachingTheServer($e)) {
                 throw new UnconfirmedDeliveryException(__('plugins.generic.OASwitchboard.unconfirmedDelivery'));
             }
-            throw new OASwitchboardException(__('plugins.generic.OASwitchboard.connectionError'));
+            throw new ConnectionFailedException(__('plugins.generic.OASwitchboard.connectionError'));
         }
     }
 
