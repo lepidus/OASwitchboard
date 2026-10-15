@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
-import('plugins.generic.OASwitchboard.lib.APIKeyEncryption.APIKeyEncryption');
+import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIKeyEncryption');
 
 class EncryptApiCredentialsMigration extends Migration
 {
@@ -55,7 +55,7 @@ class EncryptApiCredentialsMigration extends Migration
 
     protected function createEncrypter()
     {
-        return new APIKeyEncryption();
+        return new OASwitchboardAPIKeyEncryption();
     }
 
     protected function getPasswordSettings()

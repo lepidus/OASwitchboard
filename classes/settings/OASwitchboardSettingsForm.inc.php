@@ -1,7 +1,7 @@
 <?php
 
 import('lib.pkp.classes.form.Form');
-import('plugins.generic.OASwitchboard.lib.APIKeyEncryption.APIKeyEncryption');
+import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIKeyEncryption');
 import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIClient');
 import('plugins.generic.OASwitchboard.classes.exceptions.ConnectionFailedException');
 import('plugins.generic.OASwitchboard.classes.OASwitchboardService');
@@ -16,7 +16,7 @@ class OASwitchboardSettingsForm extends Form
     {
         $this->plugin = $plugin;
         $this->contextId = $contextId;
-        $this->apiKeyEncryption = new APIKeyEncryption();
+        $this->apiKeyEncryption = new OASwitchboardAPIKeyEncryption();
         $this->addFormValidators();
 
         $template = $this->apiKeyEncryption->secretConfigExists() ? 'settingsForm.tpl' : 'missingSecretConfigWarning.tpl';

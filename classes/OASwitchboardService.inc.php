@@ -12,7 +12,7 @@
  */
 
 import('plugins.generic.OASwitchboard.classes.messages.P1Pio');
-import('plugins.generic.OASwitchboard.lib.APIKeyEncryption.APIKeyEncryption');
+import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIKeyEncryption');
 import('plugins.generic.OASwitchboard.classes.api.OASwitchboardAPIClient');
 import('plugins.generic.OASwitchboard.classes.exceptions.OASwitchboardException');
 import('plugins.generic.OASwitchboard.classes.exceptions.P1PioException');
@@ -46,7 +46,7 @@ class OASwitchboardService
 
     private function retrieveCredentials()
     {
-        $apiKeyEncryption = new APIKeyEncryption();
+        $apiKeyEncryption = new OASwitchboardAPIKeyEncryption();
         $email = $this->plugin->getSetting($this->contextId, 'username');
         $password = $apiKeyEncryption->decryptString(
             $this->plugin->getSetting($this->contextId, 'password')
