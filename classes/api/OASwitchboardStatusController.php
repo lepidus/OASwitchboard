@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request as IlluminateRequest;
 use Illuminate\Http\Response;
 use PKP\core\PKPRequest;
+use PKP\db\DAORegistry;
 use PKP\handler\APIHandler;
 use PKP\plugins\Hook;
 use PKP\plugins\interfaces\HasAuthorizationPolicy;
@@ -85,6 +86,39 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
     protected function isPublished(Submission $submission): bool
     {
         return $submission->getData('status') === Submission::STATUS_PUBLISHED;
+    }
+
+    protected function canOfferSend(array $missingFields, Submission $submission, int $contextId): bool
+    {
+        return empty($missingFields)
+            && $this->isPublished($submission)
+            && $this->currentUserCanResend($contextId)
+            && SendStatus::canRetry($submission);
+    }
+
+    protected function wasPublishedBeforePluginInstallation(Submission $submission): bool
+    {
+        if (!$this->isPublished($submission)) {
+            return false;
+        }
+
+        $installationDate = $this->getPluginInstallationDate();
+        $datePublished = $submission->getCurrentPublication()?->getData('datePublished');
+        if (empty($installationDate) || empty($datePublished)) {
+            return false;
+        }
+
+        return substr($datePublished, 0, 10) < substr($installationDate, 0, 10);
+    }
+
+    protected function getPluginInstallationDate(): ?string
+    {
+        $versions = DAORegistry::getDAO('VersionDAO')->getVersionHistory('plugins.generic', 'OASwitchboard');
+        if (empty($versions)) {
+            return null;
+        }
+
+        return min(array_map(fn ($version) => $version->getDateInstalled(), $versions));
     }
 
     protected function currentUserCanResend(int $contextId): bool
@@ -172,27 +206,21 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
             $pluginConfigured = false;
         }
 
+        $sendStatus = SendStatus::read($submission);
+        $missingFields = $pluginConfigured
+            ? OASwitchboardService::getMissingRequirements($submission, Application::get()->getRequest()->getContext())
+            : [];
+
         $payload = [
             'pluginConfigured' => $pluginConfigured,
-            'readyToSend' => false,
-            'missingFields' => [],
+            'readyToSend' => $pluginConfigured && empty($missingFields),
+            'missingFields' => $missingFields,
             'hasRor' => OASwitchboardService::isRorAssociated($submission),
-            'sendStatus' => SendStatus::read($submission),
+            'sendStatus' => $sendStatus,
             'isPublished' => $this->isPublished($submission),
-            'canRetry' => $this->isPublished($submission)
-                && $this->currentUserCanResend($contextId)
-                && SendStatus::canRetry($submission),
+            'publishedBeforePlugin' => $sendStatus === null && $this->wasPublishedBeforePluginInstallation($submission),
+            'canRetry' => $pluginConfigured && $this->canOfferSend($missingFields, $submission, $contextId),
         ];
-
-        if (!$pluginConfigured) {
-            return response()->json($payload, Response::HTTP_OK);
-        }
-
-        $payload['missingFields'] = OASwitchboardService::getMissingRequirements(
-            $submission,
-            Application::get()->getRequest()->getContext()
-        );
-        $payload['readyToSend'] = empty($payload['missingFields']);
 
         return response()->json($payload, Response::HTTP_OK);
     }

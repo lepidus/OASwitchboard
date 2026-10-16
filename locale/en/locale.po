@@ -112,6 +112,12 @@ msgstr "This article was published without a message being sent to the OA Switch
 msgid "plugins.generic.OASwitchboard.sendStatus.sendNow"
 msgstr "Send now"
 
+msgid "plugins.generic.OASwitchboard.sendStatus.publishedBeforePlugin"
+msgstr "This article was published before the OA Switchboard plugin was installed, so no message was sent."
+
+msgid "plugins.generic.OASwitchboard.sendStatus.sendNowConfirm"
+msgstr "A P1 message about this article will be sent to the OA Switchboard now."
+
 msgid "plugins.generic.OASwitchboard.sendStatus.pluginDisabled"
 msgstr "The OA Switchboard plugin is disabled for this journal, so the message was not sent."
 

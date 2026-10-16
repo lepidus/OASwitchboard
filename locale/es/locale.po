@@ -112,6 +112,12 @@ msgstr "Este artículo se publicó sin que se enviara un mensaje a OA Switchboar
 msgid "plugins.generic.OASwitchboard.sendStatus.sendNow"
 msgstr "Enviar ahora"
 
+msgid "plugins.generic.OASwitchboard.sendStatus.publishedBeforePlugin"
+msgstr "Este artículo se publicó antes de instalar el módulo OA Switchboard, por lo que no se envió ningún mensaje."
+
+msgid "plugins.generic.OASwitchboard.sendStatus.sendNowConfirm"
+msgstr "Ahora se enviará a OA Switchboard un mensaje P1 sobre este artículo."
+
 msgid "plugins.generic.OASwitchboard.sendStatus.pluginDisabled"
 msgstr "El plugin OA Switchboard está deshabilitado para esta revista, por lo que el mensaje no se envió."
 
