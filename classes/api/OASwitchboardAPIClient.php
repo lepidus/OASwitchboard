@@ -106,11 +106,12 @@ class OASwitchboardAPIClient
     private function failedBeforeReachingTheServer(TransferException $exception): bool
     {
         $handlerContext = method_exists($exception, 'getHandlerContext') ? $exception->getHandlerContext() : [];
-        return in_array(
-            $handlerContext['errno'] ?? null,
-            [self::CURL_COULDNT_RESOLVE_HOST, self::CURL_COULDNT_CONNECT, self::CURL_SSL_CONNECT_ERROR],
-            true
-        );
+        $unreachedServerErrors = [self::CURL_COULDNT_RESOLVE_HOST, self::CURL_COULDNT_CONNECT, self::CURL_SSL_CONNECT_ERROR];
+        if (in_array($handlerContext['errno'] ?? null, $unreachedServerErrors, true)) {
+            return true;
+        }
+
+        return isset($handlerContext['pretransfer_time']) && (float) $handlerContext['pretransfer_time'] === 0.0;
     }
 
     private function extractAuthorizationToken($response): string

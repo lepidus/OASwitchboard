@@ -1,4 +1,5 @@
 [
+  "common.cancel",
   "common.loading",
   "plugins.generic.OASwitchboard.pluginIsNotConfigured",
   "plugins.generic.OASwitchboard.postRequirementsError.affiliation",
@@ -17,8 +18,11 @@
   "plugins.generic.OASwitchboard.sendStatus.neverSent",
   "plugins.generic.OASwitchboard.sendStatus.notSent",
   "plugins.generic.OASwitchboard.sendStatus.pending",
+  "plugins.generic.OASwitchboard.sendStatus.publishedBeforePlugin",
   "plugins.generic.OASwitchboard.sendStatus.retry",
   "plugins.generic.OASwitchboard.sendStatus.sendNow",
+  "plugins.generic.OASwitchboard.sendStatus.sendNowConfirm",
+  "plugins.generic.OASwitchboard.serverError",
   "plugins.generic.OASwitchboard.workflowTab.label",
   "plugins.generic.OASwitchboard.workflowTab.title"
 ]

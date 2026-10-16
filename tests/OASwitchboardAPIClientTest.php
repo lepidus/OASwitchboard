@@ -494,14 +494,30 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         return $this->createApiClientWithCapturedLogs($httpClientMock, new ArrayObject());
     }
 
-    private function createConnectException(int $curlErrorNumber): ConnectException
+    private function createConnectException(int $curlErrorNumber, array $handlerContext = []): ConnectException
     {
         return new ConnectException(
             'cURL error ' . $curlErrorNumber,
             new Request('POST', 'https://api.oaswitchboard.org/v2/message'),
             null,
-            ['errno' => $curlErrorNumber]
+            ['errno' => $curlErrorNumber] + $handlerContext
         );
+    }
+
+    public function testMessageTimingOutBeforeTheRequestWasSentShouldReportAConnectionError()
+    {
+        $apiClient = $this->createApiClientFailingWith($this->createConnectException(28, ['pretransfer_time' => 0.0]));
+
+        $this->expectException(ConnectionFailedException::class);
+        $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
+    }
+
+    public function testMessageTimingOutAfterTheRequestWasSentShouldBeReportedAsUnconfirmed()
+    {
+        $apiClient = $this->createApiClientFailingWith($this->createConnectException(28, ['pretransfer_time' => 0.000168]));
+
+        $this->expectException(UnconfirmedDeliveryException::class);
+        $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
     }
 
     public function testMessageThatNeverReachedTheServerShouldReportAConnectionError()

@@ -54,7 +54,11 @@
                         <div class="oas-status__row">
                             <pkp-icon class="oas-status__icon oas-status__icon--information" icon="Help" />
                             <p class="oas-status__headline">
-                                {{ t('plugins.generic.OASwitchboard.sendStatus.neverSent') }}
+                                {{
+                                    status.publishedBeforePlugin
+                                        ? t('plugins.generic.OASwitchboard.sendStatus.publishedBeforePlugin')
+                                        : t('plugins.generic.OASwitchboard.sendStatus.neverSent')
+                                }}
                             </p>
                         </div>
                     </pkp-notification>
@@ -106,13 +110,13 @@
                 </template>
 
                 <pkp-button-row
-                    v-if="status.canRetry && (sendStatus || status.readyToSend)"
+                    v-if="status.canRetry"
                     class="oas-status__actions"
                 >
                     <pkp-button
                         is-warnable
                         :is-disabled="isResending"
-                        @click="resendMessage"
+                        @click="requestSend"
                     >
                         {{
                             sendStatus
@@ -132,8 +136,12 @@ import {computed, onMounted, onUnmounted, watch} from 'vue';
 const {useFetch} = pkp.modules.useFetch;
 const {useUrl} = pkp.modules.useUrl;
 const {useLocalize} = pkp.modules.useLocalize;
+const {useModal} = pkp.modules.useModal;
+const {useNotify} = pkp.modules.useNotify;
 
 const {t, tk} = useLocalize();
+const {openDialog} = useModal();
+const {notify} = useNotify();
 
 // Keys arrive dynamically from the status API (missingFields); tk() makes
 // them visible to the i18nExtractKeys build step without translating here.
@@ -170,6 +178,10 @@ const {apiUrl: resendApiUrl} = useUrl(
 
 const {fetch: postResend, isLoading: isResending} = useFetch(resendApiUrl, {
     method: 'POST',
+    onError: (error) => {
+        notify(error?.data?.error ?? t('plugins.generic.OASwitchboard.serverError'), 'warning');
+        return true;
+    },
 });
 
 const sendStatus = computed(() => status.value?.sendStatus);
@@ -207,6 +219,32 @@ const sendStatusIcon = computed(
 async function resendMessage() {
     await postResend();
     await fetchStatus();
+}
+
+function requestSend() {
+    if (sendStatus.value) {
+        resendMessage();
+        return;
+    }
+
+    openDialog({
+        title: t('plugins.generic.OASwitchboard.sendStatus.sendNow'),
+        message: t('plugins.generic.OASwitchboard.sendStatus.sendNowConfirm'),
+        actions: [
+            {
+                label: t('plugins.generic.OASwitchboard.sendStatus.sendNow'),
+                isPrimary: true,
+                callback: async (close) => {
+                    close();
+                    await resendMessage();
+                },
+            },
+            {
+                label: t('common.cancel'),
+                callback: (close) => close(),
+            },
+        ],
+    });
 }
 
 function capitalize(value) {
