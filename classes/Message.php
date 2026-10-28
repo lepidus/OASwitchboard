@@ -27,7 +27,8 @@ class Message
             return;
         }
 
-        if (!$this->plugin->getEnabled((int) $event->submission->getData('contextId'))) {
+        $contextId = (int) $event->submission->getData('contextId');
+        if (!$this->plugin->getEnabled($contextId) || !OASwitchboardService::isConfigured($this->plugin, $contextId)) {
             return;
         }
 
@@ -106,10 +107,8 @@ class Message
         $context = Application::get()->getRequest()->getContext();
         $submission = Repo::submission()->get($form->publication->getData('submissionId'));
 
-        try {
-            OASwitchboardService::validatePluginIsConfigured($this->plugin, $context->getId());
-        } catch (\Exception $e) {
-            $this->addPublishNotice($form, '<div class="pkpNotification pkpNotification--information">' . $e->getMessage() . '</div>');
+        if (!OASwitchboardService::isConfigured($this->plugin, $context->getId())) {
+            $this->addPublishNotice($form, '<div class="pkpNotification pkpNotification--information">' . __('plugins.generic.OASwitchboard.pluginIsNotConfigured') . '</div>');
             return false;
         }
 

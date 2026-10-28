@@ -3,16 +3,22 @@
 namespace APP\plugins\generic\OASwitchboard\tests;
 
 use APP\plugins\generic\OASwitchboard\classes\api\OASwitchboardStatusController;
+use APP\plugins\generic\OASwitchboard\tests\helpers\CreatesPluginMocks;
 use APP\submission\Repository as SubmissionRepository;
 use APP\submission\Submission;
+use Illuminate\Http\Request as IlluminateRequest;
+use Illuminate\Http\Response;
 use PKP\core\PKPRequest;
 use PKP\handler\APIHandler;
 use PKP\security\authorization\SubmissionAccessPolicy;
 use PKP\tests\PKPTestCase;
 use ReflectionFunction;
+use ReflectionMethod;
 
 class OASwitchboardStatusControllerTest extends PKPTestCase
 {
+    use CreatesPluginMocks;
+
     private const SUBMISSION_ID = 123;
     private const CONTEXT_ID = 5;
 
@@ -41,6 +47,58 @@ class OASwitchboardStatusControllerTest extends PKPTestCase
         $repository = $this->createMock(SubmissionRepository::class);
         app()->instance(SubmissionRepository::class, $repository);
         return $repository;
+    }
+
+    private function createControllerForSubmission($plugin, Submission $submission): OASwitchboardStatusController
+    {
+        return new class ($plugin, $submission, self::CONTEXT_ID) extends OASwitchboardStatusController {
+            private Submission $submission;
+            private int $contextId;
+
+            public function __construct($plugin, Submission $submission, int $contextId)
+            {
+                parent::__construct($plugin);
+                $this->submission = $submission;
+                $this->contextId = $contextId;
+            }
+
+            protected function getSubmissionInContext(int $submissionId, int $contextId): ?Submission
+            {
+                return $this->submission;
+            }
+
+            protected function getRequestContextId(): int
+            {
+                return $this->contextId;
+            }
+        };
+    }
+
+    public function testResendShouldAnswerNotConfiguredWhenPluginHasNoCredentials()
+    {
+        $submission = new Submission();
+        $submission->setData('status', Submission::STATUS_PUBLISHED);
+        $controller = $this->createControllerForSubmission($this->createPluginMock([]), $submission);
+        $request = IlluminateRequest::create('/', 'POST');
+        $request->setRouteResolver(fn () => new class (self::SUBMISSION_ID) {
+            public function __construct(private int $submissionId)
+            {
+            }
+
+            public function parameter(string $name, $default = null)
+            {
+                return $name === 'submissionId' ? $this->submissionId : $default;
+            }
+        });
+
+        $response = (new ReflectionMethod(OASwitchboardStatusController::class, 'resendOASwitchboardMessage'))
+            ->invoke($controller, $request);
+
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertSame(
+            ['error' => __('plugins.generic.OASwitchboard.pluginIsNotConfigured')],
+            $response->getData(true)
+        );
     }
 
     public function testShouldLoadSubmissionScopedToTheRequestContext()
