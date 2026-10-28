@@ -13,9 +13,10 @@ class MessageTest extends PKPTestCase
 
     private const CONTEXT_ID = 1;
 
-    private function createMessage($service, ArrayObject $calls, bool $enabled = true)
+    private function createMessage($service, ArrayObject $calls, bool $enabled = true, bool $configured = true)
     {
-        return new class ($this->createPluginMock([], $enabled), $service, $calls) extends Message {
+        $settings = $configured ? ['username' => 'user@example.com', 'password' => 'encrypted'] : [];
+        return new class ($this->createPluginMock($settings, $enabled), $service, $calls) extends Message {
             private $service;
             private $calls;
 
@@ -94,6 +95,18 @@ class MessageTest extends PKPTestCase
 
         $this->createMessage($service, $calls, false)->sendToOASwitchboard('Publication::publish', $this->buildPublishHookArguments(STATUS_PUBLISHED));
 
+        $this->assertArrayNotHasKey('reported', $calls);
+    }
+
+    public function testShouldNotCreateTheServiceWhenThePluginIsNotConfigured()
+    {
+        $calls = new ArrayObject();
+        $service = $this->createMock(OASwitchboardService::class);
+        $service->expects($this->never())->method('sendP1PioMessage');
+
+        $this->createMessage($service, $calls, true, false)->sendToOASwitchboard('Publication::publish', $this->buildPublishHookArguments(STATUS_PUBLISHED));
+
+        $this->assertArrayNotHasKey('serviceContextId', $calls);
         $this->assertArrayNotHasKey('reported', $calls);
     }
 
