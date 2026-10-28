@@ -58,4 +58,14 @@ class UpgradeXmlTest extends PKPTestCase
             $this->getMigrationClasses()
         );
     }
+
+    public function testUpgradeShouldClearTheDataCacheAfterTheMigrations()
+    {
+        $actions = [];
+        foreach (simplexml_load_file(__DIR__ . '/../upgrade.xml')->children() as $action) {
+            $actions[] = $action->getName() === 'code' ? (string) $action['function'] : $action->getName();
+        }
+
+        $this->assertSame(['migration', 'migration', 'clearDataCache'], $actions);
+    }
 }
