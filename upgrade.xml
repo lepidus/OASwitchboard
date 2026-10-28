@@ -4,4 +4,5 @@
 <install version="2.0.2.3">
     <migration class="APP\plugins\generic\OASwitchboard\classes\migrations\EncryptApiCredentialsMigration"/>
     <migration class="APP\plugins\generic\OASwitchboard\classes\migrations\RemoveSandboxApiSettingMigration"/>
+    <code function="clearDataCache" />
 </install>
