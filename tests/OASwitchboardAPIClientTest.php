@@ -21,6 +21,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PKP\config\Config;
 use PKP\tests\PKPTestCase;
+use ReflectionParameter;
 
 class OASwitchboardAPIClientTest extends PKPTestCase
 {
@@ -577,5 +578,20 @@ class OASwitchboardAPIClientTest extends PKPTestCase
             'https://api.oaswitchboard.org/v2/message',
             (string) $requestHistory[0]['request']->getUri()
         );
+    }
+
+    public function testCredentialParametersShouldBeHiddenFromStackTraces()
+    {
+        $credentialParameters = [
+            'getAuthorization' => 'password',
+            'sendMessage' => 'authToken',
+            'makeRequest' => 'options',
+        ];
+
+        foreach ($credentialParameters as $method => $parameter) {
+            $attributes = (new ReflectionParameter([OASwitchboardAPIClient::class, $method], $parameter))
+                ->getAttributes(\SensitiveParameter::class);
+            $this->assertCount(1, $attributes, $method . '(' . $parameter . ')');
+        }
     }
 }

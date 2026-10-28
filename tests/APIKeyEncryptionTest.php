@@ -5,6 +5,7 @@ namespace APP\plugins\generic\OASwitchboard\tests;
 use APP\plugins\generic\OASwitchboard\classes\api\APIKeyEncryption;
 use PKP\config\Config;
 use PKP\tests\PKPTestCase;
+use ReflectionParameter;
 
 class APIKeyEncryptionTest extends PKPTestCase
 {
@@ -62,5 +63,13 @@ class APIKeyEncryptionTest extends PKPTestCase
         $this->assertTrue($encryption->secretConfigExists());
         $this->assertTrue($encryption->textIsEncrypted($encryptedText));
         $this->assertSame('password', $encryption->decryptString($encryptedText));
+    }
+
+    public function testPlainTextShouldBeHiddenFromStackTraces()
+    {
+        $attributes = (new ReflectionParameter([APIKeyEncryption::class, 'encryptString'], 'plainText'))
+            ->getAttributes(\SensitiveParameter::class);
+
+        $this->assertCount(1, $attributes);
     }
 }

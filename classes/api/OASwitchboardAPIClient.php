@@ -41,8 +41,11 @@ class OASwitchboardAPIClient
         return filter_var(Config::getVar('oaswitchboard', 'sandbox', false), FILTER_VALIDATE_BOOLEAN);
     }
 
-    public function sendMessage(P1Pio $message, string $authToken): int
-    {
+    public function sendMessage(
+        P1Pio $message,
+        #[\SensitiveParameter]
+        string $authToken
+    ): int {
         $options = [
             'headers' => ['Authorization' => 'Bearer ' . $authToken],
             'json' => $message->getContent(),
@@ -51,8 +54,11 @@ class OASwitchboardAPIClient
         return $response->getStatusCode();
     }
 
-    public function getAuthorization(string $email, string $password): string
-    {
+    public function getAuthorization(
+        string $email,
+        #[\SensitiveParameter]
+        string $password
+    ): string {
         $options = [
             'json' => [
                 'email' => $email,
@@ -63,8 +69,12 @@ class OASwitchboardAPIClient
         return $this->extractAuthorizationToken($response);
     }
 
-    private function makeRequest(string $method, string $endpoint, array $options)
-    {
+    private function makeRequest(
+        string $method,
+        string $endpoint,
+        #[\SensitiveParameter]
+        array $options
+    ) {
         $options['allow_redirects'] = false;
         $options['connect_timeout'] = self::CONNECT_TIMEOUT_SECONDS;
         $options['timeout'] = self::REQUEST_TIMEOUT_SECONDS;
