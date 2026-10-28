@@ -29,7 +29,7 @@ class Message
         }
 
         $contextId = (int) $event->submission->getData('contextId');
-        if (!$this->plugin->getEnabled($contextId)) {
+        if (!$this->plugin->getEnabled($contextId) || !OASwitchboardService::isConfigured($this->plugin, $contextId)) {
             return;
         }
 
@@ -71,10 +71,8 @@ class Message
         $context = Application::get()->getRequest()->getContext();
         $submission = Repo::submission()->get($form->publication->getData('submissionId'));
 
-        try {
-            OASwitchboardService::validatePluginIsConfigured($this->plugin, $context->getId());
-        } catch (\Exception $e) {
-            $this->addPublishNotice($form, '<div class="pkpNotification pkpNotification--information">' . $e->getMessage() . '</div>');
+        if (!OASwitchboardService::isConfigured($this->plugin, $context->getId())) {
+            $this->addPublishNotice($form, '<div class="pkpNotification pkpNotification--information">' . __('plugins.generic.OASwitchboard.pluginIsNotConfigured') . '</div>');
             return false;
         }
 
@@ -106,12 +104,9 @@ class Message
         $submission = $smarty->getTemplateVars('submission');
         $context = $request->getContext();
 
-        try {
-            OASwitchboardService::validatePluginIsConfigured($this->plugin, $context->getId());
-        } catch (\Exception $e) {
-            $message = '<div class="pkpNotification pkpNotification--information">' . $e->getMessage() . '</div>';
+        if (!OASwitchboardService::isConfigured($this->plugin, $context->getId())) {
             $smarty->assign([
-                'pluginIsNotConfiguredInfo' => $message,
+                'pluginIsNotConfiguredInfo' => '<div class="pkpNotification pkpNotification--information">' . __('plugins.generic.OASwitchboard.pluginIsNotConfigured') . '</div>',
             ]);
         }
 
