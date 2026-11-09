@@ -110,6 +110,9 @@ class OASwitchboardAPIClient
                 throw new UnconfirmedDeliveryException(__('plugins.generic.OASwitchboard.unconfirmedDelivery'));
             }
             throw new ConnectionFailedException(__('plugins.generic.OASwitchboard.connectionError'));
+        } catch (\InvalidArgumentException $e) {
+            $this->logRequestFailure($this->getOperationName($endpoint), $endpoint, $e);
+            throw new OASwitchboardException(__('plugins.generic.OASwitchboard.postRequirements'));
         }
     }
 
