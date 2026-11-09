@@ -2,6 +2,7 @@
 
 namespace APP\plugins\generic\OASwitchboard\tests;
 
+use APP\core\Request;
 use APP\journal\Journal;
 use APP\plugins\generic\OASwitchboard\classes\Message;
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
@@ -9,6 +10,7 @@ use APP\plugins\generic\OASwitchboard\tests\helpers\CreatesPluginMocks;
 use APP\publication\Publication;
 use APP\submission\Submission;
 use ArrayObject;
+use PKP\core\Registry;
 use PKP\observers\events\PublicationPublished;
 use PKP\tests\PKPTestCase;
 
@@ -18,6 +20,11 @@ class MessageTest extends PKPTestCase
 
     private const SUBMISSION_ID = 456;
     private const CONTEXT_ID = 1;
+
+    protected function getMockedRegistryKeys(): array
+    {
+        return [...parent::getMockedRegistryKeys(), 'request'];
+    }
 
     private function createMessage(OASwitchboardService $service, ArrayObject $calls, bool $enabled = true, bool $configured = true): Message
     {
@@ -130,5 +137,47 @@ class MessageTest extends PKPTestCase
         $this->createMessage($service, $calls)->handlePublicationPublished($this->buildPublishedEvent(Submission::STATUS_PUBLISHED));
 
         $this->assertArrayNotHasKey('reported', $calls);
+    }
+
+    public function testWorkflowTabShouldOnlyShowTheNoticeWhenThePluginIsNotConfigured()
+    {
+        $context = new Journal();
+        $context->setId(self::CONTEXT_ID);
+        $request = $this->createMock(Request::class);
+        $request->method('getContext')->willReturn($context);
+        Registry::set('request', $request);
+        $templateManager = new class () {
+            public array $assignedVariables = [];
+
+            public function getTemplateVars($name)
+            {
+                return $name === 'submission' ? new Submission() : null;
+            }
+
+            public function assign(array $variables): void
+            {
+                $this->assignedVariables += $variables;
+            }
+
+            public function fetch($template): string
+            {
+                return '';
+            }
+        };
+        $message = new Message($this->createPluginMock([]));
+        $output = '';
+        $errorLog = tempnam(sys_get_temp_dir(), 'oaswitchboard');
+        $originalErrorLog = ini_set('error_log', $errorLog);
+
+        try {
+            $message->addSubmissionStatusToWorkflow('Template::Workflow', [null, $templateManager, &$output]);
+        } finally {
+            ini_set('error_log', $originalErrorLog);
+        }
+
+        $loggedErrors = file_get_contents($errorLog);
+        unlink($errorLog);
+        $this->assertSame(['pluginIsNotConfiguredInfo'], array_keys($templateManager->assignedVariables));
+        $this->assertSame('', $loggedErrors);
     }
 }
