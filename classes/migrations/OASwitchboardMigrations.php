@@ -21,15 +21,23 @@
 namespace APP\plugins\generic\OASwitchboard\classes\migrations;
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use PKP\db\DAORegistry;
 use PKP\install\DowngradeNotSupportedException;
 
 class OASwitchboardMigrations extends Migration
 {
+    private const PLUGIN_NAME = 'oaswitchboardplugin';
+
     public function up(): void
     {
+        $contextIds = $this->getContextIdsWithSettings();
+
         foreach ($this->getMigrations() as $migration) {
             $migration->up();
         }
+
+        $this->refreshSettingsCache($contextIds);
     }
 
     public function down(): void
@@ -43,5 +51,23 @@ class OASwitchboardMigrations extends Migration
             new EncryptApiCredentialsMigration(),
             new RemoveSandboxApiSettingMigration(),
         ];
+    }
+
+    protected function getContextIdsWithSettings(): array
+    {
+        return DB::table('plugin_settings')
+            ->where('plugin_name', self::PLUGIN_NAME)
+            ->distinct()
+            ->pluck('context_id')
+            ->map(fn ($contextId) => (int) $contextId)
+            ->all();
+    }
+
+    protected function refreshSettingsCache(array $contextIds): void
+    {
+        $pluginSettingsDao = DAORegistry::getDAO('PluginSettingsDAO');
+        foreach ($contextIds as $contextId) {
+            $pluginSettingsDao->getPluginSettings($contextId, self::PLUGIN_NAME);
+        }
     }
 }
