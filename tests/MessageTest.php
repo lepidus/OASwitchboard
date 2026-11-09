@@ -1,6 +1,8 @@
 <?php
 
 import('lib.pkp.tests.PKPTestCase');
+import('classes.core.Request');
+import('classes.journal.Journal');
 import('classes.submission.Submission');
 import('classes.publication.Publication');
 import('plugins.generic.OASwitchboard.classes.Message');
@@ -12,6 +14,11 @@ class MessageTest extends PKPTestCase
     use CreatesPluginMocks;
 
     private const CONTEXT_ID = 1;
+
+    protected function getMockedRegistryKeys()
+    {
+        return array_merge(parent::getMockedRegistryKeys(), ['request']);
+    }
 
     private function createMessage($service, ArrayObject $calls, bool $enabled = true, bool $configured = true)
     {
@@ -120,5 +127,47 @@ class MessageTest extends PKPTestCase
 
         $this->assertFalse($result);
         $this->assertArrayNotHasKey('reported', $calls);
+    }
+
+    public function testWorkflowTabShouldOnlyShowTheNoticeWhenThePluginIsNotConfigured()
+    {
+        $context = new Journal();
+        $context->setId(self::CONTEXT_ID);
+        $request = $this->createMock(Request::class);
+        $request->method('getContext')->willReturn($context);
+        Registry::set('request', $request);
+        $templateManager = new class () {
+            public $assignedVariables = [];
+
+            public function get_template_vars($name)
+            {
+                return $name === 'submission' ? new Submission() : null;
+            }
+
+            public function assign(array $variables)
+            {
+                $this->assignedVariables += $variables;
+            }
+
+            public function fetch($template)
+            {
+                return '';
+            }
+        };
+        $message = new Message($this->createPluginMock([]));
+        $output = '';
+        $errorLog = tempnam(sys_get_temp_dir(), 'oaswitchboard');
+        $originalErrorLog = ini_set('error_log', $errorLog);
+
+        try {
+            $message->addSubmissionStatusToWorkflow('Template::Workflow', [null, $templateManager, &$output]);
+        } finally {
+            ini_set('error_log', $originalErrorLog);
+        }
+
+        $loggedErrors = file_get_contents($errorLog);
+        unlink($errorLog);
+        $this->assertSame(['pluginIsNotConfiguredInfo'], array_keys($templateManager->assignedVariables));
+        $this->assertSame('', $loggedErrors);
     }
 }

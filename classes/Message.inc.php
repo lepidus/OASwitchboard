@@ -117,13 +117,24 @@ class Message
         $submission = $smarty->get_template_vars('submission');
         $contextId = $request->getContext()->getId();
 
-        if (!OASwitchboardService::isConfigured($this->plugin, $contextId)) {
+        if (OASwitchboardService::isConfigured($this->plugin, $contextId)) {
+            $this->assignSubmissionRequirements($smarty, $submission);
+        } else {
             $message = '<div class="pkpNotification pkpNotification--information">' . __('plugins.generic.OASwitchboard.pluginIsNotConfigured') . '</div>';
             $smarty->assign([
                 'pluginIsNotConfiguredInfo' => $message,
             ]);
         }
 
+        $output .= sprintf(
+            '<tab id="OASwitchboard" label="%s">%s</tab>',
+            __('plugins.generic.OASwitchboard.workflowTab.label'),
+            $smarty->fetch($this->plugin->getTemplateResource('submissionStatus.tpl'))
+        );
+    }
+
+    private function assignSubmissionRequirements($smarty, $submission)
+    {
         $missingRequirements = OASwitchboardService::getMissingRequirements($submission);
         if (empty($missingRequirements)) {
             $smarty->assign([
@@ -134,12 +145,6 @@ class Message
                 'submissionRequirementsIsPending' => $this->getMandatoryDataErrorMessage($missingRequirements, $submission, false),
             ]);
         }
-
-        $output .= sprintf(
-            '<tab id="OASwitchboard" label="%s">%s</tab>',
-            __('plugins.generic.OASwitchboard.workflowTab.label'),
-            $smarty->fetch($this->plugin->getTemplateResource('submissionStatus.tpl'))
-        );
     }
 
     private function registerSubmissionEventLog($request, $submission, $error)
