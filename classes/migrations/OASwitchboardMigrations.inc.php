@@ -18,6 +18,7 @@
  * lets the gallery run them from both places.
  */
 
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Migrations\Migration;
 use PKP\install\DowngradeNotSupportedException;
 
@@ -26,11 +27,17 @@ import('plugins.generic.OASwitchboard.classes.migrations.RemoveSandboxApiSetting
 
 class OASwitchboardMigrations extends Migration
 {
+    private const PLUGIN_NAME = 'oaswitchboardplugin';
+
     public function up(): void
     {
+        $contextIds = $this->getContextIdsWithSettings();
+
         foreach ($this->getMigrations() as $migration) {
             $migration->up();
         }
+
+        $this->refreshSettingsCache($contextIds);
     }
 
     public function down(): void
@@ -44,5 +51,24 @@ class OASwitchboardMigrations extends Migration
             new EncryptApiCredentialsMigration(),
             new RemoveSandboxApiSettingMigration(),
         ];
+    }
+
+    protected function getContextIdsWithSettings(): array
+    {
+        $contextIds = Capsule::table('plugin_settings')
+            ->where('plugin_name', self::PLUGIN_NAME)
+            ->distinct()
+            ->pluck('context_id')
+            ->all();
+
+        return array_map('intval', $contextIds);
+    }
+
+    protected function refreshSettingsCache(array $contextIds): void
+    {
+        $pluginSettingsDao = DAORegistry::getDAO('PluginSettingsDAO');
+        foreach ($contextIds as $contextId) {
+            $pluginSettingsDao->getPluginSettings($contextId, self::PLUGIN_NAME);
+        }
     }
 }

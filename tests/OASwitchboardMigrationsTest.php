@@ -28,19 +28,32 @@ class OASwitchboardMigrationsTest extends PKPTestCase
         };
     }
 
-    private function createMigrationWith(array $migrations): OASwitchboardMigrations
+    private function createMigrationWith(array $migrations, ?ArrayObject $executionOrder = null): OASwitchboardMigrations
     {
-        return new class ($migrations) extends OASwitchboardMigrations {
+        return new class ($migrations, $executionOrder ?? new ArrayObject()) extends OASwitchboardMigrations {
             private $migrations;
+            private $executionOrder;
 
-            public function __construct(array $migrations)
+            public function __construct(array $migrations, ArrayObject $executionOrder)
             {
                 $this->migrations = $migrations;
+                $this->executionOrder = $executionOrder;
             }
 
             protected function getMigrations(): array
             {
                 return $this->migrations;
+            }
+
+            protected function getContextIdsWithSettings(): array
+            {
+                $this->executionOrder->append('collect contexts');
+                return [1, 2];
+            }
+
+            protected function refreshSettingsCache(array $contextIds): void
+            {
+                $this->executionOrder->append('refresh cache of contexts ' . implode(',', $contextIds));
             }
         };
     }
@@ -56,6 +69,22 @@ class OASwitchboardMigrationsTest extends PKPTestCase
         $migration->up();
 
         $this->assertSame(['first', 'second'], $executionOrder->getArrayCopy());
+    }
+
+    public function testShouldRefreshTheSettingsCacheOfTheMigratedContextsAfterTheMigrations()
+    {
+        $executionOrder = new ArrayObject();
+        $migration = $this->createMigrationWith([
+            $this->createMigrationSpy('first', $executionOrder),
+            $this->createMigrationSpy('second', $executionOrder),
+        ], $executionOrder);
+
+        $migration->up();
+
+        $this->assertSame(
+            ['collect contexts', 'first', 'second', 'refresh cache of contexts 1,2'],
+            $executionOrder->getArrayCopy()
+        );
     }
 
     public function testShouldEncryptTheCredentialsBeforeRemovingTheSandboxSetting()
