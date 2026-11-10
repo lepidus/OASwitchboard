@@ -578,4 +578,80 @@ class OASwitchboardAPIClientTest extends PKPTestCase
             (string) $requestHistory[0]['request']->getUri()
         );
     }
+
+    private function captureExceptionWithTraceArguments(callable $action): \Throwable
+    {
+        $originalIgnoreArgs = ini_set('zend.exception_ignore_args', '0');
+        try {
+            $action();
+        } catch (\Throwable $exception) {
+            return $exception;
+        } finally {
+            ini_set('zend.exception_ignore_args', $originalIgnoreArgs);
+        }
+
+        $this->fail('The request should have failed.');
+    }
+
+    private function assertTraceDoesNotContain(\Throwable $exception, string $secret): void
+    {
+        for ($current = $exception; $current !== null; $current = $current->getPrevious()) {
+            $this->assertStringNotContainsString($secret, print_r($current->getTrace(), true));
+            $this->assertStringNotContainsString($secret, (string) $current);
+        }
+    }
+
+    /**
+     * @requires PHP >= 8.2
+     */
+    public function testPasswordShouldBeHiddenFromStackTracesWhenTheRequestFails()
+    {
+        $apiClient = new OASwitchboardAPIClient(new Client([
+            'handler' => HandlerStack::create(new MockHandler([new Response(401)])),
+        ]));
+
+        $exception = $this->captureExceptionWithTraceArguments(
+            fn () => $apiClient->getAuthorization('test@example.com', 'trace-password-marker')
+        );
+
+        $this->assertInstanceOf(OASwitchboardException::class, $exception);
+        $this->assertTraceDoesNotContain($exception, 'trace-password-marker');
+    }
+
+    /**
+     * @requires PHP >= 8.2
+     */
+    public function testPasswordShouldBeHiddenFromStackTracesWhenGuzzleRejectsTheRequestBody()
+    {
+        $apiClient = $this->createApiClientWithCapturedLogs(new Client([
+            'handler' => HandlerStack::create(new MockHandler([new Response(200)])),
+        ]), new ArrayObject());
+
+        $exception = $this->captureExceptionWithTraceArguments(
+            fn () => $apiClient->getAuthorization('test@example.com', "trace-password-marker\xB1")
+        );
+
+        $this->assertInstanceOf(OASwitchboardException::class, $exception);
+        $this->assertNull($exception->getPrevious());
+        $this->assertTraceDoesNotContain($exception, 'trace-password-marker');
+    }
+
+    /**
+     * @requires PHP >= 8.2
+     */
+    public function testAuthTokenShouldBeHiddenFromStackTracesWhenGuzzleRejectsTheRequestBody()
+    {
+        $message = $this->createMock(P1Pio::class);
+        $message->method('getContent')->willReturn(['title' => "invalid \xB1"]);
+        $apiClient = $this->createApiClientWithCapturedLogs(new Client([
+            'handler' => HandlerStack::create(new MockHandler([new Response(200)])),
+        ]), new ArrayObject());
+
+        $exception = $this->captureExceptionWithTraceArguments(
+            fn () => $apiClient->sendMessage($message, 'trace-token-marker')
+        );
+
+        $this->assertInstanceOf(OASwitchboardException::class, $exception);
+        $this->assertTraceDoesNotContain($exception, 'trace-token-marker');
+    }
 }

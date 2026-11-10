@@ -50,8 +50,10 @@ class APIKeyEncryption
         }
     }
 
-    public function encryptString(string $plainText): string
-    {
+    public function encryptString(
+        #[\SensitiveParameter]
+        string $plainText
+    ): string {
         $secret = $this->getSecretFromConfig();
         $encrypter = new Encrypter($secret, self::ENCRYPTION_CIPHER);
 
