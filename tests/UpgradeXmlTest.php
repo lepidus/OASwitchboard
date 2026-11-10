@@ -43,19 +43,16 @@ class UpgradeXmlTest extends PKPTestCase
         }
     }
 
-    public function testDirectUpgradeShouldRunTheCredentialMigration()
+    public function testGalleryUpgradeShouldRunTheSameMigrationsAsTheOtherUpgradePaths()
     {
-        $this->assertContains(
-            'plugins.generic.OASwitchboard.classes.migrations.EncryptApiCredentialsMigration',
-            $this->getMigrationClasses()
-        );
-    }
+        $actions = [];
+        foreach (simplexml_load_file(__DIR__ . '/../upgrade.xml')->children() as $action) {
+            $actions[] = $action->getName() . ':' . $action['class'];
+        }
 
-    public function testDirectUpgradeShouldRemoveTheSandboxSetting()
-    {
-        $this->assertContains(
-            'plugins.generic.OASwitchboard.classes.migrations.RemoveSandboxApiSettingMigration',
-            $this->getMigrationClasses()
+        $this->assertSame(
+            ['migration:plugins.generic.OASwitchboard.classes.migrations.OASwitchboardMigrations'],
+            $actions
         );
     }
 }

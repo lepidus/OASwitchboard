@@ -41,8 +41,10 @@ class OASwitchboardAPIKeyEncryption
         }
     }
 
-    public function encryptString(string $plainText): string
-    {
+    public function encryptString(
+        #[\SensitiveParameter]
+        string $plainText
+    ): string {
         $encrypter = new Encrypter($this->getSecretFromConfig(), self::ENCRYPTION_CIPHER);
 
         try {

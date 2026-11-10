@@ -127,4 +127,16 @@ class OASwitchboardAPIKeyEncryptionTest extends PKPTestCase
 
         $this->assertInstanceOf(OASwitchboardAPIKeyEncryption::class, $migration->exposedCreateEncrypter());
     }
+
+    public function testPlainTextShouldBeHiddenFromStackTraces()
+    {
+        if (!method_exists(ReflectionParameter::class, 'getAttributes')) {
+            $this->markTestSkipped('PHP 7 has no attributes; they are read as comments.');
+        }
+
+        $attributes = (new ReflectionParameter([OASwitchboardAPIKeyEncryption::class, 'encryptString'], 'plainText'))
+            ->getAttributes('SensitiveParameter');
+
+        $this->assertCount(1, $attributes);
+    }
 }

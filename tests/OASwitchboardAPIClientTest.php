@@ -522,4 +522,23 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $this->expectException(OASwitchboardException::class);
         $apiClient->sendMessage($this->createP1PioMock(), 'mock_token');
     }
+
+    public function testCredentialParametersShouldBeHiddenFromStackTraces()
+    {
+        if (!method_exists(ReflectionParameter::class, 'getAttributes')) {
+            $this->markTestSkipped('PHP 7 has no attributes; they are read as comments.');
+        }
+
+        $credentialParameters = [
+            'getAuthorization' => 'password',
+            'sendMessage' => 'authToken',
+            'makeRequest' => 'options',
+        ];
+
+        foreach ($credentialParameters as $method => $parameter) {
+            $attributes = (new ReflectionParameter([OASwitchboardAPIClient::class, $method], $parameter))
+                ->getAttributes('SensitiveParameter');
+            $this->assertCount(1, $attributes, $method . '(' . $parameter . ')');
+        }
+    }
 }

@@ -1,6 +1,8 @@
 <?php
 
 import('lib.pkp.tests.PKPTestCase');
+import('classes.core.Request');
+import('classes.journal.Journal');
 import('classes.submission.Submission');
 import('classes.publication.Publication');
 import('plugins.generic.OASwitchboard.classes.Message');
@@ -13,9 +15,15 @@ class MessageTest extends PKPTestCase
 
     private const CONTEXT_ID = 1;
 
-    private function createMessage($service, ArrayObject $calls, bool $enabled = true)
+    protected function getMockedRegistryKeys()
     {
-        return new class ($this->createPluginMock([], $enabled), $service, $calls) extends Message {
+        return array_merge(parent::getMockedRegistryKeys(), ['request']);
+    }
+
+    private function createMessage($service, ArrayObject $calls, bool $enabled = true, bool $configured = true)
+    {
+        $settings = $configured ? ['username' => 'user@example.com', 'password' => 'encrypted'] : [];
+        return new class ($this->createPluginMock($settings, $enabled), $service, $calls) extends Message {
             private $service;
             private $calls;
 
@@ -97,6 +105,18 @@ class MessageTest extends PKPTestCase
         $this->assertArrayNotHasKey('reported', $calls);
     }
 
+    public function testShouldNotCreateTheServiceWhenThePluginIsNotConfigured()
+    {
+        $calls = new ArrayObject();
+        $service = $this->createMock(OASwitchboardService::class);
+        $service->expects($this->never())->method('sendP1PioMessage');
+
+        $this->createMessage($service, $calls, true, false)->sendToOASwitchboard('Publication::publish', $this->buildPublishHookArguments(STATUS_PUBLISHED));
+
+        $this->assertArrayNotHasKey('serviceContextId', $calls);
+        $this->assertArrayNotHasKey('reported', $calls);
+    }
+
     public function testFailedSendShouldNotInterruptThePublication()
     {
         $calls = new ArrayObject();
@@ -107,5 +127,38 @@ class MessageTest extends PKPTestCase
 
         $this->assertFalse($result);
         $this->assertArrayNotHasKey('reported', $calls);
+    }
+
+    public function testWorkflowTabShouldOnlyShowTheNoticeWhenThePluginIsNotConfigured()
+    {
+        $context = new Journal();
+        $context->setId(self::CONTEXT_ID);
+        $request = $this->createMock(Request::class);
+        $request->method('getContext')->willReturn($context);
+        Registry::set('request', $request);
+        $templateManager = new class () {
+            public $assignedVariables = [];
+
+            public function get_template_vars($name)
+            {
+                return $name === 'submission' ? new Submission() : null;
+            }
+
+            public function assign(array $variables)
+            {
+                $this->assignedVariables += $variables;
+            }
+
+            public function fetch($template)
+            {
+                return '';
+            }
+        };
+        $message = new Message($this->createPluginMock([]));
+        $output = '';
+
+        $message->addSubmissionStatusToWorkflow('Template::Workflow', [null, $templateManager, &$output]);
+
+        $this->assertSame(['pluginIsNotConfiguredInfo'], array_keys($templateManager->assignedVariables));
     }
 }

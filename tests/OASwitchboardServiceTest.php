@@ -53,6 +53,22 @@ class OASwitchboardServiceTest extends PKPTestCase
         OASwitchboardService::validatePluginIsConfigured($plugin, self::CONTEXT_ID);
     }
 
+    public function testPluginShouldBeConsideredConfiguredWithUsernameAndPassword()
+    {
+        $this->assertTrue(OASwitchboardService::isConfigured($this->createConfiguredPluginMock(), self::CONTEXT_ID));
+    }
+
+    public function testPluginShouldNotBeConsideredConfiguredWithoutPassword()
+    {
+        $plugin = $this->createPluginMock(['username' => 'user@example.com']);
+        $this->assertFalse(OASwitchboardService::isConfigured($plugin, self::CONTEXT_ID));
+    }
+
+    public function testPluginShouldNotBeConsideredConfiguredWithoutCredentials()
+    {
+        $this->assertFalse(OASwitchboardService::isConfigured($this->createPluginMock([]), self::CONTEXT_ID));
+    }
+
     public function testRequirementsThatCannotBeCheckedShouldBeReportedInsteadOfThrown()
     {
         import('classes.submission.Submission');

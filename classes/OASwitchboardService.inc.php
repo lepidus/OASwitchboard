@@ -64,11 +64,15 @@ class OASwitchboardService
         );
     }
 
+    public static function isConfigured($plugin, $contextId): bool
+    {
+        return !is_null($plugin->getSetting($contextId, 'username'))
+            && !is_null($plugin->getSetting($contextId, 'password'));
+    }
+
     public static function validatePluginIsConfigured($plugin, $contextId)
     {
-        $username = $plugin->getSetting($contextId, 'username');
-        $password = $plugin->getSetting($contextId, 'password');
-        if (is_null($username) || is_null($password)) {
+        if (!self::isConfigured($plugin, $contextId)) {
             throw new OASwitchboardException(__('plugins.generic.OASwitchboard.pluginIsNotConfigured'));
         }
     }
