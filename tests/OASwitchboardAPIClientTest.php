@@ -730,4 +730,24 @@ class OASwitchboardAPIClientTest extends PKPTestCase
         $this->assertInstanceOf(OASwitchboardException::class, $exception);
         $this->assertTraceDoesNotContain($exception, 'trace-token-marker');
     }
+
+    public function testAuthTokenRejectedAsHeaderValueShouldNotBeWrittenToTheLog()
+    {
+        $message = $this->createMock(P1Pio::class);
+        $message->method('getContent')->willReturn(['title' => 'Title']);
+        $logMessages = new ArrayObject();
+        $apiClient = $this->createApiClientWithCapturedLogs(new Client([
+            'handler' => HandlerStack::create(new MockHandler([new Response(200)])),
+        ]), $logMessages);
+
+        try {
+            $apiClient->sendMessage($message, "log-token-marker\nInjected log line");
+            $this->fail('The request should have failed.');
+        } catch (OASwitchboardException $exception) {
+        }
+
+        $this->assertCount(1, $logMessages);
+        $this->assertStringNotContainsString('log-token-marker', $logMessages[0]);
+        $this->assertStringNotContainsString("\n", $logMessages[0]);
+    }
 }
