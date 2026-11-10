@@ -96,6 +96,26 @@ class OASwitchboardSettingsFormTest extends PKPTestCase
         $this->assertFalse($isValid);
     }
 
+    public function testSavePostedWithForgedCsrfTokenShouldFailValidation()
+    {
+        $this->mockRequest();
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST['csrfToken'] = 'forged-token';
+        $_POST['OASUsername'] = 'attacker@example.com';
+        $_POST['OASPassword'] = 'attacker-password';
+        $form = $this->createForm();
+
+        try {
+            $form->readInputData();
+            $isValid = $form->validate();
+        } finally {
+            unset($_POST['csrfToken'], $_POST['OASUsername'], $_POST['OASPassword']);
+            $_SERVER['REQUEST_METHOD'] = 'GET';
+        }
+
+        $this->assertFalse($isValid);
+    }
+
     public function testMissingCredentialsShouldBeReportedWithAMessage()
     {
         $this->mockRequest();
