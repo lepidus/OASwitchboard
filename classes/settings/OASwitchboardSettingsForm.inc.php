@@ -17,17 +17,20 @@ class OASwitchboardSettingsForm extends Form
         $this->plugin = $plugin;
         $this->contextId = $contextId;
         $this->apiKeyEncryption = new OASwitchboardAPIKeyEncryption();
-        $this->addFormValidators();
 
         $template = $this->apiKeyEncryption->secretConfigExists() ? 'settingsForm.tpl' : 'missingSecretConfigWarning.tpl';
         parent::__construct($plugin->getTemplateResource($template));
+        $this->addFormValidators();
     }
 
     private function addFormValidators(): void
     {
-        $fields = ['OASUsername', 'OASPassword'];
-        foreach ($fields as $field) {
-            $this->addCheck(new FormValidator($this, $field, FORM_VALIDATOR_REQUIRED_VALUE, null));
+        $requiredFieldMessages = [
+            'OASUsername' => 'plugins.generic.OASwitchboard.settings.usernameRequired',
+            'OASPassword' => 'plugins.generic.OASwitchboard.settings.passwordRequired',
+        ];
+        foreach ($requiredFieldMessages as $field => $message) {
+            $this->addCheck(new FormValidator($this, $field, FORM_VALIDATOR_REQUIRED_VALUE, $message));
         }
         $this->addCheck(new FormValidatorPost($this));
         $this->addCheck(new FormValidatorCSRF($this));

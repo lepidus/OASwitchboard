@@ -28,6 +28,12 @@ msgstr "Nombre de usuario:"
 msgid "plugins.generic.OASwitchboard.settings.password"
 msgstr "Contraseña:"
 
+msgid "plugins.generic.OASwitchboard.settings.usernameRequired"
+msgstr "El nombre de usuario es obligatorio."
+
+msgid "plugins.generic.OASwitchboard.settings.passwordRequired"
+msgstr "La contraseña es obligatoria."
+
 msgid "plugins.generic.OASwitchboard.settings.apiAuthenticatorFailed"
 msgstr "No se pudo autenticar, por favor, verifique las credenciales de la API de OA Switchboard."
 
