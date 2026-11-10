@@ -96,6 +96,19 @@ class OASwitchboardSettingsFormTest extends PKPTestCase
         $this->assertFalse($isValid);
     }
 
+    public function testMissingCredentialsShouldBeReportedWithAMessage()
+    {
+        $this->mockRequest();
+        $form = $this->createForm();
+
+        $form->readInputData();
+        $form->validate();
+
+        $errors = $form->getErrorsArray();
+        $this->assertSame(__('user.profile.form.usernameRequired'), $errors['OASUsername']);
+        $this->assertSame(__('user.profile.form.passwordRequired'), $errors['OASPassword']);
+    }
+
     public function testUsernameFieldShouldKeepWhatWasTypedAfterAFailedSave()
     {
         $this->mockRequest();
