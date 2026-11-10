@@ -148,6 +148,13 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
             return $this->submissionNotFound();
         }
 
+        if (!OASwitchboardService::isConfigured($this->plugin, $contextId)) {
+            return response()->json(
+                ['error' => __('plugins.generic.OASwitchboard.pluginIsNotConfigured')],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
         if (!$this->isPublished($submission)) {
             return response()->json(
                 ['error' => __('plugins.generic.OASwitchboard.resend.notPublished')],
@@ -199,12 +206,7 @@ class OASwitchboardStatusController implements HasAuthorizationPolicy
             return $this->submissionNotFound();
         }
 
-        $pluginConfigured = true;
-        try {
-            OASwitchboardService::validatePluginIsConfigured($this->plugin, $contextId);
-        } catch (\Exception $e) {
-            $pluginConfigured = false;
-        }
+        $pluginConfigured = OASwitchboardService::isConfigured($this->plugin, $contextId);
 
         $sendStatus = SendStatus::read($submission);
         $missingFields = $pluginConfigured

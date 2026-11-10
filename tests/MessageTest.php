@@ -127,6 +127,23 @@ class MessageTest extends DatabaseTestCase
         $this->assertNull($this->recordedStatus());
     }
 
+    public function testShouldNotLogAnErrorWhenPluginIsNotConfigured()
+    {
+        $message = $this->createMessage(configured: false);
+        $errorLog = tempnam(sys_get_temp_dir(), 'oaswitchboard');
+        $originalErrorLog = ini_set('error_log', $errorLog);
+
+        try {
+            $message->handlePublicationPublished($this->buildPublishedEvent(Submission::STATUS_PUBLISHED));
+        } finally {
+            ini_set('error_log', $originalErrorLog);
+        }
+
+        $loggedErrors = file_get_contents($errorLog);
+        unlink($errorLog);
+        $this->assertSame('', $loggedErrors);
+    }
+
     public function testShouldRecordPendingStatusAndDispatchSendJobWhenSchedulingDirectly()
     {
         $message = $this->createMessage();
