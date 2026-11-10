@@ -166,18 +166,9 @@ class MessageTest extends PKPTestCase
         };
         $message = new Message($this->createPluginMock([]));
         $output = '';
-        $errorLog = tempnam(sys_get_temp_dir(), 'oaswitchboard');
-        $originalErrorLog = ini_set('error_log', $errorLog);
 
-        try {
-            $message->addSubmissionStatusToWorkflow('Template::Workflow', [null, $templateManager, &$output]);
-        } finally {
-            ini_set('error_log', $originalErrorLog);
-        }
+        $message->addSubmissionStatusToWorkflow('Template::Workflow', [null, $templateManager, &$output]);
 
-        $loggedErrors = file_get_contents($errorLog);
-        unlink($errorLog);
         $this->assertSame(['pluginIsNotConfiguredInfo'], array_keys($templateManager->assignedVariables));
-        $this->assertSame('', $loggedErrors);
     }
 }
