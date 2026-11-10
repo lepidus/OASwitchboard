@@ -79,6 +79,23 @@ class OASwitchboardSettingsFormTest extends PKPTestCase
         $this->assertSame('stored@example.com', $form->getData('OASUsername'));
     }
 
+    public function testSaveSentByGetWithoutCsrfTokenShouldFailValidation()
+    {
+        $this->mockRequest();
+        $_GET['OASUsername'] = 'attacker@example.com';
+        $_GET['OASPassword'] = 'attacker-password';
+        $form = $this->createForm();
+
+        try {
+            $form->readInputData();
+            $isValid = $form->validate();
+        } finally {
+            unset($_GET['OASUsername'], $_GET['OASPassword']);
+        }
+
+        $this->assertFalse($isValid);
+    }
+
     public function testUsernameFieldShouldKeepWhatWasTypedAfterAFailedSave()
     {
         $this->mockRequest();

@@ -25,11 +25,11 @@ class OASwitchboardSettingsForm extends Form
     {
         $this->plugin = $plugin;
         $this->contextId = $contextId;
-        $this->addFormValidators();
         $this->apiKeyEncryption = new APIKeyEncryption();
 
         $template = $this->apiKeyEncryption->secretConfigExists() ? 'settingsForm.tpl' : 'missingSecretConfigWarning.tpl';
         parent::__construct($plugin->getTemplateResource($template));
+        $this->addFormValidators();
     }
 
     private function addFormValidators(): void
