@@ -98,6 +98,22 @@ class OASwitchboardSettingsFormTest extends PKPTestCase
         $this->assertFalse($form->validate());
     }
 
+    public function testMissingCredentialsShouldBeReportedWithAMessage()
+    {
+        $request = $this->createMock(Request::class);
+        $request->method('isPost')->willReturn(true);
+        $request->method('checkCSRF')->willReturn(true);
+        Registry::set('request', $request);
+        $form = new OASwitchboardSettingsForm($this->createPlugin(), 1);
+
+        $form->readInputData();
+        $form->validate();
+
+        $errors = $form->getErrorsArray();
+        $this->assertSame(__('user.profile.form.usernameRequired'), $errors['OASUsername']);
+        $this->assertSame(__('user.profile.form.passwordRequired'), $errors['OASPassword']);
+    }
+
     public function testUsernameFieldShouldKeepWhatWasTypedAfterAFailedSave()
     {
         $_POST['OASUsername'] = 'typed@example.com';
