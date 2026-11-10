@@ -79,6 +79,56 @@ class OASwitchboardSettingsFormTest extends PKPTestCase
         $this->assertSame('stored@example.com', $form->getData('OASUsername'));
     }
 
+    public function testSaveSentByGetWithoutCsrfTokenShouldFailValidation()
+    {
+        $this->mockRequest();
+        $_GET['OASUsername'] = 'attacker@example.com';
+        $_GET['OASPassword'] = 'attacker-password';
+        $form = $this->createForm();
+
+        try {
+            $form->readInputData();
+            $isValid = $form->validate();
+        } finally {
+            unset($_GET['OASUsername'], $_GET['OASPassword']);
+        }
+
+        $this->assertFalse($isValid);
+    }
+
+    public function testSavePostedWithForgedCsrfTokenShouldFailValidation()
+    {
+        $this->mockRequest();
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST['csrfToken'] = 'forged-token';
+        $_POST['OASUsername'] = 'attacker@example.com';
+        $_POST['OASPassword'] = 'attacker-password';
+        $form = $this->createForm();
+
+        try {
+            $form->readInputData();
+            $isValid = $form->validate();
+        } finally {
+            unset($_POST['csrfToken'], $_POST['OASUsername'], $_POST['OASPassword']);
+            $_SERVER['REQUEST_METHOD'] = 'GET';
+        }
+
+        $this->assertFalse($isValid);
+    }
+
+    public function testMissingCredentialsShouldBeReportedWithAMessage()
+    {
+        $this->mockRequest();
+        $form = $this->createForm();
+
+        $form->readInputData();
+        $form->validate();
+
+        $errors = $form->getErrorsArray();
+        $this->assertSame(__('user.profile.form.usernameRequired'), $errors['OASUsername']);
+        $this->assertSame(__('user.profile.form.passwordRequired'), $errors['OASPassword']);
+    }
+
     public function testUsernameFieldShouldKeepWhatWasTypedAfterAFailedSave()
     {
         $this->mockRequest();
