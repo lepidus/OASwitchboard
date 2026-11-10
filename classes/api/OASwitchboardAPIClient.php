@@ -191,7 +191,9 @@ class OASwitchboardAPIClient
             }
         } else {
             $logContext[] = 'exception=' . (new \ReflectionClass($exception))->getShortName();
-            $logContext[] = 'error=' . $this->describeTransferError($exception);
+            if ($exception instanceof TransferException) {
+                $logContext[] = 'error=' . $this->describeTransferError($exception);
+            }
         }
 
         $this->writeLog('OASwitchboard API request failed: ' . implode(' ', $logContext));
