@@ -127,8 +127,8 @@ class OASwitchboardSettingsFormTest extends PKPTestCase
         $form->validate();
 
         $errors = $form->getErrorsArray();
-        $this->assertSame(__('user.profile.form.usernameRequired'), $errors['OASUsername']);
-        $this->assertSame(__('user.profile.form.passwordRequired'), $errors['OASPassword']);
+        $this->assertSame('##plugins.generic.OASwitchboard.settings.usernameRequired##', $errors['OASUsername']);
+        $this->assertSame('##plugins.generic.OASwitchboard.settings.passwordRequired##', $errors['OASPassword']);
     }
 
     public function testUsernameFieldShouldKeepWhatWasTypedAfterAFailedSave()

@@ -26,8 +26,8 @@ class OASwitchboardSettingsForm extends Form
     private function addFormValidators(): void
     {
         $requiredFieldMessages = [
-            'OASUsername' => 'user.profile.form.usernameRequired',
-            'OASPassword' => 'user.profile.form.passwordRequired',
+            'OASUsername' => 'plugins.generic.OASwitchboard.settings.usernameRequired',
+            'OASPassword' => 'plugins.generic.OASwitchboard.settings.passwordRequired',
         ];
         foreach ($requiredFieldMessages as $field => $message) {
             $this->addCheck(new FormValidator($this, $field, FORM_VALIDATOR_REQUIRED_VALUE, $message));
