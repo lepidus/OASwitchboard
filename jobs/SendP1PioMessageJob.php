@@ -20,6 +20,7 @@ use APP\plugins\generic\OASwitchboard\classes\exceptions\P1PioException;
 use APP\plugins\generic\OASwitchboard\classes\exceptions\UnconfirmedDeliveryException;
 use APP\plugins\generic\OASwitchboard\classes\OASwitchboardService;
 use APP\plugins\generic\OASwitchboard\classes\SendStatus;
+use APP\submission\Submission;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use PKP\core\Core;
@@ -81,6 +82,11 @@ class SendP1PioMessageJob extends BaseJob implements ShouldBeUnique
         }
 
         if ($this->wasAlreadySent($submission)) {
+            return;
+        }
+
+        if ($submission->getData('status') !== Submission::STATUS_PUBLISHED) {
+            SendStatus::recordFailure($submission, __('plugins.generic.OASwitchboard.resend.notPublished'));
             return;
         }
 

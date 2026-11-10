@@ -38,6 +38,7 @@ class SendP1PioMessageJobTest extends DatabaseTestCase
         $this->submissionId = DB::table('submissions')->value('submission_id');
         $this->submission = new Submission();
         $this->submission->setId($this->submissionId);
+        $this->submission->setData('status', Submission::STATUS_PUBLISHED);
         $this->registeredEventLogEntry = null;
         $this->registerSubmissionRepositoryMock();
         $this->registerEventLogRepositoryMock();
@@ -193,6 +194,24 @@ class SendP1PioMessageJobTest extends DatabaseTestCase
         $job = $this->createJobWithService($service);
         $job->handle();
 
+        $this->assertNull($this->registeredEventLogEntry);
+    }
+
+    public function testShouldNotSendWhenSubmissionWasUnpublishedBeforeTheJobRan()
+    {
+        SendStatus::recordPending($this->submission);
+        $this->submission->setData('status', Submission::STATUS_QUEUED);
+
+        $service = $this->createMock(OASwitchboardService::class);
+        $service->expects($this->never())
+            ->method('sendP1PioMessage');
+
+        $job = $this->createJobWithService($service);
+        $job->handle();
+
+        $sendStatus = $this->recordedSendStatus();
+        $this->assertSame(SendStatus::STATUS_FAILED, $sendStatus['status']);
+        $this->assertSame('##plugins.generic.OASwitchboard.resend.notPublished##', $sendStatus['error']);
         $this->assertNull($this->registeredEventLogEntry);
     }
 
