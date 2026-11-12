@@ -60,6 +60,20 @@ Duas configurações comuns do OJS das quais o plugin depende, normalmente já e
 
 Ambas são configurações únicas, válidas para toda a instalação.
 
+### Testes com a API sandbox
+
+Para testar o plugin sem enviar mensagens reais, quem tem acesso ao servidor pode apontá-lo para a API sandbox do OA Switchboard adicionando ao `config.inc.php` do OJS:
+
+```ini
+[oaswitchboard]
+sandbox = On
+```
+
+Depois, informe o userID e a senha **do sandbox** nas *Configurações* do plugin. A opção vale para toda a instalação. Remova-a, ou use `Off`, para voltar à API de produção.
+
+> [!WARNING]
+> Em versões anteriores o sandbox era escolhido nas configurações do plugin. Ao atualizar o plugin, as revistas que tinham essa opção ativada têm as credenciais apagadas e precisam informá-las novamente.
+
 ## No dia a dia
 
 Tudo acontece na aba **OA Switchboard** da submissão.

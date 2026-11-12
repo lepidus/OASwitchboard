@@ -60,6 +60,20 @@ Dos ajustes habituales de OJS de los que depende el módulo, que normalmente ya 
 
 Ambos son ajustes únicos, válidos para toda la instalación.
 
+### Pruebas con la API sandbox
+
+Para probar el módulo sin enviar mensajes reales, quien tenga acceso al servidor puede dirigirlo a la API sandbox de OA Switchboard añadiendo al `config.inc.php` de OJS:
+
+```ini
+[oaswitchboard]
+sandbox = On
+```
+
+Después, introduzca el userID y la contraseña **del sandbox** en los *Ajustes* del módulo. El ajuste vale para toda la instalación. Elimínelo, o use `Off`, para volver a la API de producción.
+
+> [!WARNING]
+> En versiones anteriores el sandbox se elegía en los ajustes del módulo. Al actualizar el módulo, las revistas que tenían esa opción activada pierden sus credenciales y deben introducirlas de nuevo.
+
 ## En el día a día
 
 Todo ocurre en la pestaña **OA Switchboard** del envío.

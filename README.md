@@ -60,6 +60,20 @@ Two standard OJS settings the plugin relies on, normally already in place:
 
 Both are one-time, installation-wide settings.
 
+### Testing with the sandbox API
+
+To try the plugin without sending real messages, someone with access to the server can point it to the OA Switchboard sandbox API by adding this to the OJS `config.inc.php`:
+
+```ini
+[oaswitchboard]
+sandbox = On
+```
+
+Then enter your **sandbox** userID and password in the plugin's *Settings*. The switch applies to the whole installation. Remove it, or set it to `Off`, to go back to the production API.
+
+> [!WARNING]
+> Earlier versions chose the sandbox in the plugin's settings. When the plugin is upgraded, journals that had that option on have their credentials cleared and must enter them again.
+
 ## Day-to-day use
 
 Everything happens in the **OA Switchboard** tab of a submission.
