@@ -21,6 +21,7 @@ Este módulo permite que las revistas de **[OJS](https://pkp.sfu.ca/software/ojs
     - [Requisitos de la Publicación](#requisitos-de-la-publicación)
 5. [Uso](#uso)
     - [Video de demostración](#video-de-demostración)
+    - [Pruebas con la API sandbox](#pruebas-con-la-api-sandbox)
 6. [¿Qué campos de metadatos se incluyen en el mensaje?](#qué-campos-de-metadatos-se-incluyen-en-el-mensaje)
 7. [Créditos](#créditos)
 8. [Licencia](#licencia)
@@ -84,6 +85,20 @@ Se recomienda que al menos un autor del artículo tenga un **ROR ID** asociado a
 Este es un video demostrativo para guiarle a través de la instalación y el uso básico del módulo.
 
 [![Video Demo](https://img.shields.io/badge/Video%20Demo-Click%20Here-blue?logo=video)](https://vimeo.com/997938301/c62617794b)
+
+### Pruebas con la API sandbox
+
+Para probar el módulo sin enviar mensajes reales, quien tenga acceso al servidor puede dirigirlo a la API sandbox de OA Switchboard añadiendo al `config.inc.php` de OJS:
+
+```ini
+[oaswitchboard]
+sandbox = On
+```
+
+Después, introduzca el userID y la contraseña **del sandbox** en los *Ajustes* del módulo. El ajuste vale para toda la instalación. Elimínelo, o use `Off`, para volver a la API de producción.
+
+> [!WARNING]
+> En versiones anteriores el sandbox se elegía en los ajustes del módulo. Al actualizar el módulo, las revistas que tenían esa opción activada pierden sus credenciales y deben introducirlas de nuevo.
 
 ## ¿Qué campos de metadatos se incluyen en el mensaje?
 

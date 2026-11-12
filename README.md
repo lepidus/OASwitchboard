@@ -21,6 +21,7 @@ This plugin enables **[OJS](https://pkp.sfu.ca/software/ojs/)** journals to auto
     - [Publication Requirements](#publication-requirements)
 5. [Usage](#usage)
     - [Demonstration video](#demonstration-video)
+    - [Testing with the sandbox API](#testing-with-the-sandbox-api)
 6. [What metadata fields are included in the message?](#what-metadata-fields-are-included-in-the-message)
 7. [Credits](#credits)
 8. [License](#license)
@@ -85,6 +86,20 @@ to provide that information for the article.
 This is a demonstration video to guide you through the installation and basic usage of the plugin.
 
 [![Video Demo](https://img.shields.io/badge/Video%20Demo-Click%20Here-blue?logo=video)](https://vimeo.com/997938301/c62617794b)
+
+### Testing with the sandbox API
+
+To try the plugin without sending real messages, someone with access to the server can point it to the OA Switchboard sandbox API by adding this to the OJS `config.inc.php`:
+
+```ini
+[oaswitchboard]
+sandbox = On
+```
+
+Then enter your **sandbox** userID and password in the plugin's *Settings*. The switch applies to the whole installation. Remove it, or set it to `Off`, to go back to the production API.
+
+> [!WARNING]
+> Earlier versions chose the sandbox in the plugin's settings. When the plugin is upgraded, journals that had that option on have their credentials cleared and must enter them again.
 
 ## What metadata fields are included in the message?
 
