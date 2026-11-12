@@ -17,6 +17,7 @@ This plugin enables **[OJS](https://pkp.sfu.ca/software/ojs/)** journals to auto
     - [Journal Requirements](#journal-requirements)
     - [Publication Requirements](#publication-requirements)
 5. [Usage](#usage)
+    - [Testing with the sandbox API](#testing-with-the-sandbox-api)
 6. [What metadata fields are included in the message?](#what-metadata-fields-are-included-in-the-message)
 7. [Credits](#credits)
 8. [License](#license)
@@ -82,6 +83,20 @@ to provide that information for the article.
 * In the moment of the publication of an article, a P1-PIO Message will be sent to OASwitchboard via API, if all publication requirements are met.
   * In success, you should see a green notification.
 * A new message is sent every time an article is published: when a new version is published, when an unpublished article is published again, and when OJS publishes an article scheduled in an issue.
+
+### Testing with the sandbox API
+
+To try the plugin without sending real messages, someone with access to the server can point it to the OA Switchboard sandbox API by adding this to the OJS `config.inc.php`:
+
+```ini
+[oaswitchboard]
+sandbox = On
+```
+
+Then enter your **sandbox** userID and password in the plugin's *Settings*. The switch applies to the whole installation. Remove it, or set it to `Off`, to go back to the production API.
+
+> [!WARNING]
+> Earlier versions chose the sandbox in the plugin's settings. When the plugin is upgraded, journals that had that option on have their credentials cleared and must enter them again.
 
 ## What metadata fields are included in the message?
 

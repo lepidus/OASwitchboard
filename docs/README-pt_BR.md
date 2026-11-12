@@ -17,6 +17,7 @@ Este plugin permite que revistas do **[OJS](https://pkp.sfu.ca/software/ojs/)** 
     - [Requisitos da Revista](#requisitos-da-revista)
     - [Requisitos da Publicação](#requisitos-da-publicação)
 5. [Uso](#uso)
+    - [Testes com a API sandbox](#testes-com-a-api-sandbox)
 6. [Quais campos de metadados são incluídos na mensagem?](#quais-campos-de-metadados-são-incluídos-na-mensagem)
 7. [Créditos](#créditos)
 8. [Licença](#licença)
@@ -81,6 +82,20 @@ Recomenda-se que pelo menos um autor do artigo tenha um **ROR ID** associado à 
 * No momento da publicação de um artigo, uma mensagem P1-PIO será enviada ao OASwitchboard via API, se todos os requisitos da publicação forem atendidos.
   * Em caso de sucesso, você verá uma notificação verde.
 * Uma nova mensagem é enviada a cada publicação do artigo: quando uma nova versão é publicada, quando um artigo despublicado é publicado de novo e quando o OJS publica um artigo agendado numa edição.
+
+### Testes com a API sandbox
+
+Para testar o plugin sem enviar mensagens reais, quem tem acesso ao servidor pode apontá-lo para a API sandbox do OA Switchboard adicionando ao `config.inc.php` do OJS:
+
+```ini
+[oaswitchboard]
+sandbox = On
+```
+
+Depois, informe o userID e a senha **do sandbox** nas *Configurações* do plugin. A opção vale para toda a instalação. Remova-a, ou use `Off`, para voltar à API de produção.
+
+> [!WARNING]
+> Em versões anteriores o sandbox era escolhido nas configurações do plugin. Ao atualizar o plugin, as revistas que tinham essa opção ativada têm as credenciais apagadas e precisam informá-las novamente.
 
 ## Quais campos de metadados são incluídos na mensagem?
 
